@@ -1,0 +1,68 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+
+export default function CustomCursor() {
+  const dotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (window.matchMedia("(max-width: 1023px)").matches) return;
+
+    const ring = { x: 0, y: 0 };
+    let raf = 0;
+
+    let ringX = 0;
+    let ringY = 0;
+    let scale = 1;
+
+    function onMove(e: MouseEvent) {
+      if (dotRef.current) {
+        dotRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
+      }
+      ring.x = e.clientX;
+      ring.y = e.clientY;
+    }
+
+    function loop() {
+      ringX += (ring.x - ringX) * 0.15;
+      ringY += (ring.y - ringY) * 0.15;
+      if (ringRef.current) {
+        ringRef.current.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%) scale(${scale})`;
+      }
+      raf = requestAnimationFrame(loop);
+    }
+
+    function onDown() {
+      scale = 0.75;
+    }
+    function onUp() {
+      scale = 1;
+    }
+
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mousedown", onDown);
+    window.addEventListener("mouseup", onUp);
+    raf = requestAnimationFrame(loop);
+
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mouseup", onUp);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  return (
+    <div className="hidden lg:block pointer-events-none fixed inset-0 z-[999999999]">
+      <div
+        ref={dotRef}
+        className="fixed top-0 left-0 w-1.5 h-1.5 rounded-full bg-ink mix-blend-difference"
+      />
+      <div
+        ref={ringRef}
+        className="fixed top-0 left-0 w-8 h-8 rounded-full border border-ink mix-blend-difference"
+      />
+    </div>
+  );
+}

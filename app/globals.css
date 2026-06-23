@@ -1,26 +1,188 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #efedea;
+  --foreground: #191919;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-cream: #efedea;
+  --color-ink: #191919;
+  --color-media-gray: #e3e1de;
+  --font-kumbh: var(--font-kumbh);
+  --font-psl: var(--font-psl);
+  --font-psr: var(--font-psr);
+  --font-nhm: var(--font-nhm);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
+html,
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  font-family: var(--font-nhm), sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+  cursor: none;
+}
+
+a,
+button {
+  cursor: none;
+}
+
+@media (max-width: 1023px) {
+  body,
+  a,
+  button {
+    cursor: auto;
+  }
+}
+
+/* ---- adcker-derived typography utilities ---- */
+
+.text-h1,
+.text-h1-2 {
+  overflow: hidden;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  font-family: var(--font-kumbh), sans-serif;
+  text-transform: uppercase;
+  line-height: 0.78;
+  letter-spacing: -0.05em;
+}
+
+.text-h1 {
+  font-size: calc(0.75em + 12vw);
+}
+
+.text-h1-2 {
+  font-size: 12vw;
+}
+
+.text-menu {
+  overflow: hidden;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  font-family: var(--font-kumbh), sans-serif;
+  font-size: calc(2.5em + 6vw);
+  text-transform: uppercase;
+  line-height: 0.78;
+  letter-spacing: -0.05em;
+}
+
+.text-h2,
+.text-h3 {
+  font-family: var(--font-psl), serif;
+  letter-spacing: -0.015em;
+}
+
+.text-h2 {
+  font-size: calc(2.5em + 2vw);
+  line-height: 1;
+}
+
+.text-h3 {
+  font-size: calc(1.25em + 1vw);
+  line-height: 1.2;
+}
+
+.text-note {
+  font-family: var(--font-psr), serif;
+  font-size: 16px;
+  line-height: 1;
+}
+
+@media (min-width: 768px) {
+  .text-note {
+    font-size: 21px;
+  }
+}
+
+.text-body-h2 {
+  font-family: var(--font-psr), serif;
+  font-size: calc(1.75em + 1.4vw);
+}
+
+@media (min-width: 1024px) {
+  .text-body-h2 {
+    font-family: var(--font-nhm), sans-serif;
+    font-size: 21px;
+  }
+}
+
+.text-body {
+  font-family: var(--font-nhm), sans-serif;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+/* ---- layout primitives ---- */
+
+.page-margin {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.page-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .page-grid {
+    column-gap: 15px;
+  }
+}
+
+/* ---- link underline pattern ---- */
+
+.body-link {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  padding-bottom: 2px;
+  line-height: 1.1;
+}
+
+.body-link::after {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  border-bottom: 1px solid currentColor;
+  content: "";
+}
+
+/* ---- scroll reveal ---- */
+
+.reveal-line {
+  overflow: hidden;
+}
+
+.reveal-inner {
+  display: block;
+  transform: translateY(100%);
+  transition: transform 1s cubic-bezier(0.82, 0, 0.18, 1);
+}
+
+.reveal-line.is-visible .reveal-inner {
+  transform: translateY(0);
+}
+
+/* ---- media grayscale hover ---- */
+
+.media-grayscale {
+  filter: grayscale(1);
+  transition: filter 0.7s cubic-bezier(0.82, 0, 0.18, 1);
+}
+
+.media-grayscale:hover {
+  filter: grayscale(0);
 }
