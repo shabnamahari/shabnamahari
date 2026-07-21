@@ -55,13 +55,15 @@ export default function CustomCursor() {
 
   return (
     <div className="hidden lg:block pointer-events-none fixed inset-0 z-[999999999]">
+      {/* Solid accent, no blend mode: difference blending against the site's own
+          near-black made the cursor cancel out to nothing on dark sections. */}
       <div
         ref={dotRef}
-        className="fixed top-0 left-0 w-1.5 h-1.5 rounded-full bg-ink mix-blend-difference"
+        className="fixed top-0 left-0 w-1.5 h-1.5 rounded-full bg-cursor"
       />
       <div
         ref={ringRef}
-        className="fixed top-0 left-0 w-8 h-8 rounded-full border border-ink mix-blend-difference"
+        className="fixed top-0 left-0 w-8 h-8 rounded-full border border-cursor"
       />
     </div>
   );

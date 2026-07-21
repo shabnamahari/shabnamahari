@@ -5,6 +5,7 @@ import "./globals.css";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import CustomCursor from "@/components/CustomCursor";
 import LightboxProvider from "@/components/Lightbox";
+import SiteChrome from "@/components/SiteChrome";
 
 const kumbhSans = Kumbh_Sans({
   variable: "--font-kumbh",
@@ -51,7 +52,9 @@ export default function RootLayout({
       <body className="bg-cream text-ink font-nhm text-body antialiased">
         <CustomCursor />
         <SmoothScrollProvider>
-          <LightboxProvider>{children}</LightboxProvider>
+          <LightboxProvider>
+            <SiteChrome>{children}</SiteChrome>
+          </LightboxProvider>
         </SmoothScrollProvider>
       </body>
     </html>

@@ -1,29 +1,18 @@
 "use client";
 
-import Image from "next/image";
 import RevealLine from "./RevealLine";
 import Asterisk from "./Asterisk";
 import ParenMedia from "./ParenMedia";
-import { useLightbox } from "./Lightbox";
+import VideoSlot from "./VideoSlot";
 
-const HERO_IMAGE = "https://picsum.photos/seed/adcker-hero/800/800";
+// Drop your file in public/videos/ and set this, e.g. "/videos/hero.mp4".
+const HERO_VIDEO: string | undefined = undefined;
 
 export default function Hero() {
-  const openLightbox = useLightbox();
-
-  const media = (
-    <Image
-      src={HERO_IMAGE}
-      alt="Showreel"
-      fill
-      sizes="200px"
-      className="object-cover"
-      unoptimized
-    />
-  );
+  const media = <VideoSlot src={HERO_VIDEO} label="Showreel" />;
 
   return (
-    <section className="flex min-h-[100svh] w-full flex-col items-center justify-center gap-y-2 overflow-hidden py-[15px]">
+    <h1 className="flex min-h-[100svh] w-full flex-col items-center justify-center gap-y-2 overflow-hidden py-[15px]">
       <div className="flex w-full justify-center overflow-hidden">
         <RevealLine className="text-h1 text-center whitespace-nowrap">
           The Art
@@ -38,22 +27,8 @@ export default function Hero() {
           delay={0.0667}
           className="text-h1 font-bold flex items-center justify-center"
         >
-          <ParenMedia
-            onClick={() =>
-              openLightbox(
-                <Image
-                  src={HERO_IMAGE}
-                  alt="Showreel"
-                  width={1000}
-                  height={1000}
-                  unoptimized
-                  className="h-auto w-full"
-                />,
-              )
-            }
-          >
-            {media}
-          </ParenMedia>
+          {/* Plays in place — no lightbox, no navigation. */}
+          <ParenMedia>{media}</ParenMedia>
         </RevealLine>
         <span className="text-note absolute right-28 top-1/2 max-md:hidden -translate-y-1/2 translate-x-full pl-[1vw] md:pl-[1.5vw]">
           Showreel
@@ -66,13 +41,21 @@ export default function Hero() {
         </RevealLine>
       </div>
 
-      <div className="relative flex w-full justify-center overflow-hidden">
-        <RevealLine delay={0.2} className="text-h1 text-center whitespace-nowrap">
-          Hacking
-        </RevealLine>
-        <span className="text-note absolute left-4 top-1/2 max-md:hidden -translate-x-full -translate-y-1/2" style={{ marginLeft: "-1.5vw" }}>
-          We&rsquo;re built for
-        </span>
+      <div className="flex w-full justify-center">
+        <div className="relative flex">
+          <RevealLine
+            delay={0.2}
+            className="text-h1 text-center whitespace-nowrap"
+          >
+            Hacking
+          </RevealLine>
+          <span
+            className="text-note absolute left-0 top-1/2 max-md:hidden -translate-x-full -translate-y-1/2"
+            style={{ marginLeft: "-1.5vw" }}
+          >
+            We&rsquo;re built for
+          </span>
+        </div>
       </div>
 
       <div className="flex w-full justify-center overflow-hidden">
@@ -80,6 +63,6 @@ export default function Hero() {
           Social
         </RevealLine>
       </div>
-    </section>
+    </h1>
   );
 }

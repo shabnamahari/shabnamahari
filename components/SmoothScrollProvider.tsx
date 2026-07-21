@@ -11,11 +11,8 @@ export default function SmoothScrollProvider({
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) =>
-        t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
-    });
+    // Matches adcker.com, which runs Lenis in lerp mode rather than duration mode.
+    const lenis = new Lenis({ lerp: 0.13 });
     lenisRef.current = lenis;
     window.__lenis = lenis;
 

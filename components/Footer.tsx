@@ -1,11 +1,11 @@
 "use client";
 
 import RevealLine from "./RevealLine";
+import FooterWordmark from "./FooterWordmark";
 
 const MENU_LINKS = [
   { label: "Index", href: "/" },
   { label: "Services", href: "/services" },
-  { label: "Our Work", href: "/our-work" },
   { label: "About", href: "/about" },
 ];
 
@@ -13,14 +13,6 @@ const REACH_OUT_LINKS = [
   { label: "Email", href: "mailto:hello@adcker.com" },
   { label: "Instagram", href: "https://instagram.com" },
 ];
-
-function scrollToTop() {
-  if (typeof window !== "undefined" && window.__lenis) {
-    window.__lenis.scrollTo(0, { duration: 1 });
-  } else if (typeof window !== "undefined") {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-}
 
 export default function Footer() {
   return (
@@ -47,7 +39,12 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-y-[60px] pb-[100px] md:gap-x-[15px] md:pb-[200px]">
+      {/* Contact from the menu lands here: the nav row sits at the top of the
+          viewport with the wordmark filling the rest, matching the original. */}
+      <div
+        id="contact"
+        className="grid grid-cols-12 gap-y-[60px] pb-[100px] md:gap-x-[15px] md:pb-[200px]"
+      >
         <div className="col-span-12 grid grid-cols-5 md:col-span-6 md:grid-cols-4">
           <div className="col-span-2 whitespace-nowrap md:col-span-1">
             ( Menu )
@@ -81,14 +78,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={scrollToTop}
-        aria-label="Back to top"
-        className="text-h1-2 block w-full text-center font-kumbh font-bold lowercase leading-[0.78] tracking-tight"
-      >
-        adkr.
-      </button>
+      <FooterWordmark />
 
       <div className="flex justify-between py-[15px] text-sm">
         <div>© 2025</div>

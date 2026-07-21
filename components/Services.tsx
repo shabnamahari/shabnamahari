@@ -1,9 +1,7 @@
-"use client";
-
 import Image from "next/image";
 import RevealLine from "./RevealLine";
 import ParenMedia from "./ParenMedia";
-import { useLightbox } from "./Lightbox";
+import { HOMEPAGE_LINKS } from "@/lib/projects";
 
 const IMAGES = {
   beauty: "https://picsum.photos/seed/adcker-beauty/800/800",
@@ -25,21 +23,6 @@ function ServiceMedia({ src, alt }: { src: string; alt: string }) {
 }
 
 export default function Services() {
-  const openLightbox = useLightbox();
-
-  function openImage(src: string, alt: string) {
-    openLightbox(
-      <Image
-        src={src}
-        alt={alt}
-        width={1000}
-        height={1000}
-        unoptimized
-        className="h-auto w-full"
-      />,
-    );
-  }
-
   return (
     <section className="page-margin flex flex-col items-center gap-y-2 py-[100px] md:py-[200px]">
       <div className="relative flex w-full justify-center overflow-hidden">
@@ -61,9 +44,7 @@ export default function Services() {
         >
           <span className="inline-flex items-center gap-x-[2vw]">
             Beauty
-            <ParenMedia
-              onClick={() => openImage(IMAGES.beauty, "Beauty")}
-            >
+            <ParenMedia href={HOMEPAGE_LINKS.beauty} label="Beauty">
               <ServiceMedia src={IMAGES.beauty} alt="Beauty" />
             </ParenMedia>
           </span>
@@ -94,9 +75,7 @@ export default function Services() {
           className="text-h1-2 flex items-center whitespace-nowrap"
         >
           <span className="inline-flex items-center gap-x-[2vw]">
-            <ParenMedia
-              onClick={() => openImage(IMAGES.fashion, "Fashion")}
-            >
+            <ParenMedia href={HOMEPAGE_LINKS.fashion} label="Fashion">
               <ServiceMedia src={IMAGES.fashion} alt="Fashion" />
             </ParenMedia>
             and
@@ -112,7 +91,7 @@ export default function Services() {
 
       <div className="relative flex w-full justify-center overflow-hidden">
         <RevealLine delay={0.333} className="text-h1-2 flex items-center justify-center">
-          <ParenMedia onClick={() => openImage(IMAGES.wellness, "Wellness")}>
+          <ParenMedia href={HOMEPAGE_LINKS.wellness} label="Wellness">
             <ServiceMedia src={IMAGES.wellness} alt="Wellness" />
           </ParenMedia>
         </RevealLine>

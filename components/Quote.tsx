@@ -24,9 +24,9 @@ export default function Quote() {
         More about us
       </a>
 
-      <div className="flex w-full max-md:flex-col max-md:items-center justify-between gap-y-[50px] md:justify-center md:gap-x-[15px]">
+      <div className="flex w-full justify-center max-md:flex-col max-md:items-center max-md:gap-y-[50px] md:justify-between">
         {THUMBNAILS.map((thumb) => (
-          <div key={thumb.num} className="flex flex-col items-center gap-y-[15px]">
+          <div key={thumb.num} className="flex flex-col gap-y-[15px] self-center">
             <span className="text-note">( {thumb.num} )</span>
             <div className="relative aspect-[4/3] w-[218px] overflow-hidden bg-media-gray md:w-[150px] xl:w-[218px]">
               <Image
