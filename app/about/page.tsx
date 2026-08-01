@@ -6,24 +6,17 @@ import ParenMedia from "@/components/ParenMedia";
 import VideoSlot from "@/components/VideoSlot";
 
 export const metadata: Metadata = {
-  title: "About — Adcker",
-  description: "The minds behind Adcker.",
+  title: "About — Shabnam Ahari",
+  description:
+    "I know what it feels like to be judged on a language that isn't yours.",
 };
 
-// Swap these two for your own photos and names.
-const TEAM = [
-  {
-    num: "01",
-    name: "Ana Haack",
-    role: "( Founder )",
-    image: "https://picsum.photos/seed/adcker-person-1/900/675",
-  },
-  {
-    num: "02",
-    name: "Gabriela Osuna",
-    role: null,
-    image: "https://picsum.photos/seed/adcker-person-2/900/675",
-  },
+// Swap these three for real photos — one per brand-guide pose:
+// authority (direct eye contact), at work (head down over paper), hands only.
+const PHOTOS = [
+  { num: "01", image: "https://picsum.photos/seed/shabnam-photo-1/900/675" },
+  { num: "02", image: "https://picsum.photos/seed/shabnam-photo-2/900/675" },
+  { num: "03", image: "https://picsum.photos/seed/shabnam-photo-3/900/675" },
 ];
 
 export default function AboutPage() {
@@ -32,25 +25,8 @@ export default function AboutPage() {
       <h1 className="flex min-h-[100svh] w-full flex-col items-center justify-center gap-y-2 overflow-hidden py-[15px]">
         <div className="flex w-full justify-center overflow-hidden">
           <RevealLine className="text-h1 text-center whitespace-nowrap">
-            We
+            I am
           </RevealLine>
-        </div>
-
-        <div className="flex w-full justify-center">
-          <div className="relative flex">
-            <RevealLine
-              delay={0.0667}
-              className="text-h1 text-center whitespace-nowrap"
-            >
-              Are
-            </RevealLine>
-            <span
-              className="text-note absolute left-0 top-1/2 max-md:hidden -translate-x-full -translate-y-1/2"
-              style={{ marginLeft: "-2vw" }}
-            >
-              The team
-            </span>
-          </div>
         </div>
 
         <div className="relative flex shrink-0 items-center px-28">
@@ -58,11 +34,11 @@ export default function AboutPage() {
             <Asterisk />
           </span>
           <RevealLine
-            delay={0.133}
+            delay={0.0667}
             className="text-h1 flex items-center justify-center font-bold"
           >
             <ParenMedia>
-              <VideoSlot label="The team" />
+              <VideoSlot label="Me" />
             </ParenMedia>
           </RevealLine>
           <span className="text-note absolute right-28 top-1/2 max-md:hidden -translate-y-1/2 translate-x-full pl-[1vw] md:pl-[1.5vw]">
@@ -71,39 +47,46 @@ export default function AboutPage() {
         </div>
 
         <div className="flex w-full justify-center overflow-hidden">
+          <RevealLine delay={0.133} className="text-h1 text-center whitespace-nowrap">
+            Shabnam
+          </RevealLine>
+        </div>
+
+        <div className="flex w-full justify-center overflow-hidden">
           <RevealLine delay={0.2} className="text-h1 text-center whitespace-nowrap">
-            Adcker
+            Ahari
           </RevealLine>
         </div>
       </h1>
 
       <div className="page-margin page-grid">
         <div className="col-span-10 col-start-2 flex flex-col items-center justify-center gap-y-[30px]">
-          <RevealLine as="h2" className="text-h2 pt-2 text-center">
-            Our story is built on a deep understanding of beauty, fashion, and
-            wellness.
+          <RevealLine as="h2" className="text-h2 text-confirm pt-2 text-center">
+            I know what it feels like to be judged on a language that
+            isn&rsquo;t yours.
           </RevealLine>
           <p className="max-w-3xl text-center">
-            This allows us to craft authentic, cohesive strategies that connect
-            with your audience. With a keen eye on industry trends, we ensure
-            your brand stays ahead of the curve.
+            I was a second-language student myself, with my own learning
+            differences to work around. That&rsquo;s exactly why I listen
+            before I correct — and why I don&rsquo;t sugarcoat what&rsquo;s
+            not working.
           </p>
         </div>
       </div>
 
       <div className="page-margin page-grid">
         <div className="col-span-10 col-start-2 flex flex-col items-center justify-center gap-y-[30px]">
-          <RevealLine as="h2" className="text-h2 pt-2 text-center">
-            We specialize in creating hyper-targeted strategies unique to your
-            brand.
+          <RevealLine as="h2" className="text-h2 text-confirm pt-2 text-center">
+            I find what&rsquo;s actually costing you marks, adapt fast, and
+            stay until it&rsquo;s fixed.
           </RevealLine>
           <p className="max-w-3xl text-center">
-            Leveraging our expertise to navigate the competitive landscape, we
-            combine Gen Z insights with years of experience to guarantee
-            engaging, impactful results for your brand.
+            Years of teaching English have shaped how I work. IELTS is where
+            I&rsquo;ve focused that experience most recently — the same
+            method, aimed at your exact band.
           </p>
           <a href="/services" className="body-link">
-            More about our services
+            More about our programs
           </a>
         </div>
       </div>
@@ -112,28 +95,25 @@ export default function AboutPage() {
         <div className="page-grid">
           <div className="col-span-10 col-start-2 flex justify-center">
             <RevealLine as="h2" className="text-h2 pt-2 text-center">
-              Meet the creative leaders behind Adcker
+              A normal day: marking, correcting, and staying a little longer
+              than planned.
             </RevealLine>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-x-[15px] gap-y-[50px] md:grid-cols-2">
-          {TEAM.map((person) => (
-            <div key={person.num} className="flex flex-col gap-y-[15px]">
-              <span className="text-note">( {person.num} )</span>
+        <div className="grid grid-cols-1 gap-x-[15px] gap-y-[50px] sm:grid-cols-2 lg:grid-cols-3">
+          {PHOTOS.map((photo) => (
+            <div key={photo.num} className="flex flex-col gap-y-[15px]">
+              <span className="text-note">( {photo.num} )</span>
               <div className="relative aspect-[4/3] w-full overflow-hidden bg-media-gray">
                 <Image
-                  src={person.image}
-                  alt={person.name}
+                  src={photo.image}
+                  alt={`Shabnam Ahari ${photo.num}`}
                   fill
-                  sizes="(min-width: 768px) 50vw, 100vw"
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                   unoptimized
                   className="object-cover"
                 />
-              </div>
-              <div className="font-semibold">
-                {person.name}
-                {person.role && ` ${person.role}`}
               </div>
             </div>
           ))}

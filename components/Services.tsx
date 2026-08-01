@@ -44,7 +44,7 @@ export default function Services() {
         >
           <span className="inline-flex items-center gap-x-[2vw]">
             IELTS
-            <ParenMedia href={HOMEPAGE_LINKS.beauty} label="IELTS">
+            <ParenMedia href={HOMEPAGE_LINKS.ielts} label="IELTS">
               <ServiceMedia src={IMAGES.beauty} alt="IELTS" />
             </ParenMedia>
           </span>
@@ -75,7 +75,7 @@ export default function Services() {
           className="text-h1-2 flex items-center whitespace-nowrap"
         >
           <span className="inline-flex items-center gap-x-[2vw]">
-            <ParenMedia href={HOMEPAGE_LINKS.fashion} label="Blogposts">
+            <ParenMedia href={HOMEPAGE_LINKS.blogposts} label="Blogposts">
               <ServiceMedia src={IMAGES.fashion} alt="Blogposts" />
             </ParenMedia>
             and
@@ -96,7 +96,7 @@ export default function Services() {
 
       <div className="relative flex w-full justify-center overflow-hidden">
         <RevealLine delay={0.333} className="text-h1-2 flex items-center justify-center">
-          <ParenMedia href={HOMEPAGE_LINKS.wellness} label="Business English">
+          <ParenMedia href={HOMEPAGE_LINKS.businessEnglish} label="Business English">
             <ServiceMedia src={IMAGES.wellness} alt="Business English" />
           </ParenMedia>
         </RevealLine>

@@ -19,7 +19,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const project = getProject(slug);
-  return { title: project ? `${project.name} — Adcker` : "Adcker" };
+  return {
+    title: project ? `${project.name} — Shabnam Ahari` : "Shabnam Ahari",
+  };
 }
 
 export default async function ProjectPage({
@@ -82,7 +84,7 @@ export default async function ProjectPage({
       {/* gallery */}
       <div className="page-margin flex flex-col gap-y-[50px]">
         <RevealLine as="h2" className="text-h2 text-center">
-          {project.galleryLabels ? "Areas" : "Gallery"}
+          {project.galleryHeading ?? "Gallery"}
         </RevealLine>
         <div className="grid grid-cols-1 gap-x-[15px] gap-y-[60px] sm:grid-cols-2 lg:grid-cols-3">
           {gallery.map((item, i) => (
@@ -93,10 +95,15 @@ export default async function ProjectPage({
             >
               {project.galleryLabels ? (
                 <span className="text-note">
-                  {project.galleryLabels[i].title}{" "}
-                  <span className="text-muted-ink">
-                    ({project.galleryLabels[i].roles})
-                  </span>
+                  {project.galleryLabels[i].title}
+                  {project.galleryLabels[i].roles && (
+                    <>
+                      {" "}
+                      <span className="text-muted-ink">
+                        ({project.galleryLabels[i].roles})
+                      </span>
+                    </>
+                  )}
                 </span>
               ) : (
                 <span className="text-note">( {item.num} )</span>
@@ -116,10 +123,10 @@ export default async function ProjectPage({
         </div>
       </div>
 
-      {/* other projects */}
+      {/* other programs */}
       <div className="page-margin flex flex-col gap-y-[50px]">
         <RevealLine as="h2" className="text-h2 text-center">
-          Other projects you might be interested in
+          Other programs you might be interested in
         </RevealLine>
         <div className="flex flex-col items-center gap-y-[30px]">
           {others.map((other) => (

@@ -7,8 +7,9 @@ import WorkEntry from "@/components/WorkEntry";
 import { PROJECTS } from "@/lib/projects";
 
 export const metadata: Metadata = {
-  title: "Services — Adcker",
-  description: "We craft and deliver top-tier social media solutions.",
+  title: "Programs — Shabnam Ahari",
+  description:
+    "Everyone starts on the same foundation. Nobody finishes on the same plan.",
 };
 
 export default function ServicesPage() {
@@ -39,7 +40,7 @@ export default function ServicesPage() {
             className="text-h1 flex items-center justify-center font-bold"
           >
             <ParenMedia>
-              <VideoSlot />
+              <VideoSlot label="Showreel" />
             </ParenMedia>
           </RevealLine>
           <span className="text-note absolute right-28 top-1/2 max-md:hidden -translate-y-1/2 translate-x-full pl-[1vw] md:pl-[1.5vw]">
