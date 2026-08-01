@@ -81,8 +81,8 @@ export default function MenuOverlay({
 
   const items: Item[] = [
     { label: "Index", href: "/", note: "Home" },
-    { label: "Services", href: "/services", note: "What we do" },
-    { label: "About", href: "/about", note: "Who we are" },
+    { label: "Learn", href: "/services", note: "What you do" },
+    { label: "About", href: "/about", note: "Who I am" },
     {
       label: "Contact",
       href: "/#contact",
@@ -140,35 +140,6 @@ export default function MenuOverlay({
         {after.map((item, i) => (
           <MenuRow key={item.label} item={item} index={i + 3} isOpen={isOpen} />
         ))}
-      </div>
-
-      <div className="flex items-center justify-between p-[15px]">
-        <a
-          href="mailto:hello@adcker.com"
-          target="_blank"
-          rel="noreferrer"
-          className="group relative block overflow-hidden"
-        >
-          <span className="ease-custom-text-links flex gap-x-1 whitespace-nowrap transition-all duration-700 lg:group-hover:-translate-y-full">
-            ( Email )
-          </span>
-          <span className="ease-custom-text-links absolute top-0 left-0 flex w-full translate-y-full gap-x-1 whitespace-nowrap transition-all duration-700 lg:group-hover:translate-y-0">
-            ( Email )
-          </span>
-        </a>
-        <a
-          href="https://instagram.com"
-          target="_blank"
-          rel="noreferrer"
-          className="group relative block overflow-hidden"
-        >
-          <span className="ease-custom-text-links flex gap-x-1 whitespace-nowrap transition-all duration-700 lg:group-hover:-translate-y-full">
-            ( Instagram )
-          </span>
-          <span className="ease-custom-text-links absolute top-0 left-0 flex w-full translate-y-full gap-x-1 whitespace-nowrap transition-all duration-700 lg:group-hover:translate-y-0">
-            ( Instagram )
-          </span>
-        </a>
       </div>
     </div>
   );

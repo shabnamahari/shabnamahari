@@ -15,7 +15,7 @@ export default function Hero() {
     <h1 className="flex min-h-[100svh] w-full flex-col items-center justify-center gap-y-2 overflow-hidden py-[15px]">
       <div className="flex w-full justify-center overflow-hidden">
         <RevealLine className="text-h1 text-center whitespace-nowrap">
-          The Art
+          Your
         </RevealLine>
       </div>
 
@@ -35,32 +35,32 @@ export default function Hero() {
         </span>
       </div>
 
-      <div className="flex w-full justify-center overflow-hidden">
-        <RevealLine delay={0.133} className="text-h1 text-center whitespace-nowrap">
-          of
-        </RevealLine>
-      </div>
-
       <div className="flex w-full justify-center">
         <div className="relative flex">
-          <RevealLine
-            delay={0.2}
-            className="text-h1 text-center whitespace-nowrap"
-          >
-            Hacking
-          </RevealLine>
           <span
             className="text-note absolute left-0 top-1/2 max-md:hidden -translate-x-full -translate-y-1/2"
             style={{ marginLeft: "-1.5vw" }}
           >
-            We&rsquo;re built for
+            You will reach your
           </span>
+          <RevealLine delay={0.133} className="text-h1 text-center whitespace-nowrap">
+            goal
+          </RevealLine>
         </div>
       </div>
 
       <div className="flex w-full justify-center overflow-hidden">
+        <RevealLine
+          delay={0.2}
+          className="text-h1 text-center whitespace-nowrap"
+        >
+          speaks
+        </RevealLine>
+      </div>
+
+      <div className="flex w-full justify-center overflow-hidden">
         <RevealLine delay={0.2667} className="text-h1 text-center whitespace-nowrap">
-          Social
+          English
         </RevealLine>
       </div>
     </h1>

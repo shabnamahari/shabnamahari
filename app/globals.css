@@ -12,6 +12,12 @@
   /* Custom cursor — the one saturated colour on an otherwise monochrome site,
      so it stays legible over cream, near-black and greyscale photography. */
   --color-cursor: #ff3b30;
+  /* Brand guide additions (p.9) — gaps that would otherwise get invented. */
+  --color-muted-ink: #6b6864; /* captions, labels, form hints */
+  --color-rule: #d5d2cd; /* dividers, input borders, card edges */
+  --color-paper: #f7f6f4; /* cards, modals, sticky headers */
+  --color-red-ink: #c42a1e; /* red as text, not decoration */
+  --color-confirm: #3f6b54; /* form success only, never marketing */
   --font-kumbh: var(--font-kumbh);
   --font-psl: var(--font-psl);
   --font-psr: var(--font-psr);

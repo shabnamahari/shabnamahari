@@ -43,9 +43,9 @@ export default function Services() {
           className="text-h1-2 flex items-center whitespace-nowrap"
         >
           <span className="inline-flex items-center gap-x-[2vw]">
-            Beauty
-            <ParenMedia href={HOMEPAGE_LINKS.beauty} label="Beauty">
-              <ServiceMedia src={IMAGES.beauty} alt="Beauty" />
+            IELTS
+            <ParenMedia href={HOMEPAGE_LINKS.beauty} label="IELTS">
+              <ServiceMedia src={IMAGES.beauty} alt="IELTS" />
             </ParenMedia>
           </span>
         </RevealLine>
@@ -59,7 +59,7 @@ export default function Services() {
 
       <div className="flex w-full justify-center overflow-hidden">
         <RevealLine delay={0.133} className="text-h1-2 text-center whitespace-nowrap">
-          Fashion
+          Blogposts
         </RevealLine>
       </div>
 
@@ -75,8 +75,8 @@ export default function Services() {
           className="text-h1-2 flex items-center whitespace-nowrap"
         >
           <span className="inline-flex items-center gap-x-[2vw]">
-            <ParenMedia href={HOMEPAGE_LINKS.fashion} label="Fashion">
-              <ServiceMedia src={IMAGES.fashion} alt="Fashion" />
+            <ParenMedia href={HOMEPAGE_LINKS.fashion} label="Blogposts">
+              <ServiceMedia src={IMAGES.fashion} alt="Blogposts" />
             </ParenMedia>
             and
           </span>
@@ -84,15 +84,20 @@ export default function Services() {
       </div>
 
       <div className="flex w-full justify-center overflow-hidden">
-        <RevealLine delay={0.2667} className="text-h1-2 text-center whitespace-nowrap">
-          Wellness
+        <RevealLine
+          delay={0.2667}
+          className="text-h1-2 text-center whitespace-nowrap"
+        >
+          <span style={{ fontSize: "calc((100vw - 44px) / 8.55)" }}>
+            Business English
+          </span>
         </RevealLine>
       </div>
 
       <div className="relative flex w-full justify-center overflow-hidden">
         <RevealLine delay={0.333} className="text-h1-2 flex items-center justify-center">
-          <ParenMedia href={HOMEPAGE_LINKS.wellness} label="Wellness">
-            <ServiceMedia src={IMAGES.wellness} alt="Wellness" />
+          <ParenMedia href={HOMEPAGE_LINKS.wellness} label="Business English">
+            <ServiceMedia src={IMAGES.wellness} alt="Business English" />
           </ParenMedia>
         </RevealLine>
         <span

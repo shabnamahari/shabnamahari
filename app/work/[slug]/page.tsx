@@ -34,6 +34,14 @@ export default async function ProjectPage({
   const gallery = galleryItems(project.slug);
   const others = PROJECTS.filter((p) => p.slug !== project.slug);
 
+  // The name is dynamic (any project), so the size must guarantee a fit
+  // rather than assume a short single word: cap at the character width this
+  // font/weight/tracking actually renders (≈0.534× font-size per glyph),
+  // never letting it grow past the usual 12vw display size either.
+  const nameFontSize = `min(12vw, calc((100vw - 40px) / ${(
+    project.name.length * 0.534
+  ).toFixed(2)}))`;
+
   return (
     <div className="flex flex-col gap-y-[100px] pb-[100px] md:gap-y-[200px] md:pb-[200px]">
       {/* hero: ✳ ( video ) + name */}
@@ -57,7 +65,7 @@ export default async function ProjectPage({
             delay={0.0667}
             className="text-h1 text-center whitespace-nowrap"
           >
-            {project.name}
+            <span style={{ fontSize: nameFontSize }}>{project.name}</span>
           </RevealLine>
         </div>
       </h1>
@@ -74,16 +82,25 @@ export default async function ProjectPage({
       {/* gallery */}
       <div className="page-margin flex flex-col gap-y-[50px]">
         <RevealLine as="h2" className="text-h2 text-center">
-          Gallery
+          {project.galleryLabels ? "Areas" : "Gallery"}
         </RevealLine>
         <div className="grid grid-cols-1 gap-x-[15px] gap-y-[60px] sm:grid-cols-2 lg:grid-cols-3">
-          {gallery.map((item) => (
+          {gallery.map((item, i) => (
             <Link
               key={item.num}
               href={item.href}
               className="group flex flex-col gap-y-[15px]"
             >
-              <span className="text-note">( {item.num} )</span>
+              {project.galleryLabels ? (
+                <span className="text-note">
+                  {project.galleryLabels[i].title}{" "}
+                  <span className="text-muted-ink">
+                    ({project.galleryLabels[i].roles})
+                  </span>
+                </span>
+              ) : (
+                <span className="text-note">( {item.num} )</span>
+              )}
               <div className="relative aspect-[3/5] w-full overflow-hidden bg-media-gray grayscale transition-all duration-500 group-hover:grayscale-0">
                 <Image
                   src={item.image}

@@ -5,13 +5,19 @@ import FooterWordmark from "./FooterWordmark";
 
 const MENU_LINKS = [
   { label: "Index", href: "/" },
-  { label: "Services", href: "/services" },
+  { label: "Learn", href: "/services" },
   { label: "About", href: "/about" },
 ];
 
 const REACH_OUT_LINKS = [
-  { label: "Email", href: "mailto:hello@adcker.com" },
-  { label: "Instagram", href: "https://instagram.com" },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/shabnam-ahari-372573101",
+  },
+  {
+    label: "Instagram",
+    href: "https://www.instagram.com/shabnameahari?igsh=MTlycGVmdmN0dG1hNg%3D%3D&utm_source=qr",
+  },
 ];
 
 export default function Footer() {
@@ -22,10 +28,11 @@ export default function Footer() {
           as="h2"
           className="col-span-12 md:col-span-10 md:col-start-2 text-h2 text-center"
         >
-          We don&rsquo;t just do social media, we master it. From
-          scroll-stopping content to high-impact designs that drive real
-          results, we make brands impossible to ignore. Let&rsquo;s create
-          something unforgettable.
+          First attempt or third, the starting point is the same: finding out
+          exactly where you stand today. I build a personalized learning path
+          around your exact goal — whether that&rsquo;s a Band 7, a
+          promotion, or a life abroad. And I stay committed until you get
+          there.
         </RevealLine>
         <div className="col-span-12 flex justify-center">
           <a
@@ -34,7 +41,7 @@ export default function Footer() {
             target="_blank"
             rel="noreferrer"
           >
-            Don&rsquo;t be shy, contact us now →
+            If you have a target score and a date, start here →
           </a>
         </div>
       </div>
@@ -79,13 +86,6 @@ export default function Footer() {
       </div>
 
       <FooterWordmark />
-
-      <div className="flex justify-between py-[15px] text-sm">
-        <div>© 2025</div>
-        <div className="flex gap-x-1">
-          By ( <span className="body-link">Adcker Clone</span> )
-        </div>
-      </div>
     </footer>
   );
 }

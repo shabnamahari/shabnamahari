@@ -16,12 +16,13 @@ export default function Quote() {
     <section className="page-margin flex flex-col items-center gap-y-[50px] py-[60px] md:py-[100px]">
       <RevealLine as="h2" className="text-h2 max-w-5xl text-center">
 
-        In a world where everyone is trying to do everything, we choose to
-        specialize in the beauty, fashion, and wellness industries.
+        One student, one learning path — built to end the day you no longer
+        need me. Thousands of people have your score. None of them have it
+        for your reasons.
       </RevealLine>
 
       <a href="/about" className="body-link">
-        More about us
+        More about me
       </a>
 
       <div className="flex w-full justify-center max-md:flex-col max-md:items-center max-md:gap-y-[50px] md:justify-between">

@@ -21,21 +21,13 @@ export default function ServicesPage() {
           </RevealLine>
         </div>
 
-        <div className="flex w-full justify-center">
-          <div className="relative flex">
-            <RevealLine
-              delay={0.0667}
-              className="text-h1 text-center whitespace-nowrap"
-            >
-              Our
-            </RevealLine>
-            <span
-              className="text-note absolute left-0 top-1/2 max-md:hidden -translate-x-full -translate-y-1/2"
-              style={{ marginLeft: "-2vw" }}
-            >
-              Where we shine
-            </span>
-          </div>
+        <div className="flex w-full justify-center overflow-hidden">
+          <RevealLine
+            delay={0.0667}
+            className="text-h1 text-center whitespace-nowrap"
+          >
+            What
+          </RevealLine>
         </div>
 
         <div className="relative flex shrink-0 items-center px-28">
@@ -47,17 +39,23 @@ export default function ServicesPage() {
             className="text-h1 flex items-center justify-center font-bold"
           >
             <ParenMedia>
-              <VideoSlot label="Projects" />
+              <VideoSlot />
             </ParenMedia>
           </RevealLine>
           <span className="text-note absolute right-28 top-1/2 max-md:hidden -translate-y-1/2 translate-x-full pl-[1vw] md:pl-[1.5vw]">
-            Projects
+            Find your fit
           </span>
         </div>
 
         <div className="flex w-full justify-center overflow-hidden">
           <RevealLine delay={0.2} className="text-h1 text-center whitespace-nowrap">
-            Work
+            You
+          </RevealLine>
+        </div>
+
+        <div className="flex w-full justify-center overflow-hidden">
+          <RevealLine delay={0.2667} className="text-h1 text-center whitespace-nowrap">
+            Learn
           </RevealLine>
         </div>
       </h1>
@@ -65,8 +63,8 @@ export default function ServicesPage() {
       <div className="page-margin page-grid">
         <div className="col-span-10 col-start-2 flex flex-col items-center justify-center gap-y-[50px]">
           <RevealLine as="h2" className="text-h2 pt-2 text-center">
-            We craft and deliver top-tier social media solutions for visionary
-            brands.
+            Everyone starts on the same foundation. Nobody finishes on the
+            same plan.
           </RevealLine>
         </div>
       </div>
@@ -80,14 +78,6 @@ export default function ServicesPage() {
             href={`/work/${project.slug}`}
           />
         ))}
-      </div>
-
-      <div className="page-margin page-grid">
-        <div className="col-span-10 col-start-2 flex flex-col items-center justify-center gap-y-[50px]">
-          <RevealLine as="h2" className="text-h2 pt-2 text-center">
-            Brands we&rsquo;ve worked with
-          </RevealLine>
-        </div>
       </div>
     </div>
   );

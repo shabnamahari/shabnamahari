@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
-import { Kumbh_Sans } from "next/font/google";
-import localFont from "next/font/local";
+import {
+  Kumbh_Sans,
+  Instrument_Serif,
+  Newsreader,
+  Instrument_Sans,
+} from "next/font/google";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import CustomCursor from "@/components/CustomCursor";
@@ -13,30 +17,34 @@ const kumbhSans = Kumbh_Sans({
   subsets: ["latin"],
 });
 
-const psl = localFont({
-  src: "../public/fonts/psl.woff2",
+// Brand guide, editorial layer (large): Instrument Serif — Google Fonts, free.
+const psl = Instrument_Serif({
   variable: "--font-psl",
-  weight: "300",
-  display: "swap",
-});
-
-const psr = localFont({
-  src: "../public/fonts/psr.woff2",
-  variable: "--font-psr",
   weight: "400",
+  style: ["normal", "italic"],
+  subsets: ["latin"],
   display: "swap",
 });
 
-const nhm = localFont({
-  src: "../public/fonts/nhm.woff2",
+// Brand guide, editorial layer (small): Newsreader — Google Fonts, free.
+const psr = Newsreader({
+  variable: "--font-psr",
+  weight: "300",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+// Brand guide, body/UI layer: Instrument Sans — Google Fonts, free.
+const nhm = Instrument_Sans({
   variable: "--font-nhm",
   weight: "400",
+  subsets: ["latin"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Index — Adcker",
-  description: "We're built for the art of hacking social.",
+  title: "Shabnam Ahari — IELTS & English Coaching",
+  description: "Your goal speaks English.",
 };
 
 export default function RootLayout({
