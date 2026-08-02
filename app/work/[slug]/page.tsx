@@ -36,6 +36,11 @@ export default async function ProjectPage({
   const gallery = galleryItems(project.slug);
   const others = PROJECTS.filter((p) => p.slug !== project.slug);
 
+  // Role lists vary in length, so captions wrap to different line counts at
+  // different widths — reserving space for the worst case (3 lines) keeps
+  // every image in a row starting at the same height instead of stair-stepping.
+  const hasRoleCaptions = project.galleryLabels?.some((l) => l.roles);
+
   // The name is dynamic (any project), so the size must guarantee a fit
   // rather than assume a short single word: cap at the character width this
   // font/weight/tracking actually renders (≈0.534× font-size per glyph),
@@ -94,7 +99,9 @@ export default async function ProjectPage({
               className="group flex flex-col gap-y-[15px]"
             >
               {project.galleryLabels ? (
-                <span className="text-note">
+                <span
+                  className={`text-note ${hasRoleCaptions ? "min-h-[50px] md:min-h-[65px]" : ""}`}
+                >
                   {project.galleryLabels[i].title}
                   {project.galleryLabels[i].roles && (
                     <>
@@ -108,10 +115,10 @@ export default async function ProjectPage({
               ) : (
                 <span className="text-note">( {item.num} )</span>
               )}
-              <div className="relative aspect-[3/5] w-full overflow-hidden bg-media-gray grayscale transition-all duration-500 group-hover:grayscale-0">
+              <div className="relative aspect-[3/5] w-full overflow-hidden bg-media-gray">
                 <Image
-                  src={item.image}
-                  alt={`${project.name} ${item.num}`}
+                  src={project.galleryLabels?.[i]?.image ?? item.image}
+                  alt={project.galleryLabels?.[i]?.title ?? `${project.name} ${item.num}`}
                   fill
                   sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                   unoptimized

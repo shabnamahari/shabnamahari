@@ -59,7 +59,7 @@ export default function Services() {
 
       <div className="flex w-full justify-center overflow-hidden">
         <RevealLine delay={0.133} className="text-h1-2 text-center whitespace-nowrap">
-          Blogposts
+          Blogcasts
         </RevealLine>
       </div>
 
@@ -75,8 +75,8 @@ export default function Services() {
           className="text-h1-2 flex items-center whitespace-nowrap"
         >
           <span className="inline-flex items-center gap-x-[2vw]">
-            <ParenMedia href={HOMEPAGE_LINKS.blogposts} label="Blogposts">
-              <ServiceMedia src={IMAGES.fashion} alt="Blogposts" />
+            <ParenMedia href={HOMEPAGE_LINKS.blogcasts} label="Blogcasts">
+              <ServiceMedia src={IMAGES.fashion} alt="Blogcasts" />
             </ParenMedia>
             and
           </span>
