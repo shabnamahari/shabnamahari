@@ -31,7 +31,6 @@ export default function Services() {
               <KineticTypeTile
                 {...IELTS.tile}
                 size="23cqmin"
-                variant="flow"
                 duration={5.4}
               />
             </ParenMedia>
@@ -67,7 +66,6 @@ export default function Services() {
               <KineticTypeTile
                 {...BLOGCASTS.tile}
                 size="18cqmin"
-                variant="flow"
                 duration={5.4}
               />
             </ParenMedia>
@@ -93,7 +91,6 @@ export default function Services() {
             <KineticTypeTile
               {...BUSINESS_ENGLISH.tile}
               size="12.5cqmin"
-              variant="flow"
               duration={5.4}
             />
           </ParenMedia>

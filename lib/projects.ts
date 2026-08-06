@@ -157,6 +157,18 @@ export function getProject(slug: string) {
   return PROJECTS.find((p) => p.slug === slug);
 }
 
+/**
+ * The photographs the hero showreel cycles, in gallery order. Falls back to the
+ * generated gallery placeholders for any program without real photos yet.
+ */
+export function reelImages(project: Project) {
+  const labelled = project.galleryLabels
+    ?.map((label) => label.image)
+    .filter((image): image is string => Boolean(image));
+
+  return labelled?.length ? labelled : galleryItems(project.slug).map((i) => i.image);
+}
+
 export function galleryItems(slug: string) {
   return Array.from({ length: GALLERY_COUNT }, (_, i) => {
     const num = String(i + 1).padStart(2, "0");

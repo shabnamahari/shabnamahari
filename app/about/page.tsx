@@ -3,7 +3,7 @@ import Image from "next/image";
 import RevealLine from "@/components/RevealLine";
 import Asterisk from "@/components/Asterisk";
 import ParenMedia from "@/components/ParenMedia";
-import VideoSlot from "@/components/VideoSlot";
+import ShowReel from "@/components/ShowReel";
 
 export const metadata: Metadata = {
   title: "About — Shabnam Ahari",
@@ -11,12 +11,10 @@ export const metadata: Metadata = {
     "I know what it feels like to be judged on a language that isn't yours.",
 };
 
-// Swap these three for real photos — one per brand-guide pose:
-// authority (direct eye contact), at work (head down over paper), hands only.
 const PHOTOS = [
-  { num: "01", image: "https://picsum.photos/seed/shabnam-photo-1/900/675" },
-  { num: "02", image: "https://picsum.photos/seed/shabnam-photo-2/900/675" },
-  { num: "03", image: "https://picsum.photos/seed/shabnam-photo-3/900/675" },
+  { num: "01", image: "/images/about/shabnam-01.jpg" },
+  { num: "02", image: "/images/about/shabnam-02.jpg" },
+  { num: "03", image: "/images/about/shabnam-03.jpg" },
 ];
 
 export default function AboutPage() {
@@ -38,7 +36,11 @@ export default function AboutPage() {
             className="text-h1 flex items-center justify-center font-bold"
           >
             <ParenMedia>
-              <VideoSlot label="Me" />
+              <ShowReel
+                images={PHOTOS.map((photo) => photo.image)}
+                beat={0.5}
+                alt="Shabnam Ahari"
+              />
             </ParenMedia>
           </RevealLine>
           <span className="text-note absolute right-28 top-1/2 max-md:hidden -translate-y-1/2 translate-x-full pl-[1vw] md:pl-[1.5vw]">

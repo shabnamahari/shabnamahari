@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import RevealLine from "@/components/RevealLine";
 import Asterisk from "@/components/Asterisk";
 import ParenMedia from "@/components/ParenMedia";
-import VideoSlot from "@/components/VideoSlot";
+import ShowReel from "@/components/ShowReel";
 import WorkEntry from "@/components/WorkEntry";
-import { PROJECTS } from "@/lib/projects";
+import { PROJECTS, reelImages } from "@/lib/projects";
 
 export const metadata: Metadata = {
   title: "Programs — Shabnam Ahari",
@@ -52,7 +52,11 @@ export default function ServicesPage() {
             className="text-h1 flex items-center justify-center font-bold"
           >
             <ParenMedia>
-              <VideoSlot label="Showreel" />
+              <ShowReel
+                images={PROJECTS.map((project) => reelImages(project)[0])}
+                beat={0.5}
+                alt="The three programs"
+              />
             </ParenMedia>
           </RevealLine>
           <span className="text-note absolute right-28 top-1/2 max-md:hidden -translate-y-1/2 translate-x-full pl-[1vw] md:pl-[1.5vw]">

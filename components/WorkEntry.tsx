@@ -40,7 +40,6 @@ export default function WorkEntry({
                 lines={lines}
                 size={size}
                 tone={tone}
-                variant="flow"
                 duration={5.4}
               />
             </div>

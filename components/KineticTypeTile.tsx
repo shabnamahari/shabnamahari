@@ -27,8 +27,7 @@ export default function KineticTypeTile({
   duration,
   tone = 174,
   sound = true,
-  voice = "felt",
-  variant = "still",
+  voice = "bowed",
 }: {
   /** The category word, one entry per line: ["Blog", "Casts"]. */
   lines: string[];
@@ -47,25 +46,16 @@ export default function KineticTypeTile({
   sound?: boolean;
   /** Which synthesised voice plays on hover. */
   voice?: KineticVoice;
-  /**
-   * "still" (design 1) keeps the front copy fixed. "dip" (design 3) shrinks it
-   * to a third and lightens its weight while the copies behind it are still
-   * coming back. "merge" (design 4) waits until they are home and hidden, then
-   * dips the merged stack. All of them rest on the same design 1 frame.
-   * "flow" (design 5) is design 4 retimed so its dip moves at design 1's pace
-   * and runs straight out of the merge without stalling.
-   */
-  variant?: "still" | "dip" | "merge" | "flow";
 }) {
-  // Design 5 fits four moves into a loop instead of two, so it needs the longer
-  // clock to keep each one at the same speed as design 1.
-  const dur = duration ?? (variant === "flow" ? 6.34 : 3.6);
+  // Four moves in a loop rather than two, so each one lands at the same speed.
+  const dur = duration ?? 5.4;
   const stopSound = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     if (sound) primeKineticAudio();
     return () => stopSound.current?.();
   }, [sound]);
+
 
   const handleEnter = () => {
     if (!sound || stopSound.current) return;
@@ -80,9 +70,7 @@ export default function KineticTypeTile({
 
   return (
     <span
-      className={`kinetic-tile${
-        variant === "still" ? "" : ` kinetic-tile--${variant}`
-      }`}
+      className="kinetic-tile"
       aria-hidden="true"
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}

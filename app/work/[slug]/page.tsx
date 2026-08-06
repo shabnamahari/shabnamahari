@@ -5,8 +5,8 @@ import { notFound } from "next/navigation";
 import RevealLine from "@/components/RevealLine";
 import Asterisk from "@/components/Asterisk";
 import ParenMedia from "@/components/ParenMedia";
-import VideoSlot from "@/components/VideoSlot";
-import { PROJECTS, getProject, galleryItems } from "@/lib/projects";
+import ShowReel from "@/components/ShowReel";
+import { PROJECTS, getProject, galleryItems, reelImages } from "@/lib/projects";
 
 export function generateStaticParams() {
   return PROJECTS.map((p) => ({ slug: p.slug }));
@@ -59,7 +59,11 @@ export default async function ProjectPage({
           </span>
           <RevealLine className="text-h1 flex items-center justify-center font-bold">
             <ParenMedia>
-              <VideoSlot label="Showreel" />
+              <ShowReel
+                images={reelImages(project)}
+                beat={0.5}
+                alt={`${project.name} showreel`}
+              />
             </ParenMedia>
           </RevealLine>
           <span className="text-note absolute right-28 top-1/2 max-md:hidden -translate-y-1/2 translate-x-full pl-[1vw] md:pl-[1.5vw]">

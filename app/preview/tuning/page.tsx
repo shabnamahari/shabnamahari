@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import KineticTypeTile from "@/components/KineticTypeTile";
 import {
+  analyseVoice,
+  audioState,
+  playTestTone,
   renderVoicePeak,
   startKineticSound,
   type KineticVoice,
@@ -25,30 +28,15 @@ const SPEEDS = [
 const VOICES: { id: KineticVoice; title: string; note: string }[] = [
   {
     id: "bowed",
-    title: "۱ — زهی آرشه‌ای",
-    note: "مثل ویولنسل: آرام کشیده می‌شود، اوج می‌گیرد و می‌خوابد. پیشنهاد من.",
+    title: "زهی آرشه‌ای",
+    note: "صدای انتخاب‌شده. حالا دو برابر بلندتر از قبل.",
   },
-  {
-    id: "pluck",
-    title: "۲ — سیم زخمه‌ای (سنتوروار)",
-    note: "ضربهٔ روشن روی سیم با طنین کوتاه، دوتایی مثل دو مضراب.",
-  },
-  {
-    id: "glass",
-    title: "۳ — شیشه و ساب",
-    note: "درخشش بم‌وزیر: نازکی در اوج‌ها، وزن در ساب، وسطِ خالی.",
-  },
-];
-
-const OLD_VOICES: { id: KineticVoice; title: string }[] = [
-  { id: "felt", title: "پیانوی نمدی (قبلی)" },
-  { id: "choir", title: "پد کُرال (قبلی)" },
-  { id: "swell", title: "سوئل ساب (قبلی)" },
 ];
 
 export default function TuningPreview() {
   const [speed, setSpeed] = useState(6.34);
   const [playing, setPlaying] = useState<KineticVoice | null>(null);
+  const [engine, setEngine] = useState("—");
   const stop = useRef<(() => void) | null>(null);
 
   useEffect(() => () => stop.current?.(), []);
@@ -57,6 +45,7 @@ export default function TuningPreview() {
   // speakers, so a silent tile can be blamed on the right thing.
   useEffect(() => {
     (window as unknown as Record<string, unknown>).__kineticAudio = {
+      analyseVoice,
       renderVoicePeak,
       startKineticSound,
     };
@@ -71,6 +60,7 @@ export default function TuningPreview() {
     }
     stop.current = startKineticSound(speed, 146, voice);
     setPlaying(voice);
+    setEngine(audioState());
   };
 
   return (
@@ -116,7 +106,6 @@ export default function TuningPreview() {
                 key={`${lines.join("")}-${speed}`}
                 lines={lines}
                 size={size}
-                variant="flow"
                 duration={speed}
                 sound={false}
               />
@@ -126,7 +115,36 @@ export default function TuningPreview() {
       </section>
 
       <section className="flex flex-col gap-y-6">
-        <h2 className="text-note">Sound</h2>
+        <h2 className="text-note">تست صدا</h2>
+        <div className="flex flex-wrap items-center gap-4">
+          <button
+            type="button"
+            onClick={() => {
+              playTestTone();
+              setTimeout(() => setEngine(audioState()), 120);
+            }}
+            className="text-body border border-ink bg-ink px-5 py-3 text-cream"
+          >
+            ♪ بوقِ تست — باید یک صدای واضح بشنوی
+          </button>
+          <span className="text-body text-muted-ink">
+            وضعیت موتور صدای مرورگر: <b className="text-ink">{engine}</b>
+          </span>
+          <button
+            type="button"
+            onClick={() => setEngine(audioState())}
+            className="text-body border border-rule px-4 py-2"
+          >
+            به‌روزرسانی وضعیت
+          </button>
+        </div>
+        <p className="text-body max-w-[64ch] text-muted-ink">
+          اگر بوق را شنیدی ولی صدای کاشی‌ها را نه، مشکل بلندی صداست. اگر بوق را
+          هم نشنیدی و وضعیت «running» بود، صدا از خودِ سیستم یا تب مرورگر بسته
+          است. اگر وضعیت «suspended» ماند، مرورگر اجازه نمی‌دهد.
+        </p>
+
+        <h2 className="text-note pt-6">Sound</h2>
         <div className="flex flex-col gap-4">
           {VOICES.map(({ id, title, note }) => (
             <div key={id} className="flex items-center gap-4">
@@ -146,20 +164,6 @@ export default function TuningPreview() {
           ))}
         </div>
 
-        <div className="flex flex-wrap gap-3 pt-4">
-          {OLD_VOICES.map(({ id, title }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => toggle(id)}
-              className={`text-body border px-4 py-2 ${
-                playing === id ? "border-ink bg-ink text-cream" : "border-rule text-muted-ink"
-              }`}
-            >
-              {playing === id ? "■" : "▶"} {title}
-            </button>
-          ))}
-        </div>
       </section>
     </main>
   );

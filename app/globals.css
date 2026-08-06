@@ -266,112 +266,20 @@ button {
   line-height: 0.92;
   letter-spacing: -0.02em;
   white-space: nowrap;
-  animation: kinetic-bloom var(--kt-dur) cubic-bezier(0.65, 0, 0.35, 1) infinite;
-  animation-play-state: paused;
-  will-change: transform;
-}
-
-/* Every copy starts stacked at scale 1 — so at rest only the front one is
-   visible — then they bloom apart to their own peak and come back together.
-   The front layer's peak is 1, which is what keeps the word readable and still
-   at the centre while the ones behind it blow past the frame. */
-@keyframes kinetic-bloom {
-  0%,
-  8% {
-    transform: translate(-50%, -50%) scale(1);
-  }
-  46%,
-  54% {
-    transform: translate(-50%, -50%) scale(var(--kt-peak));
-  }
-  92%,
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-/* ---- design 3: design 1, but the front word dips as the others come back ---- */
-
-/* Only the front copy (last in the DOM) swaps animation; the copies behind it
-   keep blooming exactly as in design 1. */
-.kinetic-tile--dip .kinetic-layer:last-child {
-  animation-name: kinetic-dip;
-}
-
-@keyframes kinetic-dip {
-  0%,
-  8% {
-    transform: translate(-50%, -50%) scale(1);
-    font-weight: 800;
-  }
-  /* Holds full size and full weight through the bloom, so the resting frame —
-     the one used as the cover — is identical to design 1. */
-  46%,
-  54% {
-    transform: translate(-50%, -50%) scale(1);
-    font-weight: 800;
-  }
-  78% {
-    transform: translate(-50%, -50%) scale(0.333);
-    font-weight: 350;
-  }
-  92%,
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-    font-weight: 800;
-  }
-}
-
-/* ---- design 4: the copies merge first, then the whole stack dips ---- */
-
-/* Every layer swaps track here, not just the front one. Once the copies have
-   collapsed back they sit exactly on top of the front word, so shrinking only
-   the front would let the ones behind show past it — moving all three together
-   is what reads as "the front word itself gets small". */
-.kinetic-tile--merge .kinetic-layer {
-  animation-name: kinetic-merge;
-}
-
-@keyframes kinetic-merge {
-  0%,
-  6% {
-    transform: translate(-50%, -50%) scale(1);
-    font-weight: 800;
-  }
-  40%,
-  46% {
-    transform: translate(-50%, -50%) scale(var(--kt-peak));
-    font-weight: 800;
-  }
-  /* Merged: the back copies are home and hidden behind the front word. */
-  72% {
-    transform: translate(-50%, -50%) scale(1);
-    font-weight: 800;
-  }
-  84% {
-    transform: translate(-50%, -50%) scale(0.333);
-    font-weight: 350;
-  }
-  96%,
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-    font-weight: 800;
-  }
-}
-
-/* ---- design 5: design 4 at design 1's tempo, with no stall at the merge ---- */
-
-.kinetic-tile--flow .kinetic-layer {
-  animation-name: kinetic-flow;
+  animation: kinetic-flow var(--kt-dur) infinite;
   /* Parks the paused tile at 28.5% — inside the hold at the top of the bloom,
      where the second copy is at full size and still whole. That frame is the
      cover; a plain black square with one word was too empty. */
   animation-delay: calc(var(--kt-dur) * -0.285);
+  animation-play-state: paused;
+  will-change: transform;
 }
 
+/* ---- the loop: copies merge, then the stack dips, at one tempo ---- */
+
 /*
- * Every move here lasts 1.368s — the same as design 1's out and back — which is
- * why this loop runs 6.34s rather than 3.6s. The timing functions matter as much
+ * Every move lasts the same length, which is what makes the loop read as one
+ * gesture rather than four. The timing functions matter as much
  * as the percentages: the return segment is given an ease-in curve that is still
  * at full speed when it lands (0.65, 0, 1, 1) and the dip that follows is linear,
  * so the copies arriving behind the front word flow straight into the shrink
@@ -430,84 +338,7 @@ button {
   }
 }
 
-/* ---- design 2: the same word framed in nested panels ---- */
-
-.kinetic-tile--framed {
-  background: #0f0f0f;
-}
-
-/* The stage carries the push-and-return; the panels inside hold their own
-   fixed nesting scale, so one animation moves the whole composition. */
-.kinetic-stage {
-  position: absolute;
-  inset: 0;
-  animation: kinetic-push var(--kt-dur) cubic-bezier(0.65, 0, 0.35, 1) infinite;
-  animation-play-state: paused;
-  will-change: transform;
-}
-
-@keyframes kinetic-push {
-  0%,
-  8% {
-    transform: scale(1);
-  }
-  46%,
-  54% {
-    transform: scale(var(--kt-zoom));
-  }
-  92%,
-  100% {
-    transform: scale(1);
-  }
-}
-
-.kinetic-frame {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: var(--kt-frame);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%) scale(var(--kt-depth));
-  background: var(--kt-shade);
-}
-
-/* Positioned rather than centred by grid so it stays centred while it overflows
-   its panel — that overflow is what makes the outer copies readable. */
-.kinetic-word {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-family: var(--font-grotesk), sans-serif;
-  font-weight: 800;
-  font-size: var(--kt-size);
-  text-transform: uppercase;
-  text-align: center;
-  line-height: 0.92;
-  letter-spacing: -0.02em;
-  white-space: nowrap;
-  color: var(--color-cream);
-}
-
-.kinetic-tile--framed:hover .kinetic-stage,
-:focus-visible > .kinetic-tile--framed .kinetic-stage {
-  animation-play-state: running;
-}
-
-@media (hover: none) {
-  .kinetic-stage {
-    animation-play-state: running;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .kinetic-tile--framed .kinetic-stage,
-  .kinetic-tile--framed:hover .kinetic-stage {
-    animation-play-state: paused;
-  }
-}
-
-/* ---- showreel: a program's category photos as a looping reel ---- */
+/* ---- showreel: a program's photographs as a cross-fade ---- */
 
 .reel {
   position: absolute;
@@ -522,82 +353,18 @@ button {
   inset: 0;
   display: block;
   opacity: 0;
-  animation-duration: var(--reel-dur);
-  animation-iteration-count: infinite;
-  animation-timing-function: linear;
-  will-change: transform, opacity;
-}
-
-/* Photography stays greyscale like the rest of the site's media, and comes up
-   in colour on hover. */
-.reel-frame {
+  animation: reel-fade var(--reel-dur) linear infinite;
   filter: grayscale(1);
   transition: filter 0.7s cubic-bezier(0.82, 0, 0.18, 1);
+  will-change: transform, opacity;
 }
 
 .reel:hover .reel-frame {
   filter: grayscale(0);
 }
 
-/* --- cut: Ken Burns push, then a hard cut --- */
-
-.reel--cut .reel-frame {
-  animation-name: reel-cut;
-}
-
-/* The 0.01% step is the cut itself: opacity drops between two adjacent
-   keyframes rather than fading, so the change reads as an edit, not a blend. */
-@keyframes reel-cut {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  16.66% {
-    opacity: 1;
-    transform: scale(1.11);
-  }
-  16.67% {
-    opacity: 0;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1);
-  }
-}
-
-/* --- mask: the reel seen through the letterforms --- */
-
-.reel--mask {
-  background: var(--color-ink);
-}
-
-.reel-word {
-  display: grid;
-  place-items: center;
-  padding: 0 4cqmin;
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-family: var(--font-grotesk), sans-serif;
-  font-weight: 800;
-  font-size: var(--reel-size);
-  line-height: 0.92;
-  letter-spacing: -0.02em;
-  text-align: center;
-  text-transform: uppercase;
-  animation-name: reel-cut;
-}
-
-/* --- fade: long dwell, soft cross-fade --- */
-
-.reel--fade .reel-frame {
-  animation-name: reel-fade;
-}
-
+/* Each photo fades up, holds its share of the loop, then dissolves out while
+   the next one is already fading in. */
 @keyframes reel-fade {
   0% {
     opacity: 0;
