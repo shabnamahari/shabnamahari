@@ -1,22 +1,30 @@
 "use client";
 
-import Image from "next/image";
 import Asterisk from "./Asterisk";
-import RevealLine from "./RevealLine";
+import KineticTypeTile from "./KineticTypeTile";
 
 export default function WorkEntry({
   name,
-  image,
+  lines,
+  tone,
+  size,
   href = "#",
 }: {
   name: string;
-  image: string;
+  /** The word as the tile sets it, one entry per line. */
+  lines: string[];
+  tone: number;
+  /** Tuned per word: these boxes are wide, not square like the homepage. */
+  size: string;
   href?: string;
 }) {
   return (
     <div className="page-grid">
       <a
         href={href}
+        /* The tile is decorative to a screen reader, and the caption under it
+           is gone, so the link carries the name itself. */
+        aria-label={name}
         className="group col-span-8 col-start-3 flex flex-col justify-center gap-y-[30px] lg:col-span-6 lg:col-start-4"
       >
         <div className="relative">
@@ -27,14 +35,13 @@ export default function WorkEntry({
             <span className="absolute top-1/2 -left-[8vw] -translate-y-1/2 -scale-x-100 text-center lg:-left-[6vw]">
               )
             </span>
-            <div className="relative aspect-[727/408] w-full overflow-hidden bg-media-gray grayscale transition-all duration-500 group-hover:grayscale-0">
-              <Image
-                src={image}
-                alt={name}
-                fill
-                sizes="(min-width: 1024px) 50vw, 66vw"
-                unoptimized
-                className="object-cover"
+            <div className="relative aspect-[727/408] w-full overflow-hidden bg-media-gray">
+              <KineticTypeTile
+                lines={lines}
+                size={size}
+                tone={tone}
+                variant="flow"
+                duration={5.4}
               />
             </div>
             <span className="absolute top-1/2 -right-[8vw] -translate-y-1/2 text-center lg:-right-[6vw]">
@@ -42,9 +49,6 @@ export default function WorkEntry({
             </span>
           </div>
         </div>
-        <RevealLine as="h2" className="text-h2 text-center">
-          {name}
-        </RevealLine>
       </a>
     </div>
   );

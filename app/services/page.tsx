@@ -12,6 +12,18 @@ export const metadata: Metadata = {
     "Everyone starts on the same foundation. Nobody finishes on the same plan.",
 };
 
+// These boxes are wide rather than square, so the type is sized off the box
+// height and needs its own values — the homepage ones would read far too small.
+// These boxes are wide rather than square, so the type is sized off the box
+// height and needs its own values — the homepage ones would read far too small.
+// At these sizes the second copy runs wider than the box and gets clipped at
+// the edges, which is the approved look.
+const TILE_SIZES: Record<string, string> = {
+  toty: "34cqmin",
+  "pixi-beauty": "25cqmin",
+  "pacifica-beauty": "19cqmin",
+};
+
 export default function ServicesPage() {
   return (
     <div className="flex flex-col gap-y-[100px] pb-[100px] md:gap-y-[200px] md:pb-[200px]">
@@ -75,7 +87,9 @@ export default function ServicesPage() {
           <WorkEntry
             key={project.slug}
             name={project.name}
-            image={project.cover}
+            lines={project.tile.lines}
+            tone={project.tile.tone}
+            size={TILE_SIZES[project.slug]}
             href={`/work/${project.slug}`}
           />
         ))}

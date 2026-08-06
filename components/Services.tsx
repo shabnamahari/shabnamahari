@@ -1,26 +1,9 @@
-import Image from "next/image";
 import RevealLine from "./RevealLine";
 import ParenMedia from "./ParenMedia";
-import { HOMEPAGE_LINKS } from "@/lib/projects";
+import KineticTypeTile from "./KineticTypeTile";
+import { HOMEPAGE_LINKS, PROJECTS } from "@/lib/projects";
 
-const IMAGES = {
-  beauty: "https://picsum.photos/seed/adcker-beauty/800/800",
-  fashion: "https://picsum.photos/seed/adcker-fashion/800/800",
-  wellness: "https://picsum.photos/seed/adcker-wellness/800/800",
-};
-
-function ServiceMedia({ src, alt }: { src: string; alt: string }) {
-  return (
-    <Image
-      src={src}
-      alt={alt}
-      fill
-      sizes="200px"
-      className="object-cover"
-      unoptimized
-    />
-  );
-}
+const [IELTS, BLOGCASTS, BUSINESS_ENGLISH] = PROJECTS;
 
 export default function Services() {
   return (
@@ -45,7 +28,12 @@ export default function Services() {
           <span className="inline-flex items-center gap-x-[2vw]">
             IELTS
             <ParenMedia href={HOMEPAGE_LINKS.ielts} label="IELTS">
-              <ServiceMedia src={IMAGES.beauty} alt="IELTS" />
+              <KineticTypeTile
+                {...IELTS.tile}
+                size="23cqmin"
+                variant="flow"
+                duration={5.4}
+              />
             </ParenMedia>
           </span>
         </RevealLine>
@@ -76,7 +64,12 @@ export default function Services() {
         >
           <span className="inline-flex items-center gap-x-[2vw]">
             <ParenMedia href={HOMEPAGE_LINKS.blogcasts} label="Blogcasts">
-              <ServiceMedia src={IMAGES.fashion} alt="Blogcasts" />
+              <KineticTypeTile
+                {...BLOGCASTS.tile}
+                size="18cqmin"
+                variant="flow"
+                duration={5.4}
+              />
             </ParenMedia>
             and
           </span>
@@ -97,7 +90,12 @@ export default function Services() {
       <div className="relative flex w-full justify-center overflow-hidden">
         <RevealLine delay={0.333} className="text-h1-2 flex items-center justify-center">
           <ParenMedia href={HOMEPAGE_LINKS.businessEnglish} label="Business English">
-            <ServiceMedia src={IMAGES.wellness} alt="Business English" />
+            <KineticTypeTile
+              {...BUSINESS_ENGLISH.tile}
+              size="12.5cqmin"
+              variant="flow"
+              duration={5.4}
+            />
           </ParenMedia>
         </RevealLine>
         <span

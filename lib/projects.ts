@@ -9,6 +9,13 @@ export type GalleryLabel = {
 export type Project = {
   slug: string;
   name: string;
+  /**
+   * The word as the kinetic tile sets it, one entry per line, plus the root
+   * frequency of its hover sound. Shared so the homepage and /services can't
+   * drift apart; only the type size differs between the two, since one tile is
+   * small and square and the other is wide.
+   */
+  tile: { lines: string[]; tone: number };
   /** Wide cover shown on /services */
   cover: string;
   description: string;
@@ -24,6 +31,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "toty",
     name: "Ielts",
+    tile: { lines: ["IELTS"], tone: 146 },
     cover: "https://picsum.photos/seed/adcker-toty/1454/816",
     description:
       "Most preparation starts with a syllabus. Yours starts with a diagnosis. Half a band is a whole life — a visa, an admission, a career — and I build the plan that closes that exact gap.",
@@ -58,6 +66,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "pixi-beauty",
     name: "Blogcasts",
+    tile: { lines: ["Blog", "Casts"], tone: 174 },
     cover: "https://picsum.photos/seed/adcker-pixi/1454/816",
     description:
       "What's changing in the exam, how AI actually fits into your prep, and how the scoring really works.",
@@ -92,6 +101,7 @@ export const PROJECTS: Project[] = [
   {
     slug: "pacifica-beauty",
     name: "Business English",
+    tile: { lines: ["Business", "English"], tone: 196 },
     cover: "https://picsum.photos/seed/adcker-pacifica/1454/816",
     description:
       "Nobody grades your English at work — your next promotion does. Whether that's a client call, a negotiation or a life abroad, I build the English around it.",

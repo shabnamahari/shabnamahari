@@ -4,6 +4,7 @@ import {
   Instrument_Serif,
   Newsreader,
   Instrument_Sans,
+  Inter,
 } from "next/font/google";
 import "./globals.css";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
@@ -15,6 +16,16 @@ const kumbhSans = Kumbh_Sans({
   variable: "--font-kumbh",
   weight: "700",
   subsets: ["latin"],
+});
+
+// Neo-grotesque for the kinetic category tiles only — the Helvetica-ish face the
+// motion reference uses, which the brand's Kumbh Sans doesn't cover.
+// Loaded as a variable range rather than fixed cuts so design 3 can animate the
+// weight down as the word shrinks, instead of snapping between two faces.
+const grotesk = Inter({
+  variable: "--font-grotesk",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 // Brand guide, editorial layer (large): Instrument Serif — Google Fonts, free.
@@ -55,7 +66,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${kumbhSans.variable} ${psl.variable} ${psr.variable} ${nhm.variable}`}
+      className={`${kumbhSans.variable} ${psl.variable} ${psr.variable} ${nhm.variable} ${grotesk.variable}`}
     >
       <body className="bg-cream text-ink font-nhm text-body antialiased">
         <CustomCursor />
