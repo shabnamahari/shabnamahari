@@ -8,11 +8,18 @@ import Image from "next/image";
 export default function ShowReel({
   images,
   beat = 0.5,
+  focus = "center",
   alt,
 }: {
   images: string[];
   /** Seconds each photo holds before dissolving into the next. */
   beat?: number;
+  /**
+   * Which part of each photograph survives the crop. A square frame cuts a
+   * standing portrait somewhere, and centre puts that cut across the face —
+   * so portraits pass a value nearer the top.
+   */
+  focus?: string;
   alt: string;
 }) {
   const duration = beat * images.length;
@@ -36,6 +43,7 @@ export default function ShowReel({
             fill
             sizes="(min-width: 1024px) 50vw, 90vw"
             unoptimized
+            style={{ objectPosition: focus }}
             className="object-cover"
           />
         </span>

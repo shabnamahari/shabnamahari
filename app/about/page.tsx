@@ -11,10 +11,12 @@ export const metadata: Metadata = {
     "I know what it feels like to be judged on a language that isn't yours.",
 };
 
+// Real pixel sizes, so each frame takes the shape of its own photograph rather
+// than cropping every one of them into a single landscape box.
 const PHOTOS = [
-  { num: "01", image: "/images/about/shabnam-01.jpg" },
-  { num: "02", image: "/images/about/shabnam-02.jpg" },
-  { num: "03", image: "/images/about/shabnam-03.jpg" },
+  { num: "01", image: "/images/about/shabnam-01.jpg", width: 1086, height: 1448 },
+  { num: "02", image: "/images/about/shabnam-02.jpg", width: 972, height: 1619 },
+  { num: "03", image: "/images/about/shabnam-03.jpg", width: 546, height: 765 },
 ];
 
 export default function AboutPage() {
@@ -39,6 +41,7 @@ export default function AboutPage() {
               <ShowReel
                 images={PHOTOS.map((photo) => photo.image)}
                 beat={0.5}
+                focus="50% 12%"
                 alt="Shabnam Ahari"
               />
             </ParenMedia>
@@ -103,20 +106,19 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-x-[15px] gap-y-[50px] sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 items-start gap-x-[15px] gap-y-[50px] sm:grid-cols-2 lg:grid-cols-3">
           {PHOTOS.map((photo) => (
             <div key={photo.num} className="flex flex-col gap-y-[15px]">
               <span className="text-note">( {photo.num} )</span>
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-media-gray">
-                <Image
-                  src={photo.image}
-                  alt={`Shabnam Ahari ${photo.num}`}
-                  fill
-                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                  unoptimized
-                  className="object-cover"
-                />
-              </div>
+              <Image
+                src={photo.image}
+                alt={`Shabnam Ahari ${photo.num}`}
+                width={photo.width}
+                height={photo.height}
+                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                unoptimized
+                className="h-auto w-full bg-media-gray"
+              />
             </div>
           ))}
         </div>
