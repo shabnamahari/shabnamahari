@@ -353,7 +353,7 @@ button {
   inset: 0;
   display: block;
   opacity: 0;
-  animation: reel-fade var(--reel-dur) linear infinite;
+  animation: var(--reel-dur) linear infinite;
   filter: grayscale(1);
   transition: filter 0.7s cubic-bezier(0.82, 0, 0.18, 1);
   will-change: transform, opacity;
@@ -361,28 +361,6 @@ button {
 
 .reel:hover .reel-frame {
   filter: grayscale(0);
-}
-
-/* Each photo fades up, holds its share of the loop, then dissolves out while
-   the next one is already fading in. */
-@keyframes reel-fade {
-  0% {
-    opacity: 0;
-    transform: scale(1.02);
-  }
-  4% {
-    opacity: 1;
-  }
-  16.66% {
-    opacity: 1;
-  }
-  22% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.14);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

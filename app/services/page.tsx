@@ -3,8 +3,9 @@ import RevealLine from "@/components/RevealLine";
 import Asterisk from "@/components/Asterisk";
 import ParenMedia from "@/components/ParenMedia";
 import ShowReel from "@/components/ShowReel";
+import KineticTypeTile from "@/components/KineticTypeTile";
 import WorkEntry from "@/components/WorkEntry";
-import { PROJECTS, reelImages } from "@/lib/projects";
+import { PROJECTS } from "@/lib/projects";
 
 export const metadata: Metadata = {
   title: "Programs — Shabnam Ahari",
@@ -18,6 +19,14 @@ export const metadata: Metadata = {
 // height and needs its own values — the homepage ones would read far too small.
 // At these sizes the second copy runs wider than the box and gets clipped at
 // the edges, which is the approved look.
+// The hero slot is a small square; the blocks below it are wide. Same tiles,
+// different type sizes.
+const HERO_TILE_SIZES: Record<string, string> = {
+  toty: "23cqmin",
+  "pixi-beauty": "18cqmin",
+  "pacifica-beauty": "12.5cqmin",
+};
+
 const TILE_SIZES: Record<string, string> = {
   toty: "34cqmin",
   "pixi-beauty": "25cqmin",
@@ -53,9 +62,16 @@ export default function ServicesPage() {
           >
             <ParenMedia>
               <ShowReel
-                images={PROJECTS.map((project) => reelImages(project)[0])}
                 beat={0.5}
                 alt="The three programs"
+                frames={PROJECTS.map((project) => (
+                  <KineticTypeTile
+                    key={project.slug}
+                    {...project.tile}
+                    size={HERO_TILE_SIZES[project.slug]}
+                    sound={false}
+                  />
+                ))}
               />
             </ParenMedia>
           </RevealLine>
