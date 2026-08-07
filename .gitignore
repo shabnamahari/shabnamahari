@@ -40,3 +40,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local tooling config
+/.agents/
+/.claude/
+/skills-lock.json
+
+# working files, not part of the site
+/2026-07-30-brand-guide.pdf
+/homepage-options-mockup.html
