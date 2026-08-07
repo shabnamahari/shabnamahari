@@ -338,6 +338,168 @@ button {
   }
 }
 
+/* ---- hover expand (skiper53) ---- */
+
+.hover-expand {
+  /*
+   * Sized by height, not width: the photographs are all 1200×2000, and an open
+   * panel cut to that same 3:5 shows the whole frame with nothing cropped away.
+   * Width follows from it, so the only knob is how tall an open panel may get —
+   * and since the ratio is fixed, asking for a wider panel is asking for a
+   * taller one.
+   */
+  --he-h: min(78vh, 880px);
+  --he-w: calc(var(--he-h) * 3 / 5);
+  /* A closed strip, at skiper's 2.5rem-to-24rem proportion. */
+  --he-c: calc(var(--he-w) * 2.5 / 24);
+  --he-gap: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+/*
+ * skiper53's entry — the block fades up 20px, half a second after it appears.
+ * The original leaves the curve to framer-motion's default, which is CSS `ease`.
+ */
+@keyframes hover-expand-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hover-expand[data-entry="load"] {
+  animation: hover-expand-in 0.3s ease 0.5s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hover-expand[data-entry] {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+.hover-expand-row {
+  display: grid;
+  /* Equal side columns are what put the image dead centre on the page; the
+     title then falls into the right one, starting a gap from the image edge. */
+  grid-template-columns: 1fr var(--he-w) 1fr;
+  column-gap: var(--he-gap);
+  align-items: center;
+  /*
+   * The height lives on the row rather than on the panel so that the strips
+   * stack tight against each other whatever the title beside them does. Left to
+   * the grid, a title running to several lines would out-measure a closed strip
+   * and prise the whole stack apart.
+   */
+  height: var(--he-c);
+  transition: height 0.3s ease-in-out;
+}
+
+.hover-expand-row[data-active="true"] {
+  height: var(--he-h);
+}
+
+.hover-expand-panel {
+  position: relative;
+  grid-column: 2;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 1.5rem;
+}
+
+.hover-expand-title {
+  grid-column: 3;
+  justify-self: start;
+}
+
+/* The role lists are long enough to need their own line under the title. */
+.hover-expand-roles {
+  display: block;
+  margin-top: 0.5em;
+  line-height: 1.3;
+}
+
+@media (max-width: 767px) {
+  /*
+   * Derived from width here, the reverse of the desktop rule. A phone's height
+   * is the plentiful dimension and its width the scarce one, so sizing from the
+   * height gave the panel whatever it wanted and left the title a column too
+   * narrow to set a word in. Fixing the panel at 55vw guarantees the split, and
+   * the 3:5 the photographs are cut to still governs the height.
+   */
+  .hover-expand {
+    --he-w: 55vw;
+    --he-h: calc(var(--he-w) * 5 / 3);
+    --he-gap: 0.75rem;
+  }
+
+  /* No room for a centring column at this width — the image takes the left. */
+  .hover-expand-row {
+    grid-template-columns: var(--he-w) 1fr;
+  }
+
+  .hover-expand-panel {
+    grid-column: 1;
+    border-radius: 1rem;
+  }
+
+  .hover-expand-title {
+    grid-column: 2;
+    /* Under the site's 16px note size, which will not wrap acceptably in a
+       column this narrow. */
+    font-size: 13px;
+    line-height: 1.25;
+  }
+
+  .hover-expand-roles {
+    font-size: 11px;
+  }
+}
+
+/* ---- panel titles: the two skiper text effects, played on open ---- */
+
+.title-word {
+  display: inline-block;
+}
+
+/*
+ * skiper72 / Horizontal Text reveal — words in from the right, skewed and
+ * transparent, one behind the other. The original is scroll-driven and sticky;
+ * the trigger here is a panel opening, which is the moment a title has to
+ * answer for itself.
+ */
+@keyframes title-reveal-h {
+  from {
+    opacity: 0;
+    transform: translateX(1.8em) skewX(-22deg);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) skewX(0);
+  }
+}
+
+[data-active="true"] .title-reveal .title-word {
+  animation: title-reveal-h 1.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--stagger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-active="true"] .title-word {
+    animation: none;
+  }
+}
+
 /* ---- showreel: a program's photographs as a cross-fade ---- */
 
 .reel {

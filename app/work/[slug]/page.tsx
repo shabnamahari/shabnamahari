@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import HoverExpand from "@/components/HoverExpand";
 import RevealLine from "@/components/RevealLine";
 import Asterisk from "@/components/Asterisk";
 import ParenMedia from "@/components/ParenMedia";
@@ -33,13 +33,19 @@ export default async function ProjectPage({
   const project = getProject(slug);
   if (!project) notFound();
 
-  const gallery = galleryItems(project.slug);
   const others = PROJECTS.filter((p) => p.slug !== project.slug);
 
-  // Role lists vary in length, so captions wrap to different line counts at
-  // different widths — reserving space for the worst case (3 lines) keeps
-  // every image in a row starting at the same height instead of stair-stepping.
-  const hasRoleCaptions = project.galleryLabels?.some((l) => l.roles);
+  const galleryPanels = galleryItems(project.slug).map((item, i) => {
+    const label = project.galleryLabels?.[i];
+    return {
+      href: item.href,
+      src: label?.image ?? item.image,
+      alt: label?.title ?? `${project.name} ${item.num}`,
+      code: `# ${item.num}`,
+      title: label?.title ?? `( ${item.num} )`,
+      roles: label?.roles,
+    };
+  });
 
   // The name is dynamic (any project), so the size must guarantee a fit
   // rather than assume a short single word: cap at the character width this
@@ -53,8 +59,8 @@ export default async function ProjectPage({
     <div className="flex flex-col gap-y-[100px] pb-[100px] md:gap-y-[200px] md:pb-[200px]">
       {/* hero: ✳ ( video ) + name */}
       <h1 className="flex min-h-[100svh] w-full flex-col items-center justify-center gap-y-2 overflow-hidden py-[15px]">
-        <div className="relative flex shrink-0 items-center px-28">
-          <span className="absolute left-24 w-[calc((0.9em+2.7vw)*1.5)] -translate-x-full pt-1 text-ink">
+        <div className="relative flex shrink-0 items-center px-16 md:px-28">
+          <span className="absolute left-16 md:left-24 w-[calc((0.9em+2.7vw)*1.5)] max-md:w-10 -translate-x-full pt-1 text-ink">
             <Asterisk />
           </span>
           <RevealLine className="text-h1 flex items-center justify-center font-bold">
@@ -95,43 +101,7 @@ export default async function ProjectPage({
         <RevealLine as="h2" className="text-h2 text-center">
           {project.galleryHeading ?? "Gallery"}
         </RevealLine>
-        <div className="grid grid-cols-1 gap-x-[15px] gap-y-[60px] sm:grid-cols-2 lg:grid-cols-3">
-          {gallery.map((item, i) => (
-            <Link
-              key={item.num}
-              href={item.href}
-              className="group flex flex-col gap-y-[15px]"
-            >
-              {project.galleryLabels ? (
-                <span
-                  className={`text-note ${hasRoleCaptions ? "min-h-[50px] md:min-h-[65px]" : ""}`}
-                >
-                  {project.galleryLabels[i].title}
-                  {project.galleryLabels[i].roles && (
-                    <>
-                      {" "}
-                      <span className="text-muted-ink">
-                        ({project.galleryLabels[i].roles})
-                      </span>
-                    </>
-                  )}
-                </span>
-              ) : (
-                <span className="text-note">( {item.num} )</span>
-              )}
-              <div className="relative aspect-[3/5] w-full overflow-hidden bg-media-gray">
-                <Image
-                  src={project.galleryLabels?.[i]?.image ?? item.image}
-                  alt={project.galleryLabels?.[i]?.title ?? `${project.name} ${item.num}`}
-                  fill
-                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                  unoptimized
-                  className="object-cover"
-                />
-              </div>
-            </Link>
-          ))}
-        </div>
+        <HoverExpand images={galleryPanels} entry="load" />
       </div>
 
       {/* other programs */}
@@ -146,10 +116,10 @@ export default async function ProjectPage({
               href={`/work/${other.slug}`}
               className="group relative block overflow-hidden"
             >
-              <span className="text-h2 ease-custom-text-links block transition-all duration-700 lg:group-hover:-translate-y-full">
+              <span className="text-h2 ease-custom-text-links block transition-all duration-700 group-hover:-translate-y-full">
                 {other.name}
               </span>
-              <span className="text-h2 ease-custom-text-links absolute top-0 left-0 block w-full translate-y-[105%] transition-all duration-700 lg:group-hover:translate-y-0">
+              <span className="text-h2 ease-custom-text-links absolute top-0 left-0 block w-full translate-y-[105%] transition-all duration-700 group-hover:translate-y-0">
                 {other.name}
               </span>
             </Link>
