@@ -39,19 +39,19 @@ body {
   font-family: var(--font-nhm), sans-serif;
   font-size: 16px;
   line-height: 1.2;
-  cursor: none;
 }
 
-a,
-button {
-  cursor: none;
-}
-
-@media (max-width: 1023px) {
+/*
+ * The system cursor is only hidden where a custom one can replace it — which is
+ * a question about the pointing device, not the width of the window. Keyed off
+ * viewport width, a laptop with the browser at half screen lost the custom
+ * cursor and got nothing in its place.
+ */
+@media (hover: hover) and (pointer: fine) {
   body,
   a,
   button {
-    cursor: auto;
+    cursor: none;
   }
 }
 

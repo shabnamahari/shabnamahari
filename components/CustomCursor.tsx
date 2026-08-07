@@ -1,13 +1,29 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function CustomCursor() {
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
+  const [hasMouse, setHasMouse] = useState(false);
+
+  /*
+   * Whether to draw a cursor is a question about the pointing device, not the
+   * width of the window: at half screen on a laptop the old width test said no
+   * and the real cursor was hidden by then anyway, leaving nothing at all.
+   * Watched rather than read once, so dragging a window between a trackpad
+   * screen and a touch one is picked up.
+   */
+  useEffect(() => {
+    const query = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const sync = () => setHasMouse(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
 
   useEffect(() => {
-    if (window.matchMedia("(max-width: 1023px)").matches) return;
+    if (!hasMouse) return;
 
     const ring = { x: 0, y: 0 };
     let raf = 0;
@@ -51,10 +67,12 @@ export default function CustomCursor() {
       window.removeEventListener("mouseup", onUp);
       cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [hasMouse]);
+
+  if (!hasMouse) return null;
 
   return (
-    <div className="hidden lg:block pointer-events-none fixed inset-0 z-[999999999]">
+    <div className="pointer-events-none fixed inset-0 z-[999999999]">
       {/* Solid accent, no blend mode: difference blending against the site's own
           near-black made the cursor cancel out to nothing on dark sections. */}
       <div

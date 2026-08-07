@@ -29,10 +29,10 @@ function RollLink({
       onClick={onClick}
       className="text-menu group relative block overflow-hidden text-center whitespace-nowrap will-change-transform"
     >
-      <span className="ease-custom-text-links block px-1 transition-all duration-700 lg:group-hover:-translate-y-full">
+      <span className="ease-custom-text-links block px-1 transition-all duration-700 group-hover:-translate-y-full">
         {label}
       </span>
-      <span className="ease-custom-text-links absolute top-0 left-0 block w-full translate-y-[105%] transition-all duration-700 lg:group-hover:translate-y-0">
+      <span className="ease-custom-text-links absolute top-0 left-0 block w-full translate-y-[105%] transition-all duration-700 group-hover:translate-y-0">
         {label}
       </span>
     </a>
@@ -59,7 +59,7 @@ function MenuRow({
       >
         <RollLink label={item.label} href={item.href} onClick={item.onClick} />
         <div
-          className="text-note ease-custom-less absolute top-1/2 left-4 -translate-x-full -translate-y-1/2 transition-all duration-700 max-md:hidden lg:group-hover/wrapper:left-0"
+          className="text-note ease-custom-less absolute top-1/2 left-4 -translate-x-full -translate-y-1/2 transition-all duration-700 max-md:hidden group-hover/wrapper:left-0"
           style={{ marginLeft: "-28px" }}
         >
           {item.note}
@@ -118,12 +118,12 @@ export default function MenuOverlay({
 
         <div className="flex w-full justify-center overflow-hidden">
           <div
-            className={`ease-custom-less relative flex shrink-0 items-center px-28 transition-all duration-1000 ${
+            className={`ease-custom-less relative flex shrink-0 items-center px-16 md:px-28 transition-all duration-1000 ${
               isOpen ? "translate-y-0" : "translate-y-[102%]"
             }`}
             style={{ transitionDelay: `${3 * 0.0667}s` }}
           >
-            <span className="absolute left-24 w-[calc((0.9em+2.7vw)*1.5)] -translate-x-full pt-1 text-white">
+            <span className="absolute left-16 md:left-24 w-[calc((0.9em+2.7vw)*1.5)] max-md:w-10 -translate-x-full pt-1 text-white">
               <Asterisk />
             </span>
             <div className="text-menu flex items-center justify-center font-bold">

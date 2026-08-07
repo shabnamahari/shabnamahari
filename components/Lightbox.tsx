@@ -22,7 +22,7 @@ export default function LightboxProvider({
       {children}
       {content && (
         <div
-          className="fixed inset-0 z-[999999998] flex items-center justify-center bg-cream/95 p-8"
+          className="fixed inset-0 z-[999999998] flex items-center justify-center bg-cream/95 p-4 md:p-8"
           onClick={() => setContent(null)}
         >
           <div className="max-h-[calc(100vh-110px)] max-w-[calc(100vw-62px)]">

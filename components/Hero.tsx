@@ -19,8 +19,8 @@ export default function Hero() {
         </RevealLine>
       </div>
 
-      <div className="relative flex shrink-0 items-center px-28">
-        <span className="absolute left-24 -translate-x-full pt-1 w-[calc((0.9em+2.7vw)*1.5)] text-ink">
+      <div className="relative flex shrink-0 items-center px-16 md:px-28">
+        <span className="absolute left-16 md:left-24 -translate-x-full pt-1 w-[calc((0.9em+2.7vw)*1.5)] max-md:w-10 text-ink">
           <Asterisk />
         </span>
         <RevealLine
