@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import BackControl from "@/components/BackControl";
 import { TextRevealH } from "@/components/TitleEffects";
 
@@ -15,7 +16,12 @@ export const metadata: Metadata = {
 export default function AuthPage() {
   return (
     <section className="flex min-h-[100svh] w-full items-center justify-center px-[15px]">
-      <BackControl />
+      {/* BackControl reads ?fx to pick between the effects being chosen
+          between, and a search param has to be read under Suspense or it
+          opts the whole page out of being prerendered. */}
+      <Suspense fallback={null}>
+        <BackControl />
+      </Suspense>
       {/* Note size, the same as the line on every entry page — the pause is
           the same pause, and setting it larger here made it a headline. */}
       <div data-active="true" className="text-note text-muted-ink text-center">

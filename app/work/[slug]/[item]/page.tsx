@@ -231,11 +231,22 @@ export default async function GalleryItemPage({
            *
            * 1.3 is therefore break-even and 1.4 leaves 0.05em of margin either
            * side, which is what lets the offset be a plain 100%.
+           *
+           * Set inline, not as leading-[1.4]. Tailwind's utilities live in
+           * @layer utilities and .text-h2 is written outside any layer, and
+           * unlayered rules beat layered ones however specific the layered one
+           * is — so the utility lost to .text-h2's line-height: 1 silently.
            */}
-          <span className="text-h2 text-confirm ease-custom-text-links block leading-[1.4] transition-all duration-700 group-hover:-translate-y-full">
+          <span
+            style={{ lineHeight: 1.4 }}
+            className="text-h2 text-confirm ease-custom-text-links block transition-all duration-700 group-hover:-translate-y-full"
+          >
             Set Up Your Account
           </span>
-          <span className="text-h2 text-confirm ease-custom-text-links absolute top-0 left-0 block w-full translate-y-full leading-[1.4] transition-all duration-700 group-hover:translate-y-0">
+          <span
+            style={{ lineHeight: 1.4 }}
+            className="text-h2 text-confirm ease-custom-text-links absolute top-0 left-0 block w-full translate-y-full transition-all duration-700 group-hover:translate-y-0"
+          >
             Set Up Your Account
           </span>
         </AuthLink>
