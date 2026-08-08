@@ -26,6 +26,9 @@ type Params = { slug: string; item: string };
  */
 const TITLE_FONT_SIZE = "min(12vw, calc((100vw - 80px) / 8.64))";
 
+/** The roll on the call to action. See the note at its use for the curve. */
+const ROLL = "transform 900ms cubic-bezier(0.65, 0, 0.35, 1)";
+
 export function generateStaticParams() {
   return PROJECTS.flatMap((project) =>
     galleryItems(project.slug).map((entry) => ({
@@ -236,16 +239,24 @@ export default async function GalleryItemPage({
            * @layer utilities and .text-h2 is written outside any layer, and
            * unlayered rules beat layered ones however specific the layered one
            * is — so the utility lost to .text-h2's line-height: 1 silently.
+           *
+           * The transition is inline for the same reason, and on a different
+           * curve from the site's other links. ease-custom-text-links is
+           * cubic-bezier(0.98, 0, 0.02, 1), which holds near its start for most
+           * of the duration, crosses almost the whole distance at once, then
+           * holds again — so it reads as a snap however long it is given, and
+           * lengthening it only lengthens the pause. This curve spends its time
+           * travelling instead, which is what makes a roll legible as rolling.
            */}
           <span
-            style={{ lineHeight: 1.4 }}
-            className="text-h2 text-confirm ease-custom-text-links block transition-all duration-700 group-hover:-translate-y-full"
+            style={{ lineHeight: 1.4, transition: ROLL }}
+            className="text-h2 text-confirm block group-hover:-translate-y-full"
           >
             Set Up Your Account
           </span>
           <span
-            style={{ lineHeight: 1.4 }}
-            className="text-h2 text-confirm ease-custom-text-links absolute top-0 left-0 block w-full translate-y-full transition-all duration-700 group-hover:translate-y-0"
+            style={{ lineHeight: 1.4, transition: ROLL }}
+            className="text-h2 text-confirm absolute top-0 left-0 block w-full translate-y-full group-hover:translate-y-0"
           >
             Set Up Your Account
           </span>
