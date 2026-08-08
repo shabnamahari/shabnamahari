@@ -1,18 +1,163 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import Asterisk from "@/components/Asterisk";
+import ParenMedia from "@/components/ParenMedia";
 import RevealLine from "@/components/RevealLine";
+import { PROJECTS, getProject, galleryItems } from "@/lib/projects";
 
-export const metadata: Metadata = {
-  title: "Coming Soon — Shabnam Ahari",
-};
+type Params = { slug: string; item: string };
 
-export default function GalleryItemPage() {
+export function generateStaticParams() {
+  return PROJECTS.flatMap((project) =>
+    galleryItems(project.slug).map((entry) => ({
+      slug: project.slug,
+      item: entry.num,
+    })),
+  );
+}
+
+/**
+ * The gallery entry a /work/[slug]/[item] URL points at. The panels on the
+ * program page are built the same way — numbered entries, captioned in order by
+ * `galleryLabels` — so the caption is looked up by position, not stored twice.
+ */
+function getEntry(slug: string, num: string) {
+  const project = getProject(slug);
+  if (!project) return null;
+
+  const entries = galleryItems(slug);
+  const index = entries.findIndex((entry) => entry.num === num);
+  if (index === -1) return null;
+
+  const label = project.galleryLabels?.[index];
+  return {
+    project,
+    num,
+    title: label?.title ?? `( ${num} )`,
+    roles: label?.roles,
+    image: label?.image ?? entries[index].image,
+  };
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<Params>;
+}): Promise<Metadata> {
+  const { slug, item } = await params;
+  const entry = getEntry(slug, item);
+  return {
+    title: entry ? `${entry.title} — Shabnam Ahari` : "Shabnam Ahari",
+  };
+}
+
+export default async function GalleryItemPage({
+  params,
+}: {
+  params: Promise<Params>;
+}) {
+  const { slug, item } = await params;
+  const entry = getEntry(slug, item);
+  if (!entry) notFound();
+
+  const { project } = entry;
+  const heading = project.galleryHeading ?? "Gallery";
+
+  const siblings = galleryItems(slug)
+    .map((sibling, i) => ({
+      ...sibling,
+      title: project.galleryLabels?.[i]?.title ?? `( ${sibling.num} )`,
+    }))
+    .filter((sibling) => sibling.num !== entry.num);
+
   return (
-    <section className="flex min-h-[100svh] w-full items-center justify-center px-[15px]">
-      <RevealLine as="h1" className="text-h2 text-muted-ink w-full text-center">
-        <span style={{ letterSpacing: "0.45em" }}>
-          Keep Watching This Space
-        </span>
-      </RevealLine>
-    </section>
+    <div className="flex flex-col gap-y-[100px] pb-[100px] md:gap-y-[200px] md:pb-[200px]">
+      {/* hero: ✳ ( photograph ) + the entry's own title */}
+      <section className="flex min-h-[100svh] w-full flex-col items-center justify-center gap-y-6 overflow-hidden py-[15px]">
+        <div className="relative flex shrink-0 items-center px-16 md:px-28">
+          <span className="absolute left-16 md:left-24 w-[calc((0.9em+2.7vw)*1.5)] max-md:w-10 -translate-x-full pt-1 text-ink">
+            <Asterisk />
+          </span>
+          <RevealLine className="text-h1 flex items-center justify-center font-bold">
+            <ParenMedia>
+              <Image
+                src={entry.image}
+                alt={entry.title}
+                fill
+                sizes="(min-width: 768px) 40vw, 70vw"
+                unoptimized
+                // Same crop the program's showreel takes: a square frame cuts a
+                // standing portrait somewhere, and centre puts that cut across
+                // the face.
+                style={{ objectPosition: "50% 25%" }}
+                className="media-grayscale object-cover"
+              />
+            </ParenMedia>
+          </RevealLine>
+          <span className="text-note text-muted-ink absolute right-28 top-1/2 max-md:hidden -translate-y-1/2 translate-x-full pl-[1vw] md:pl-[1.5vw]">
+            # {entry.num}
+          </span>
+        </div>
+
+        <div className="flex w-full justify-center overflow-hidden">
+          <RevealLine
+            as="h1"
+            delay={0.0667}
+            /*
+             * Titles here run from one word to seven, so unlike the program
+             * name — which is set on one nowrap line — this one wraps. The
+             * measure is in `em` so it tracks the 12vw type: at the ≈0.534em
+             * this font, weight and tracking render per character, 6.5em is
+             * about twelve characters a line, which keeps a long title to
+             * three lines and still leaves a short one whole.
+             */
+            className="text-h1-2 max-w-[6.5em] text-center"
+          >
+            <span style={{ textWrap: "balance" }}>{entry.title}</span>
+          </RevealLine>
+        </div>
+
+        {entry.roles ? (
+          <RevealLine
+            delay={0.13}
+            className="text-note text-muted-ink max-w-[40ch] px-[15px] text-center"
+          >
+            {entry.roles}
+          </RevealLine>
+        ) : null}
+
+        <RevealLine
+          delay={entry.roles ? 0.2 : 0.13}
+          className="text-note text-muted-ink"
+        >
+          ( in production )
+        </RevealLine>
+      </section>
+
+      {/* the rest of the program, so the page isn't a dead end */}
+      <div className="page-margin flex flex-col gap-y-[50px]">
+        <RevealLine as="h2" className="text-h2 text-center">
+          Other {heading.toLowerCase()} in {project.name}
+        </RevealLine>
+        <div className="flex flex-col items-center gap-y-[30px]">
+          {siblings.map((sibling) => (
+            <Link
+              key={sibling.num}
+              href={sibling.href}
+              className="group relative block overflow-hidden text-center"
+            >
+              <span className="text-h3 ease-custom-text-links block transition-all duration-700 group-hover:-translate-y-full">
+                {sibling.title}
+              </span>
+              <span className="text-h3 ease-custom-text-links absolute top-0 left-0 block w-full translate-y-[105%] transition-all duration-700 group-hover:translate-y-0">
+                {sibling.title}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
