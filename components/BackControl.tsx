@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
  * from any of the eighteen entries, and the entry you came from is the one
  * place "back" can honestly mean.
  */
-export default function BackControl({ label = "Back" }: { label?: string }) {
+export default function BackControl({ label = "( Back )" }: { label?: string }) {
   const router = useRouter();
 
   return (
