@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Asterisk from "@/components/Asterisk";
 import ParenMedia from "@/components/ParenMedia";
 import RevealLine from "@/components/RevealLine";
+import { TextRevealH } from "@/components/TitleEffects";
 import { PROJECTS, getProject, galleryItems } from "@/lib/projects";
 
 type Params = { slug: string; item: string };
@@ -81,17 +82,27 @@ export default async function GalleryItemPage({
             <Asterisk />
           </span>
           <RevealLine className="text-h1 flex items-center justify-center font-bold">
-            <ParenMedia>
+            {/*
+             * Every photograph is 1200×2000, so the slot is given that same 3:5
+             * and nothing is cropped — the ratio the open hover-expand panels
+             * already use for the same reason. A square slot threw away two
+             * fifths of each frame, and no choice of focal point saves a
+             * standing figure from that.
+             *
+             * 3:5 makes the slot narrow for its height, so the height is raised
+             * to compensate — further on phones, where 12vw type is small
+             * enough that the default would leave a stamp barely 30px across.
+             */}
+            <ParenMedia
+              aspectClassName="aspect-[3/5]"
+              sizeClassName="h-[calc(1.6em-1.6vw)] md:h-[calc(1.1em-1.6vw)]"
+            >
               <Image
                 src={entry.image}
                 alt={entry.title}
                 fill
-                sizes="(min-width: 768px) 40vw, 70vw"
+                sizes="(min-width: 768px) 25vw, 40vw"
                 unoptimized
-                // Same crop the program's showreel takes: a square frame cuts a
-                // standing portrait somewhere, and centre puts that cut across
-                // the face.
-                style={{ objectPosition: "50% 25%" }}
                 className="media-grayscale object-cover"
               />
             </ParenMedia>
@@ -113,7 +124,7 @@ export default async function GalleryItemPage({
              * about twelve characters a line, which keeps a long title to
              * three lines and still leaves a short one whole.
              */
-            className="text-h1-2 max-w-[6.5em] text-center"
+            className="text-h1-2 text-confirm max-w-[6.5em] text-center"
           >
             <span style={{ textWrap: "balance" }}>{entry.title}</span>
           </RevealLine>
@@ -128,12 +139,16 @@ export default async function GalleryItemPage({
           </RevealLine>
         ) : null}
 
-        <RevealLine
-          delay={entry.roles ? 0.2 : 0.13}
-          className="text-note text-muted-ink"
-        >
-          ( in production )
-        </RevealLine>
+        {/*
+         * The gallery captions' own entrance — words in from the right, skewed
+         * and transparent. There it is armed by a panel opening; the hero here
+         * is on screen the moment the page is, so the flag is simply set, and
+         * the stagger's head start is what holds the line back until the title
+         * has landed.
+         */}
+        <div data-active="true" className="text-note text-muted-ink">
+          <TextRevealH text="( in production )" startIndex={3} />
+        </div>
       </section>
 
       {/* the rest of the program, so the page isn't a dead end */}
@@ -148,10 +163,10 @@ export default async function GalleryItemPage({
               href={sibling.href}
               className="group relative block overflow-hidden text-center"
             >
-              <span className="text-h3 ease-custom-text-links block transition-all duration-700 group-hover:-translate-y-full">
+              <span className="text-h3 text-confirm ease-custom-text-links block transition-all duration-700 group-hover:-translate-y-full">
                 {sibling.title}
               </span>
-              <span className="text-h3 ease-custom-text-links absolute top-0 left-0 block w-full translate-y-[105%] transition-all duration-700 group-hover:translate-y-0">
+              <span className="text-h3 text-confirm ease-custom-text-links absolute top-0 left-0 block w-full translate-y-[105%] transition-all duration-700 group-hover:translate-y-0">
                 {sibling.title}
               </span>
             </Link>

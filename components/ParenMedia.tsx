@@ -6,6 +6,7 @@ export default function ParenMedia({
   href,
   label = "Open media",
   sizeClassName = "h-[calc(0.9em-1.6vw)]",
+  aspectClassName = "aspect-square",
 }: {
   children: React.ReactNode;
   onClick?: () => void;
@@ -13,8 +14,14 @@ export default function ParenMedia({
   href?: string;
   label?: string;
   sizeClassName?: string;
+  /**
+   * The shape of the slot. Square is the site's default — a showreel is cut to
+   * fit it. A single photograph is not: the shape has to be given the
+   * photograph's own ratio, or the frame crops it.
+   */
+  aspectClassName?: string;
 }) {
-  const mediaClassName = `relative inline-block aspect-square ${sizeClassName} overflow-hidden bg-media-gray align-middle`;
+  const mediaClassName = `relative inline-block ${aspectClassName} ${sizeClassName} overflow-hidden bg-media-gray align-middle`;
 
   return (
     <span className="relative inline-flex items-center gap-x-[calc(0.1em+1vw)] font-nhm">
