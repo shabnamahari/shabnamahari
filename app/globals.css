@@ -157,10 +157,17 @@ body {
 
 /* ---- link underline pattern ---- */
 
+/*
+ * No `overflow: hidden` here. An inline-block whose overflow is anything but
+ * visible takes its bottom margin edge as its baseline instead of its text's,
+ * so a link set inside a sentence aligned by its underside and rode above the
+ * words either side of it. Nothing was being clipped by it in any case — the
+ * rule underneath is an absolutely positioned ::after, and the box has no
+ * fixed height for content to escape.
+ */
 .body-link {
   position: relative;
   display: inline-block;
-  overflow: hidden;
   padding-bottom: 2px;
   line-height: 1.1;
 }
