@@ -4,6 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Asterisk from "@/components/Asterisk";
 import ParenMedia from "@/components/ParenMedia";
+import AuthLink from "@/components/AuthLink";
+import FitOneLine from "@/components/FitOneLine";
 import RevealLine from "@/components/RevealLine";
 import RevealOnView from "@/components/RevealOnView";
 import { TextRevealH } from "@/components/TitleEffects";
@@ -86,6 +88,22 @@ export default async function GalleryItemPage({
       title: project.galleryLabels?.[i]?.title ?? `( ${sibling.num} )`,
     }))
     .filter((sibling) => sibling.num !== entry.num);
+
+  // Shared by the fitted row and the wrapped one. The stagger runs on a word
+  // count carried across the whole row rather than restarting at each link, so
+  // the titles arrive as one wave instead of five that collide.
+  const siblingLinks = siblings.map((sibling, i) => (
+    <li key={sibling.num}>
+      <Link href={sibling.href} className="body-link text-confirm">
+        <TextRevealH
+          text={sibling.title}
+          startIndex={siblings
+            .slice(0, i)
+            .reduce((n, s) => n + s.title.split(" ").length, 0)}
+        />
+      </Link>
+    </li>
+  ));
 
   // One size for every entry title on every page. Sizing each title to its own
   // longest word made "Healthcare" tower over "Engineering & Construction", so
@@ -197,8 +215,8 @@ export default async function GalleryItemPage({
        * the row says "there is more here" without pretending to be the point.
        */}
       <div className="page-margin flex flex-col items-center gap-y-[60px]">
-        <Link
-          href="/auth"
+        <AuthLink
+          from={{ href: `/work/${slug}/${entry.num}`, label: entry.title }}
           className="group relative block overflow-hidden text-center"
         >
           {/*
@@ -214,39 +232,34 @@ export default async function GalleryItemPage({
           <span className="text-h2 text-confirm ease-custom-text-links absolute top-0 left-0 block w-full translate-y-full leading-[1.25] transition-all duration-700 group-hover:translate-y-0">
             Set Up Your Account
           </span>
-        </Link>
+        </AuthLink>
 
-        <div className="flex flex-col items-center gap-y-[18px]">
+        <div className="flex w-full flex-col items-center gap-y-[18px]">
           <RevealLine className="text-note text-confirm text-center">
-            Other {heading.toLowerCase()} in {project.name}
+            Other {heading.toLowerCase()} in{" "}
+            <Link href={`/work/${slug}`} className="body-link">
+              {project.name}
+            </Link>
           </RevealLine>
           {/*
-           * The captions' entrance again, this time thrown by the scroll. The
-           * stagger runs on a word count carried across the whole row rather
-           * than restarting at each link, so the six titles arrive as one wave
-           * instead of six that collide.
+           * One centred line, shrunk to whatever size that takes. The gap is in
+           * `em`, so it comes down with the type rather than eating the room
+           * that was just freed. Phones get the wrapped row instead: fitting
+           * six IELTS titles across 375px would leave them unreadable.
            */}
-          {/*
-           * One centred line. Five titles at note size measure comfortably
-           * inside a laptop, so only phones are given leave to wrap — there the
-           * row would otherwise have to shrink to a size nobody could read.
-           */}
+          <FitOneLine max={21} min={11} className="max-md:hidden">
+            <RevealOnView
+              as="ul"
+              className="flex flex-nowrap justify-center gap-x-[1.5em] whitespace-nowrap"
+            >
+              {siblingLinks}
+            </RevealOnView>
+          </FitOneLine>
           <RevealOnView
             as="ul"
-            className="text-note flex flex-wrap justify-center gap-x-[1.5em] gap-y-[0.7em] text-center md:flex-nowrap md:whitespace-nowrap"
+            className="text-note flex flex-wrap justify-center gap-x-[1.5em] gap-y-[0.7em] text-center md:hidden"
           >
-            {siblings.map((sibling, i) => (
-              <li key={sibling.num}>
-                <Link href={sibling.href} className="body-link text-confirm">
-                  <TextRevealH
-                    text={sibling.title}
-                    startIndex={siblings
-                      .slice(0, i)
-                      .reduce((n, s) => n + s.title.split(" ").length, 0)}
-                  />
-                </Link>
-              </li>
-            ))}
+            {siblingLinks}
           </RevealOnView>
         </div>
       </div>
