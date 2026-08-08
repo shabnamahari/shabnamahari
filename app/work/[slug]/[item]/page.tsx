@@ -220,16 +220,22 @@ export default async function GalleryItemPage({
           className="group relative block overflow-hidden text-center"
         >
           {/*
-           * leading-[1.25], where .text-h2 sets 1. At 1 the serif's ascenders
-           * stand outside their own line box, so the copy waiting below at
-           * 105% had its letter-tops showing above the visible line. Given a
-           * line box that contains them, the waiting copy clears the frame and
-           * the offset can be a plain 100%.
+           * leading-[1.4], where .text-h2 sets 1.
+           *
+           * The number is not taste. Instrument Serif declares an ascent of
+           * 0.99em and a descent of 0.31em, so its glyphs occupy 1.30em — at
+           * line-height 1 they stand 0.15em outside their own line box top and
+           * bottom. The box the roll-up clips to is that line box, so the copy
+           * waiting below showed the top of its p through the floor, and the
+           * visible copy had its ascenders shaved at the ceiling.
+           *
+           * 1.3 is therefore break-even and 1.4 leaves 0.05em of margin either
+           * side, which is what lets the offset be a plain 100%.
            */}
-          <span className="text-h2 text-confirm ease-custom-text-links block leading-[1.25] transition-all duration-700 group-hover:-translate-y-full">
+          <span className="text-h2 text-confirm ease-custom-text-links block leading-[1.4] transition-all duration-700 group-hover:-translate-y-full">
             Set Up Your Account
           </span>
-          <span className="text-h2 text-confirm ease-custom-text-links absolute top-0 left-0 block w-full translate-y-full leading-[1.25] transition-all duration-700 group-hover:translate-y-0">
+          <span className="text-h2 text-confirm ease-custom-text-links absolute top-0 left-0 block w-full translate-y-full leading-[1.4] transition-all duration-700 group-hover:translate-y-0">
             Set Up Your Account
           </span>
         </AuthLink>
