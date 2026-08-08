@@ -166,10 +166,10 @@ export default async function GalleryItemPage({
           </RevealLine>
         </div>
 
+        {/* One line: the longest roles list is around sixty characters, which
+            at note size fits a laptop with room over. Phones keep the measure
+            and wrap, rather than shrink to something unreadable. */}
         {entry.roles ? (
-          {/* One line: the longest roles list is around sixty characters, which
-              at note size fits a laptop with room over. Phones keep the
-              measure and wrap, rather than shrink to something unreadable. */}
           <RevealLine
             delay={0.13}
             className="text-note text-muted-ink max-w-[40ch] px-[15px] text-center md:max-w-none md:whitespace-nowrap"
