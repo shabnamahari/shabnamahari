@@ -169,6 +169,20 @@ export function reelImages(project: Project) {
   return labelled?.length ? labelled : galleryItems(project.slug).map((i) => i.image);
 }
 
+/**
+ * The 1:1 crop of a category photograph.
+ *
+ * The originals are all 1200×2000 and the gallery panels show them whole, so a
+ * square slot cannot be fed the same file — it would throw away two fifths of
+ * the frame wherever the focal point were put. Each square was therefore cut
+ * once, by eye, into `square/`, and the two live side by side.
+ */
+export function squareImage(image: string) {
+  return image.startsWith("/images/categories/")
+    ? image.replace("/images/categories/", "/images/categories/square/")
+    : image.replace("/600/1000", "/600/600");
+}
+
 export function galleryItems(slug: string) {
   return Array.from({ length: GALLERY_COUNT }, (_, i) => {
     const num = String(i + 1).padStart(2, "0");
