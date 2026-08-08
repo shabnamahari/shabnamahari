@@ -44,6 +44,7 @@ export default async function ProjectPage({
       code: `# ${item.num}`,
       title: label?.title ?? `( ${item.num} )`,
       roles: label?.roles,
+      video: label?.video,
     };
   });
 

@@ -4,6 +4,12 @@ export type GalleryLabel = {
   roles?: string;
   /** Overrides the generated picsum placeholder with a real local image. */
   image?: string;
+  /**
+   * An animated cut of `image`, played only while this panel is open. Optional
+   * per category, so the clips can land one at a time — a category without one
+   * shows its still and nothing else changes.
+   */
+  video?: string;
 };
 
 export type Project = {
@@ -79,6 +85,7 @@ export const PROJECTS: Project[] = [
       {
         title: "AI & IELTS",
         image: "/images/categories/blog-02-ai-ielts.jpg",
+        video: "/videos/categories/blog-02-ai-ielts.mp4",
       },
       {
         title: "IELTS Skills",

@@ -421,6 +421,33 @@ body {
   border-radius: 1.5rem;
 }
 
+/*
+ * The clip fades up over its own still rather than cutting to it. The first
+ * frame of the clip and the still are the same drawing, so the cut is nearly
+ * invisible anyway — but "nearly" is the problem: a one-frame colour shift
+ * reads as a glitch, and a fade of this length reads as nothing at all.
+ */
+@keyframes panel-clip-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.hover-expand-clip {
+  animation: panel-clip-in 0.25s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The clip is the motion; there is no toned-down version of it, so it does
+     not play at all and the still it sits on becomes the panel. */
+  .hover-expand-clip {
+    display: none;
+  }
+}
+
 .hover-expand-title {
   grid-column: 3;
   justify-self: start;
