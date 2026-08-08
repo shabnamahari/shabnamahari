@@ -494,9 +494,21 @@ body {
   animation-delay: var(--stagger);
 }
 
+/*
+ * Armed but not yet fired. A panel waiting to open is closed to a strip, so it
+ * never needed this; a row waiting to be scrolled to is in plain sight, and
+ * without it the words would sit there fully drawn and then animate in on top
+ * of themselves.
+ */
+[data-active="false"] .title-reveal .title-word {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  [data-active="true"] .title-word {
+  [data-active="true"] .title-word,
+  [data-active="false"] .title-word {
     animation: none;
+    opacity: 1;
   }
 }
 

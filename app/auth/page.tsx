@@ -14,7 +14,9 @@ export const metadata: Metadata = {
 export default function AuthPage() {
   return (
     <section className="flex min-h-[100svh] w-full items-center justify-center px-[15px]">
-      <div data-active="true" className="text-h2 text-muted-ink text-center">
+      {/* Note size, the same as the line on every entry page — the pause is
+          the same pause, and setting it larger here made it a headline. */}
+      <div data-active="true" className="text-note text-muted-ink text-center">
         <TextRevealH text="( in production )" />
       </div>
     </section>
