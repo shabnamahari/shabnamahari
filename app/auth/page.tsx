@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import BackControl from "@/components/BackControl";
 import { TextRevealH } from "@/components/TitleEffects";
 
 export const metadata: Metadata = {
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 export default function AuthPage() {
   return (
     <section className="flex min-h-[100svh] w-full items-center justify-center px-[15px]">
+      <BackControl />
       {/* Note size, the same as the line on every entry page — the pause is
           the same pause, and setting it larger here made it a headline. */}
       <div data-active="true" className="text-note text-muted-ink text-center">

@@ -16,6 +16,14 @@ import {
 
 type Params = { slug: string; item: string };
 
+/**
+ * The type size every entry title is set at. See the note at its use: the
+ * divisor is the longest word in the whole gallery times a generous per-
+ * character width, and the 80px covers the page margin plus .text-h1-2's own
+ * horizontal padding, which sits inside the border box.
+ */
+const TITLE_FONT_SIZE = "min(12vw, calc((100vw - 80px) / 8.64))";
+
 export function generateStaticParams() {
   return PROJECTS.flatMap((project) =>
     galleryItems(project.slug).map((entry) => ({
@@ -79,16 +87,14 @@ export default async function GalleryItemPage({
     }))
     .filter((sibling) => sibling.num !== entry.num);
 
-  // 12vw as everywhere else, but never wider than the longest word in this
-  // title can be set at. 0.6em per character is deliberately generous: the
-  // penalty for overestimating is slightly smaller type, for underestimating a
-  // word with its end cut off.
-  const longestWord = entry.title
-    .split(" ")
-    .reduce((longest, word) => (word.length > longest.length ? word : longest));
-  const titleFontSize = `min(12vw, calc((100vw - 60px) / ${(
-    longestWord.length * 0.6
-  ).toFixed(2)}))`;
+  // One size for every entry title on every page. Sizing each title to its own
+  // longest word made "Healthcare" tower over "Engineering & Construction", so
+  // the budget is the worst case across the whole gallery — "Construction", at
+  // twelve characters — and every page is set to what that word needs.
+  //
+  // 0.72em per uppercase character is deliberately generous; the widest real
+  // word measures nearer 0.67. Overestimating costs slightly smaller type,
+  // underestimating costs a word with its end sliced off.
 
   return (
     <div className="flex flex-col gap-y-[100px] pb-[100px] md:gap-y-[200px] md:pb-[200px]">
@@ -127,24 +133,34 @@ export default async function GalleryItemPage({
             as="h1"
             delay={0.0667}
             /*
-             * Two different clips had to be answered for here, both caused by
-             * the `overflow: hidden` that .text-h1-2 needs for the reveal.
-             *
-             * Sideways: a word cannot wrap inside itself, so one longer than
-             * the measure is simply cut off. The measure alone could not be
-             * trusted to prevent that — it rests on a guess at how wide a
-             * character renders — so the type size is also capped to what the
-             * longest word in this particular title actually needs.
-             *
-             * Vertically: at line-height 0.78 the capitals stand taller than
-             * their own line box, so the tops of the first line were being
-             * shaved. The padding gives them the room back; because it is
-             * inside the clip, it widens what is visible rather than what is
-             * hidden.
+             * The measure has to be at least as wide as the longest word can
+             * be set, or .text-h1-2's `overflow: hidden` slices the end off it
+             * — a word cannot wrap inside itself. Since the size above is
+             * derived from that same width, the two agree by construction and
+             * the clip can never catch a word.
              */
-            className="text-h1-2 text-confirm max-w-[7em] py-[0.14em] text-center"
+            className="text-h1-2 text-confirm max-w-[calc(100vw-60px)] text-center"
           >
-            <span style={{ fontSize: titleFontSize, textWrap: "balance" }}>
+            {/*
+             * The padding belongs on the moving element, not on the clip.
+             *
+             * At line-height 0.78 the capitals stand taller than their own line
+             * box, so the tops of the first line were being shaved and the
+             * block needed vertical room. Put on the wrapper it opened the clip
+             * instead: the reveal parks the text one full height down, which is
+             * exactly the bottom of the *content* box, so anything padded
+             * beyond that showed the tops of the letters as a row of dashes.
+             * Here it is part of what moves, so the resting state clears the
+             * clip completely and the letters still get their room.
+             */}
+            <span
+              style={{
+                display: "block",
+                fontSize: TITLE_FONT_SIZE,
+                paddingBlock: "0.14em",
+                textWrap: "balance",
+              }}
+            >
               {entry.title}
             </span>
           </RevealLine>
@@ -182,10 +198,17 @@ export default async function GalleryItemPage({
           href="/auth"
           className="group relative block overflow-hidden text-center"
         >
-          <span className="text-h2 text-confirm ease-custom-text-links block transition-all duration-700 group-hover:-translate-y-full">
+          {/*
+           * leading-[1.25], where .text-h2 sets 1. At 1 the serif's ascenders
+           * stand outside their own line box, so the copy waiting below at
+           * 105% had its letter-tops showing above the visible line. Given a
+           * line box that contains them, the waiting copy clears the frame and
+           * the offset can be a plain 100%.
+           */}
+          <span className="text-h2 text-confirm ease-custom-text-links block leading-[1.25] transition-all duration-700 group-hover:-translate-y-full">
             Set Up Your Account
           </span>
-          <span className="text-h2 text-confirm ease-custom-text-links absolute top-0 left-0 block w-full translate-y-[105%] transition-all duration-700 group-hover:translate-y-0">
+          <span className="text-h2 text-confirm ease-custom-text-links absolute top-0 left-0 block w-full translate-y-full leading-[1.25] transition-all duration-700 group-hover:translate-y-0">
             Set Up Your Account
           </span>
         </Link>
@@ -200,9 +223,14 @@ export default async function GalleryItemPage({
            * than restarting at each link, so the six titles arrive as one wave
            * instead of six that collide.
            */}
+          {/*
+           * One centred line. Five titles at note size measure comfortably
+           * inside a laptop, so only phones are given leave to wrap — there the
+           * row would otherwise have to shrink to a size nobody could read.
+           */}
           <RevealOnView
             as="ul"
-            className="text-note flex flex-wrap justify-center gap-x-[1.5em] gap-y-[0.7em] text-center"
+            className="text-note flex flex-wrap justify-center gap-x-[1.5em] gap-y-[0.7em] text-center md:flex-nowrap md:whitespace-nowrap"
           >
             {siblings.map((sibling, i) => (
               <li key={sibling.num}>

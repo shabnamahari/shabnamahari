@@ -504,6 +504,12 @@ body {
   opacity: 0;
 }
 
+/* The underline lives on the link, not on the words inside it, so hiding the
+   words alone left a row of bare rules floating where the titles would be. */
+[data-active="false"] .body-link::after {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-active="true"] .title-word,
   [data-active="false"] .title-word {
