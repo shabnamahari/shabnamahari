@@ -26,8 +26,15 @@ type Params = { slug: string; item: string };
  */
 const TITLE_FONT_SIZE = "min(12vw, calc((100vw - 80px) / 8.64))";
 
-/** The roll on the call to action. See the note at its use for the curve. */
-const ROLL = "transform 900ms cubic-bezier(0.65, 0, 0.35, 1)";
+/**
+ * The roll on the call to action. See the note at its use for the curve.
+ *
+ * `translate`, not `transform`: Tailwind v4's translate utilities write the
+ * standalone translate property, so naming transform here transitions
+ * something that never changes and the roll simply stops happening. The old
+ * transition-all covered it by covering everything.
+ */
+const ROLL = "translate 900ms cubic-bezier(0.65, 0, 0.35, 1)";
 
 export function generateStaticParams() {
   return PROJECTS.flatMap((project) =>

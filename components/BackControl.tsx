@@ -22,6 +22,15 @@ const SLIDE_DISTANCE = "-3.5rem";
 const SLIDE_CURVE = "cubic-bezier(0.4, 0, 0.9, 1)";
 
 /**
+ * The brackets closing on the word.
+ *
+ * `translate` rather than `transform`, because Tailwind v4's translate
+ * utilities write the standalone translate property — transition-transform
+ * names something that never changes here, and the brackets would sit still.
+ */
+const CLAMP = "translate 700ms cubic-bezier(0.82, 0, 0.18, 1)";
+
+/**
  * Sits directly under the header's Menu, in the same type and the same blend
  * mode, so the two read as one stack rather than a button that wandered in.
  *
@@ -94,11 +103,17 @@ export default function BackControl({ label = "Back" }: { label?: string }) {
             {origin.label}
           </span>
         ) : null}
-        <span className="ease-custom-less inline-block transition-transform duration-700 group-hover:translate-x-[0.35em]">
+        <span
+          style={{ transition: CLAMP }}
+          className="inline-block group-hover:translate-x-[0.35em]"
+        >
           (
         </span>
         <span className="px-[0.35em]">{label}</span>
-        <span className="ease-custom-less inline-block transition-transform duration-700 group-hover:-translate-x-[0.35em]">
+        <span
+          style={{ transition: CLAMP }}
+          className="inline-block group-hover:-translate-x-[0.35em]"
+        >
           )
         </span>
       </button>
