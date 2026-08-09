@@ -40,28 +40,32 @@ export function generateStaticParams() {
   return PROJECTS.flatMap((project) =>
     galleryItems(project.slug).map((entry) => ({
       slug: project.slug,
-      item: entry.num,
+      item: entry.slug,
     })),
   );
 }
 
 /**
  * The gallery entry a /work/[slug]/[item] URL points at. The panels on the
- * program page are built the same way — numbered entries, captioned in order by
+ * program page are built the same way — entries in order, captioned by
  * `galleryLabels` — so the caption is looked up by position, not stored twice.
+ * The URL segment itself is a name rather than that position, so a shared link
+ * keeps pointing at the same entry when the gallery is reordered.
  */
-function getEntry(slug: string, num: string) {
+function getEntry(slug: string, item: string) {
   const project = getProject(slug);
   if (!project) return null;
 
   const entries = galleryItems(slug);
-  const index = entries.findIndex((entry) => entry.num === num);
+  const index = entries.findIndex((entry) => entry.slug === item);
   if (index === -1) return null;
 
   const label = project.galleryLabels?.[index];
+  const { num } = entries[index];
   return {
     project,
     num,
+    slug: entries[index].slug,
     title: label?.title ?? `( ${num} )`,
     roles: label?.roles,
     image: label?.image ?? entries[index].image,
@@ -97,13 +101,13 @@ export default async function GalleryItemPage({
       ...sibling,
       title: project.galleryLabels?.[i]?.title ?? `( ${sibling.num} )`,
     }))
-    .filter((sibling) => sibling.num !== entry.num);
+    .filter((sibling) => sibling.slug !== entry.slug);
 
   // Shared by the fitted row and the wrapped one. The stagger runs on a word
   // count carried across the whole row rather than restarting at each link, so
   // the titles arrive as one wave instead of five that collide.
   const siblingLinks = siblings.map((sibling, i) => (
-    <li key={sibling.num}>
+    <li key={sibling.slug}>
       <Link href={sibling.href} className="body-link text-confirm">
         <TextRevealH
           text={sibling.title}
@@ -226,7 +230,7 @@ export default async function GalleryItemPage({
        */}
       <div className="page-margin flex flex-col items-center gap-y-[60px]">
         <AuthLink
-          from={{ href: `/work/${slug}/${entry.num}`, label: entry.title }}
+          from={{ href: `/work/${slug}/${entry.slug}`, label: entry.title }}
           className="group relative block overflow-hidden text-center"
         >
           {/*

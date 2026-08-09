@@ -22,15 +22,15 @@ export const metadata: Metadata = {
 // The hero slot is a small square; the blocks below it are wide. Same tiles,
 // different type sizes.
 const HERO_TILE_SIZES: Record<string, string> = {
-  toty: "23cqmin",
-  "pixi-beauty": "18cqmin",
-  "pacifica-beauty": "12.5cqmin",
+  ielts: "23cqmin",
+  blogcasts: "18cqmin",
+  "business-english": "12.5cqmin",
 };
 
 const TILE_SIZES: Record<string, string> = {
-  toty: "34cqmin",
-  "pixi-beauty": "25cqmin",
-  "pacifica-beauty": "19cqmin",
+  ielts: "34cqmin",
+  blogcasts: "25cqmin",
+  "business-english": "19cqmin",
 };
 
 export default function ServicesPage() {
