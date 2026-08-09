@@ -7,10 +7,6 @@ import {
   Inter,
 } from "next/font/google";
 import "./globals.css";
-import SmoothScrollProvider from "@/components/SmoothScrollProvider";
-import CustomCursor from "@/components/CustomCursor";
-import LightboxProvider from "@/components/Lightbox";
-import SiteChrome from "@/components/SiteChrome";
 
 const kumbhSans = Kumbh_Sans({
   variable: "--font-kumbh",
@@ -58,6 +54,17 @@ export const metadata: Metadata = {
   description: "Your goal speaks English.",
 };
 
+/**
+ * Fonts, global CSS, and nothing else.
+ *
+ * The site's chrome — header, footer, smooth scroll, custom cursor, lightbox —
+ * used to live here, which meant it applied to every route that would ever
+ * exist. Two of the routes now being built cannot have it: a conversation needs
+ * its own scroll container, and Lenis fights one; and `cursor: none` is wrong in
+ * an admin panel. So the chrome moved down into `app/(site)/layout.tsx`, which
+ * wraps exactly the marketing pages. Route groups don't appear in URLs, so
+ * every existing address is unchanged.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -69,12 +76,7 @@ export default function RootLayout({
       className={`${kumbhSans.variable} ${psl.variable} ${psr.variable} ${nhm.variable} ${grotesk.variable}`}
     >
       <body className="bg-cream text-ink font-nhm text-body antialiased">
-        <CustomCursor />
-        <SmoothScrollProvider>
-          <LightboxProvider>
-            <SiteChrome>{children}</SiteChrome>
-          </LightboxProvider>
-        </SmoothScrollProvider>
+        {children}
       </body>
     </html>
   );

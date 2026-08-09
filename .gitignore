@@ -49,3 +49,8 @@ next-env.d.ts
 # working files, not part of the site
 /2026-07-30-brand-guide.pdf
 /homepage-options-mockup.html
+
+# working files, not part of the site.
+# The trailing space in the directory name is real, and must be escaped —
+# git strips unescaped trailing whitespace from a pattern.
+/chatbot\ /
