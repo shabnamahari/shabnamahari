@@ -16,7 +16,7 @@ insert into settings (key, value, description) values
   ),
   (
     'bot_name',
-    '{"en": "Cue", "fa": "Cue"}'::jsonb,
+    '{"en": "Sir Cue", "fa": "Sir Cue"}'::jsonb,
     'Treated like the tagline: a fixed mark that keeps its Latin form inside Persian copy. The eval suite allows it through the no-Latin-in-Persian check.'
   ),
   (
