@@ -432,12 +432,26 @@ export async function* converse(input: ConverseInput): AsyncGenerator<ConverseEv
 
         turn.push({ role: "assistant", content: roundText, tool_calls: calls });
         for (const call of calls) {
-          turn.push({
-            role: "tool",
-            tool_call_id: call.id,
-            content: await runTool(call.name, call.arguments, toolContext),
-          });
+          const result = await runTool(call.name, call.arguments, toolContext);
+          yield {
+            type: "tool",
+            name: call.name,
+            arguments: call.arguments,
+            result,
+          };
+          turn.push({ role: "tool", tool_call_id: call.id, content: result });
         }
+      }
+
+      // A model that returns nothing at all is a failure, even though nothing
+      // threw. It happened once on a free model — no text, no tool call, no
+      // error — and the reader simply saw an empty reply. Silence is the one
+      // outcome the fallback chain exists to prevent, so it counts as a failure
+      // and the next model gets a turn.
+      if (answer.trim() === "") {
+        lastError = new Error(`${model} returned an empty response`);
+        if (attempt < attempts.length - 1) continue;
+        break;
       }
 
       usedModel = model;

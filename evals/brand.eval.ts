@@ -14,6 +14,7 @@ import {
   runConversation,
   type TurnResult,
 } from "./harness";
+import { db } from "@/lib/chatbot/db/client";
 
 /**
  * The brand evaluation.
@@ -204,6 +205,40 @@ describe("the placement link", () => {
 });
 
 // ---------------------------------------------------------------------------
+
+describe("the claim and the act are one thing", () => {
+  test("recording a contact means a row, not a sentence saying so", async () => {
+    const { turns, conversationId } = await runConversation([
+      "How much does the Band 7 course cost?",
+      "Yes please let me know when it's ready. I'm Sara, sara@example.com",
+    ]);
+
+    const { data: lead } = await db()
+      .from("leads")
+      .select("name, contact, notify_on_launch")
+      .eq("conversation_id", conversationId)
+      .maybeSingle();
+
+    const claimed = /recorded|saved|noted|got (it|that)|passed (it|that) on/i.test(
+      turns[1].answer,
+    );
+
+    // The failure this exists for: «من اطلاعات تو را ثبت کردم» with nothing
+    // recorded. Someone believing they are on a list they are not on is worse
+    // than being told plainly that it could not be done.
+    if (claimed) {
+      expect(
+        lead,
+        `it said it recorded the details and no lead row exists:\n${turns[1].answer}`,
+      ).not.toBeNull();
+    }
+
+    expect(lead?.contact, `contact was not captured:\n${turns[1].answer}`).toContain(
+      "sara@example.com",
+    );
+    expect(lead?.notify_on_launch).toBe(true);
+  });
+});
 
 describe("language behaviour", () => {
   test("answers Persian from English sources, in Persian", async () => {

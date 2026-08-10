@@ -62,6 +62,13 @@ export type ConverseEvent =
   /** Emitted before the first token so sources can render while the answer types. */
   | { type: "sources"; citations: Citation[] }
   | { type: "delta"; text: string }
+  /**
+   * A tool ran. Emitted so a channel can show what the bot *did* rather than
+   * only what it said — the panel's inbox needs this to explain why a lead
+   * exists, and its absence is how a turn where the bot claimed to record a
+   * phone number and did not looks identical to one where it worked.
+   */
+  | { type: "tool"; name: string; arguments: string; result: string }
   | {
       type: "done";
       messageId: string;
