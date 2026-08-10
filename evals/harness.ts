@@ -133,18 +133,35 @@ export async function evalSettings() {
 /**
  * Removes everything the run created.
  *
- * Without this the panel's inbox fills with test conversations and the
- * dashboard's conversation count becomes meaningless. Messages, leads and
- * unanswered rows cascade from the conversation.
+ * Without this the panel's inbox fills with test conversations, and its lead
+ * list fills with people who do not exist.
+ *
+ * Order matters, and not in the obvious way. `messages`, `feedback` and
+ * `handoffs` cascade from the conversation, so deleting it takes them with it.
+ * But `leads`, `intake_log` and `unanswered` are declared `on delete set null`
+ * — deliberately, because a lead has to outlive the conversation that produced
+ * it — so deleting conversations first would leave those rows in place with
+ * nothing left to identify them by. They are removed first, while they can
+ * still be found.
  */
 export async function cleanupEvalData(): Promise<number> {
-  const { data } = await db()
+  const supabase = db();
+
+  const { data: conversations } = await supabase
     .from("conversations")
-    .delete()
-    .like("external_user_id", `${EVAL_USER_PREFIX}%`)
-    .select("id");
+    .select("id")
+    .like("external_user_id", `${EVAL_USER_PREFIX}%`);
 
-  await db().from("unified_users").delete().like("external_id", `${EVAL_USER_PREFIX}%`);
+  const ids = (conversations ?? []).map((c) => c.id);
 
-  return data?.length ?? 0;
+  if (ids.length > 0) {
+    for (const table of ["leads", "intake_log", "unanswered"] as const) {
+      await supabase.from(table).delete().in("conversation_id", ids);
+    }
+    await supabase.from("conversations").delete().in("id", ids);
+  }
+
+  await supabase.from("unified_users").delete().like("external_id", `${EVAL_USER_PREFIX}%`);
+
+  return ids.length;
 }

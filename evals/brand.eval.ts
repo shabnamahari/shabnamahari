@@ -151,6 +151,10 @@ describe("the guardrails", () => {
       `it answered an unrelated question:\n${last.answer}`,
     ).toBe(false);
 
+    // A refusal is still an answer, and still has to be in the reader's
+    // language. Being turned down in the wrong language is worse than being
+    // turned down.
+    expect(answerLanguage(last.answer)).toBe(lang);
     expectUniversallyClean(last);
   });
 

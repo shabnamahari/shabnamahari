@@ -349,12 +349,25 @@ export async function* converse(input: ConverseInput): AsyncGenerator<ConverseEv
     },
   ];
 
-  // The primary model, then the fallback. Only worth retrying for failures the
-  // fallback can actually fix — a malformed request fails identically on any
-  // model and retrying it just spends twice.
-  const attempts = [modelConfig.activeModel, modelConfig.fallbackModel].filter(
-    (m): m is string => Boolean(m),
-  );
+  // The primary model, the fallback, and then whatever costs nothing.
+  //
+  // The third one is not redundancy for its own sake. Section 09 asks for a
+  // switch to a cheaper model rather than silence when money runs out, and that
+  // was written for the budget cap — but running out of credit at the provider
+  // produces the same situation and used to produce silence instead. An eval
+  // run emptied the account and every answer became an error: both paid models
+  // returned 402, in a system that had a free model configured for exactly this
+  // and never reached for it.
+  const { data: budget } = await supabase
+    .from("budget_config")
+    .select("over_cap_model")
+    .maybeSingle();
+
+  const attempts = [
+    modelConfig.activeModel,
+    modelConfig.fallbackModel,
+    budget?.over_cap_model ?? null,
+  ].filter((m): m is string => Boolean(m));
 
   let answer = "";
   let usage = { tokensIn: 0, tokensOut: 0, costUsd: 0 };

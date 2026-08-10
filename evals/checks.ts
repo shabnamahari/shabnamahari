@@ -203,7 +203,12 @@ export function unsupportedNumbers(
   question: string,
 ): Violation[] {
   const haystack = foldDigits(`${sources}\n${question}`);
-  const numbers = foldDigits(answer).match(/\d+(?:\.\d+)?/g) ?? [];
+
+  // URLs and addresses are stripped first. Shabnam's LinkedIn ends in
+  // /shabnam-ahari-372573101, and read as prose that is a nine-digit statistic
+  // the sources have never heard of — a false positive on the one check whose
+  // whole value is that a failure means something.
+  const numbers = foldDigits(stripInherentlyLatin(answer)).match(/\d+(?:\.\d+)?/g) ?? [];
 
   return [...new Set(numbers)]
     .filter((n) => !haystack.includes(n))
