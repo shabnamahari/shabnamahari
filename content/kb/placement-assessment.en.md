@@ -19,6 +19,9 @@ Listening, Writing and Speaking — plus grammar and vocabulary.
 The test is online. You take the written part on your own. The Speaking part is
 booked with you separately, after you have done the written part.
 
+Because the Speaking time is arranged separately, it is not necessarily on the
+same day as the written part.
+
 ## How long it takes
 
 The written part takes about one hour. The Speaking part takes about fifteen
