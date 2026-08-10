@@ -11,7 +11,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import "dotenv/config";
+import "./load-env";
 import { Client } from "pg";
 
 const MIGRATIONS_DIR = join(process.cwd(), "supabase", "migrations");

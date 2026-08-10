@@ -12,7 +12,7 @@
  * hold conversation transcripts and lead contact details.
  */
 
-import "dotenv/config";
+import "./load-env";
 import { createClient } from "@supabase/supabase-js";
 
 const TABLES = [
