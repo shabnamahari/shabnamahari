@@ -144,6 +144,7 @@ function turnDirectives(
   contactChannels: { label: string; value: string }[],
   handoffNote: string,
   pricePolicy: string,
+  bannedWords: string[],
 ): string {
   const lines: string[] = [];
 
@@ -164,6 +165,14 @@ function turnDirectives(
           latinAllowlist.join(" · "),
       );
     }
+  }
+
+  // Sent with every question rather than written into the prompt, so that
+  // changing the list is one settings edit rather than a new prompt version in
+  // each language — and so the eval suite can read the same row it is checking
+  // against.
+  if (bannedWords.length > 0) {
+    lines.push(`Never write any of these words: ${bannedWords.join(" · ")}`);
   }
 
   // Injected every turn rather than retrieved, because the turn where the bot
@@ -273,6 +282,7 @@ export async function* converse(input: ConverseInput): AsyncGenerator<ConverseEv
       "contact_channels",
       "contact_handoff_note",
       "price_policy",
+      "banned_words",
     ]);
 
   const settings = new Map((settingRows ?? []).map((row) => [row.key, row.value]));
@@ -284,6 +294,8 @@ export async function* converse(input: ConverseInput): AsyncGenerator<ConverseEv
   const handoffNote =
     (settings.get("contact_handoff_note") as Record<Lang, string>)?.[lang] ?? "";
   const pricePolicy = (settings.get("price_policy") as string) ?? "refer";
+  const bannedWords =
+    (settings.get("banned_words") as Record<Lang, string[]>)?.[lang] ?? [];
 
   const result = await search(
     input.text,
@@ -325,6 +337,7 @@ export async function* converse(input: ConverseInput): AsyncGenerator<ConverseEv
           contactChannels,
           handoffNote,
           pricePolicy,
+          bannedWords,
         ),
         "",
         "SOURCES",
