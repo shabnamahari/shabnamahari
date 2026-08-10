@@ -10,7 +10,8 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "db:rls-check": "tsx --conditions=react-server scripts/rls-check.ts",
     "kb:crawl": "tsx --conditions=react-server scripts/crawl-site.ts",
-    "brain": "tsx --conditions=react-server scripts/brain.ts"
+    "brain": "tsx --conditions=react-server scripts/brain.ts",
+    "kb:content": "tsx --conditions=react-server scripts/ingest-content.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",

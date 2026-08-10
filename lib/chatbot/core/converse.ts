@@ -141,6 +141,9 @@ function turnDirectives(
   hasSources: boolean,
   contentComingSoon: boolean,
   latinAllowlist: string[],
+  contactChannels: { label: string; value: string }[],
+  handoffNote: string,
+  pricePolicy: string,
 ): string {
   const lines: string[] = [];
 
@@ -163,11 +166,34 @@ function turnDirectives(
     }
   }
 
+  // Injected every turn rather than retrieved, because the turn where the bot
+  // needs this is the turn where retrieval found nothing. Without it the model
+  // fills the gap: in testing it printed a bracketed placeholder to the reader
+  // in English, and invented an Instagram account in Persian.
+  if (contactChannels.length > 0) {
+    lines.push(
+      `Ways to reach Shabnam — these and no others, and never invent one: ` +
+        contactChannels.map((c) => `${c.label} ${c.value}`).join(" · ") +
+        (handoffNote ? `\nWhen you hand someone over, say: ${handoffNote}` : ""),
+    );
+  }
+
+  if (pricePolicy === "refer") {
+    lines.push(
+      "Prices are not settled yet and are never stated in chat. If someone asks " +
+        "what something costs, say the price is not published and that Shabnam " +
+        "gives it directly, then point them at her.",
+    );
+  }
+
   if (placementUrl) {
     lines.push(
       placementLinkSent
         ? `The placement assessment link has already been given in this conversation. Do not offer it again unless the person asks for it.`
-        : `If — and only if — the person asks which course suits them or how to begin, you may give the placement assessment link once: ${placementUrl}`,
+        : `If — and only if — the person asks which course suits them or how to begin, ` +
+            `you may give the placement assessment link once. Write it exactly as ` +
+            `it appears here, character for character, and never put a domain in ` +
+            `front of it: ${placementUrl}`,
     );
   }
 
@@ -240,12 +266,24 @@ export async function* converse(input: ConverseInput): AsyncGenerator<ConverseEv
   const { data: settingRows } = await supabase
     .from("settings")
     .select("key, value")
-    .in("key", ["placement_url", "content_coming_soon", "fa_latin_allowlist"]);
+    .in("key", [
+      "placement_url",
+      "content_coming_soon",
+      "fa_latin_allowlist",
+      "contact_channels",
+      "contact_handoff_note",
+      "price_policy",
+    ]);
 
   const settings = new Map((settingRows ?? []).map((row) => [row.key, row.value]));
   const placementUrl = (settings.get("placement_url") as string) ?? null;
   const contentComingSoon = settings.get("content_coming_soon") === true;
   const latinAllowlist = (settings.get("fa_latin_allowlist") as string[]) ?? [];
+  const contactChannels =
+    (settings.get("contact_channels") as { label: string; value: string }[]) ?? [];
+  const handoffNote =
+    (settings.get("contact_handoff_note") as Record<Lang, string>)?.[lang] ?? "";
+  const pricePolicy = (settings.get("price_policy") as string) ?? "refer";
 
   const result = await search(
     input.text,
@@ -284,6 +322,9 @@ export async function* converse(input: ConverseInput): AsyncGenerator<ConverseEv
           result.chunks.length > 0,
           contentComingSoon,
           latinAllowlist,
+          contactChannels,
+          handoffNote,
+          pricePolicy,
         ),
         "",
         "SOURCES",
