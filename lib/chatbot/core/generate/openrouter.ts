@@ -1,9 +1,56 @@
 import "server-only";
 
-export type ChatMessage = {
-  role: "system" | "user" | "assistant";
-  content: string;
+export type ToolCall = {
+  id: string;
+  name: string;
+  /** Raw JSON from the model. Parsed by the tool, which owns its own schema. */
+  arguments: string;
 };
+
+export type ChatMessage =
+  | { role: "system" | "user"; content: string }
+  | { role: "assistant"; content: string; tool_calls?: ToolCall[] }
+  | { role: "tool"; content: string; tool_call_id: string };
+
+export type ToolDefinition = {
+  name: string;
+  description: string;
+  parameters: Record<string, unknown>;
+};
+
+/** OpenRouter speaks the OpenAI shape, which nests differently from ours. */
+function toWireMessage(message: ChatMessage): Record<string, unknown> {
+  if (message.role === "tool") {
+    return {
+      role: "tool",
+      content: message.content,
+      tool_call_id: message.tool_call_id,
+    };
+  }
+  if (message.role === "assistant" && message.tool_calls?.length) {
+    return {
+      role: "assistant",
+      content: message.content || null,
+      tool_calls: message.tool_calls.map((call) => ({
+        id: call.id,
+        type: "function",
+        function: { name: call.name, arguments: call.arguments },
+      })),
+    };
+  }
+  return { role: message.role, content: message.content };
+}
+
+function toWireTools(tools: ToolDefinition[]): Record<string, unknown>[] {
+  return tools.map((tool) => ({
+    type: "function",
+    function: {
+      name: tool.name,
+      description: tool.description,
+      parameters: tool.parameters,
+    },
+  }));
+}
 
 export type Usage = {
   tokensIn: number;
@@ -18,6 +65,7 @@ export type CompletionOptions = {
   maxTokens: number;
   temperature?: number | null;
   topP?: number | null;
+  tools?: ToolDefinition[];
   signal?: AbortSignal;
 };
 
@@ -65,7 +113,7 @@ export async function complete(
     signal: options.signal,
     body: JSON.stringify({
       model: options.model,
-      messages: options.messages,
+      messages: options.messages.map(toWireMessage),
       max_tokens: options.maxTokens,
       usage: { include: true },
       ...sampling(options),
@@ -94,7 +142,48 @@ export async function complete(
 
 export type StreamChunk =
   | { type: "delta"; text: string }
+  | { type: "tool_calls"; calls: ToolCall[] }
   | { type: "usage"; usage: Usage };
+
+/**
+ * Reassembles tool calls that arrive split across frames.
+ *
+ * A streamed tool call is delivered a few characters at a time — the name in
+ * one frame, the arguments JSON over many more — keyed by an index rather than
+ * by id. Accumulating by index and only emitting once the stream ends is what
+ * turns that back into something callable.
+ */
+class ToolCallAccumulator {
+  private readonly byIndex = new Map<number, { id: string; name: string; args: string }>();
+
+  add(delta: {
+    index?: number;
+    id?: string;
+    function?: { name?: string; arguments?: string };
+  }) {
+    const index = delta.index ?? 0;
+    const existing = this.byIndex.get(index) ?? { id: "", name: "", args: "" };
+
+    if (delta.id) existing.id = delta.id;
+    if (delta.function?.name) existing.name = delta.function.name;
+    if (delta.function?.arguments) existing.args += delta.function.arguments;
+
+    this.byIndex.set(index, existing);
+  }
+
+  get calls(): ToolCall[] {
+    return [...this.byIndex.values()]
+      .filter((call) => call.name)
+      .map((call) => ({
+        // Some providers omit the id on streamed calls. The id only has to be
+        // unique within the turn, because it is what pairs the result back to
+        // the call.
+        id: call.id || `call_${call.name}`,
+        name: call.name,
+        arguments: call.args || "{}",
+      }));
+  }
+}
 
 /**
  * Streams an answer token by token.
@@ -112,10 +201,11 @@ export async function* stream(
     signal: options.signal,
     body: JSON.stringify({
       model: options.model,
-      messages: options.messages,
+      messages: options.messages.map(toWireMessage),
       max_tokens: options.maxTokens,
       stream: true,
       usage: { include: true },
+      ...(options.tools?.length ? { tools: toWireTools(options.tools) } : {}),
       ...sampling(options),
     }),
   });
@@ -127,6 +217,7 @@ export async function* stream(
 
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
+  const toolCalls = new ToolCallAccumulator();
   let buffer = "";
 
   try {
@@ -148,7 +239,16 @@ export async function* stream(
           if (payload === "" || payload === "[DONE]") continue;
 
           let parsed: {
-            choices?: { delta?: { content?: string } }[];
+            choices?: {
+              delta?: {
+                content?: string;
+                tool_calls?: {
+                  index?: number;
+                  id?: string;
+                  function?: { name?: string; arguments?: string };
+                }[];
+              };
+            }[];
             usage?: {
               prompt_tokens?: number;
               completion_tokens?: number;
@@ -164,8 +264,12 @@ export async function* stream(
             continue;
           }
 
-          const text = parsed.choices?.[0]?.delta?.content;
+          const delta = parsed.choices?.[0]?.delta;
+
+          const text = delta?.content;
           if (text) yield { type: "delta", text };
+
+          for (const call of delta?.tool_calls ?? []) toolCalls.add(call);
 
           if (parsed.usage) {
             yield {
@@ -180,6 +284,10 @@ export async function* stream(
         }
       }
     }
+    // Emitted once the stream is complete, because a tool call is only
+    // callable when its arguments JSON has finished arriving.
+    const calls = toolCalls.calls;
+    if (calls.length > 0) yield { type: "tool_calls", calls };
   } finally {
     // Releasing the lock matters on the abort path: without it a cancelled
     // request leaves the connection held until GC.

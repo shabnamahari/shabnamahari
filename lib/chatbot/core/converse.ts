@@ -5,6 +5,7 @@ import { getActivePrompt, getModelConfig, getRetrievalConfig } from "./config";
 import { OpenRouterError, stream, type ChatMessage } from "./generate/openrouter";
 import { nextConversationLang } from "./ingest/lang";
 import { search } from "./retrieve/search";
+import { runTool, toolDefinitions } from "./tools";
 import type {
   Citation,
   ConverseEvent,
@@ -138,6 +139,8 @@ function turnDirectives(
   placementLinkSent: boolean,
   placementUrl: string | null,
   hasSources: boolean,
+  contentComingSoon: boolean,
+  latinAllowlist: string[],
 ): string {
   const lines: string[] = [];
 
@@ -147,6 +150,17 @@ function turnDirectives(
         ? "این اولین جواب نیست: از این به بعد «تو» خطاب کن."
         : "این اولین جواب توست: در همین یک جواب «شما» خطاب کن.",
     );
+
+    // The prompt bans Latin script in Persian answers. These are the terms that
+    // survive it — kept in the database rather than in the prompt because the
+    // list grows, and because the eval suite reads the same row as its
+    // allow-list, so the check can never drift from the instruction.
+    if (latinAllowlist.length > 0) {
+      lines.push(
+        `این‌ها را به همین شکل لاتین بنویس، چون معادل فارسیِ جاافتاده ندارند: ` +
+          latinAllowlist.join(" · "),
+      );
+    }
   }
 
   if (placementUrl) {
@@ -157,7 +171,25 @@ function turnDirectives(
     );
   }
 
-  if (!hasSources) {
+  // Deliberately not conditioned on whether the search returned anything.
+  // Retrieval regularly returns a passage that is merely the closest thing to
+  // the question rather than an answer to it — the model sees that and says it
+  // does not know, correctly, while a "did we get chunks?" test says we did.
+  // Whether the sources answer the question is a judgement only the model is
+  // positioned to make, so it is told what to do in either case and left to
+  // decide which case it is in.
+  if (contentComingSoon) {
+    lines.push(
+      "The course material is not published on the site yet, so much of what " +
+        "people ask about is genuinely not there. If the sources below do not " +
+        "answer the question, say so plainly, and say that a lot more is being " +
+        "added to the site soon. Then offer — once, and as something they can " +
+        "decline — to take their name and phone number so you can tell them " +
+        "when it is up. If they give you either, call capture_lead with " +
+        "notify_on_launch set to true. Never answer the question itself from " +
+        "general knowledge, and never invent a way to contact Shabnam.",
+    );
+  } else if (!hasSources) {
     lines.push(
       "No sources matched this question. Say you do not know and point the " +
         "person to Shabnam. Do not answer from general knowledge.",
@@ -205,12 +237,15 @@ export async function* converse(input: ConverseInput): AsyncGenerator<ConverseEv
     return;
   }
 
-  const { data: placementSetting } = await supabase
+  const { data: settingRows } = await supabase
     .from("settings")
-    .select("value")
-    .eq("key", "placement_url")
-    .maybeSingle();
-  const placementUrl = (placementSetting?.value as string) ?? null;
+    .select("key, value")
+    .in("key", ["placement_url", "content_coming_soon", "fa_latin_allowlist"]);
+
+  const settings = new Map((settingRows ?? []).map((row) => [row.key, row.value]));
+  const placementUrl = (settings.get("placement_url") as string) ?? null;
+  const contentComingSoon = settings.get("content_coming_soon") === true;
+  const latinAllowlist = (settings.get("fa_latin_allowlist") as string[]) ?? [];
 
   const result = await search(
     input.text,
@@ -247,6 +282,8 @@ export async function* converse(input: ConverseInput): AsyncGenerator<ConverseEv
           conversation.placementLinkSent,
           placementUrl,
           result.chunks.length > 0,
+          contentComingSoon,
+          latinAllowlist,
         ),
         "",
         "SOURCES",
@@ -271,23 +308,71 @@ export async function* converse(input: ConverseInput): AsyncGenerator<ConverseEv
   let usedFallback = false;
   let lastError: unknown = null;
 
+  const toolContext = {
+    conversationId: conversation.id,
+    channel: input.channel,
+    lang,
+  };
+
   for (const [attempt, model] of attempts.entries()) {
     try {
       answer = "";
-      for await (const chunk of stream({
-        model,
-        messages,
-        maxTokens: modelConfig.maxTokens,
-        temperature: modelConfig.temperature,
-        topP: modelConfig.topP,
-      })) {
-        if (chunk.type === "delta") {
-          answer += chunk.text;
-          yield { type: "delta", text: chunk.text };
-        } else {
-          usage = chunk.usage;
+      const turn = [...messages];
+
+      // A tool call is not the end of the turn: the model records what it was
+      // told, then carries on speaking. Each pass either produces the answer or
+      // produces calls to run and feed back. The cap is a stop for a model that
+      // loops on a tool rather than a real limit on useful work.
+      const MAX_TOOL_ROUNDS = 4;
+
+      for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
+        let roundText = "";
+        let calls: { id: string; name: string; arguments: string }[] = [];
+
+        for await (const chunk of stream({
+          model,
+          messages: turn,
+          maxTokens: modelConfig.maxTokens,
+          temperature: modelConfig.temperature,
+          topP: modelConfig.topP,
+          tools: toolDefinitions(),
+        })) {
+          if (chunk.type === "delta") {
+            // A round that follows a tool call starts a fresh sentence, and
+            // without this it is welded onto the last one: "…so Shabnam can
+            // reach you.Done."
+            if (roundText === "" && answer !== "" && !/\s$/.test(answer)) {
+              answer += " ";
+              yield { type: "delta", text: " " };
+            }
+            roundText += chunk.text;
+            answer += chunk.text;
+            yield { type: "delta", text: chunk.text };
+          } else if (chunk.type === "tool_calls") {
+            calls = chunk.calls;
+          } else {
+            // Usage accumulates across rounds — a turn that called a tool cost
+            // two model calls, and billing one of them would understate it.
+            usage = {
+              tokensIn: usage.tokensIn + chunk.usage.tokensIn,
+              tokensOut: usage.tokensOut + chunk.usage.tokensOut,
+              costUsd: usage.costUsd + chunk.usage.costUsd,
+            };
+          }
+        }
+
+        if (calls.length === 0) break;
+
+        turn.push({ role: "assistant", content: roundText, tool_calls: calls });
+        for (const call of calls) {
+          turn.push({
+            role: "tool",
+            tool_call_id: call.id,
+            content: await runTool(call.name, call.arguments, toolContext),
+          });
         }
       }
+
       usedModel = model;
       usedFallback = attempt > 0;
       lastError = null;
