@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "db:migrate": "tsx scripts/migrate.ts",
-    "db:rls-check": "tsx scripts/rls-check.ts"
+    "db:rls-check": "tsx --conditions=react-server scripts/rls-check.ts",
+    "kb:crawl": "tsx --conditions=react-server scripts/crawl-site.ts",
+    "brain": "tsx --conditions=react-server scripts/brain.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",
