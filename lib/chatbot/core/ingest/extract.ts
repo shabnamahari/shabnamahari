@@ -122,42 +122,91 @@ export function extractFromHtml(html: string): Extracted {
   };
 }
 
+export type PageText = {
+  url: string;
+  text: string;
+  /**
+   * How much of this page is its own. 1 means every line is unique to it; 0
+   * means every line also appears elsewhere.
+   *
+   * The crawler uses this to skip pages that have nothing to say. A site-wide
+   * threshold cannot catch those on its own: the six IELTS gallery pages each
+   * list the same five siblings, which is a quarter of the site rather than a
+   * majority of it, so the shared-line test leaves it standing. What gives them
+   * away is not how often those lines appear but how little else is there.
+   */
+  uniqueRatio: number;
+};
+
 /**
- * Discards the boilerplate that appears identically on every page.
+ * Discards the boilerplate that appears across pages, and reports how much of
+ * each page was left.
  *
- * Without this, the header and footer are embedded once per page and dominate
- * retrieval — every question matches every page equally well, because every
- * page really does contain the same navigation words.
+ * Without this, the header, the footer and every navigation list are embedded
+ * once per page and dominate retrieval — every question matches every page
+ * equally well, because every page really does contain the same words.
  */
 export function stripRepeatedBlocks(
   pages: { url: string; text: string }[],
-): { url: string; text: string }[] {
-  if (pages.length < 3) return pages;
+): PageText[] {
+  if (pages.length < 3) {
+    return pages.map((page) => ({ ...page, uniqueRatio: 1 }));
+  }
 
   const counts = new Map<string, number>();
   for (const page of pages) {
     // A line seen once per page still counts once; repetition within a page is
-    // a different problem.
+    // a different problem, handled below.
     for (const line of new Set(page.text.split("\n").map((l) => l.trim()))) {
       if (!line) continue;
       counts.set(line, (counts.get(line) ?? 0) + 1);
     }
   }
 
-  // Present on nearly every page and short enough to be a label rather than a
-  // sentence. The length test matters: a genuine tagline repeated site-wide is
-  // boilerplate, but so is "Menu" — while a long paragraph appearing everywhere
-  // would more likely be real shared copy worth keeping once.
-  const threshold = Math.ceil(pages.length * 0.8);
+  // Half the pages or more, at any length.
+  //
+  // Both of those numbers were wrong on the first pass. The threshold was 80%,
+  // which missed the paragraph that sits on all eighteen gallery pages —
+  // 75% — and a 120-character length cap excused it twice over. The result was
+  // eighteen near-identical documents that matched every question equally: a
+  // search for "where should I start?" returned Finance & Accounting and
+  // Sales & Marketing above the placement assessment.
+  //
+  // Length is no longer part of the test. A paragraph repeated across half a
+  // site is boilerplate whatever its literary merit — and if the copy is worth
+  // keeping, the place for it is one document that says it once, not eighteen
+  // that dilute each other.
+  const threshold = Math.ceil(pages.length * 0.5);
   const boilerplate = new Set(
-    [...counts].filter(([line, n]) => n >= threshold && line.length < 120).map(([line]) => line),
+    [...counts].filter(([, n]) => n >= threshold).map(([line]) => line),
   );
 
-  return pages.map((page) => ({
-    url: page.url,
-    text: page.text
-      .split("\n")
-      .filter((line) => !boilerplate.has(line.trim()))
-      .join("\n"),
-  }));
+  return pages.map((page) => {
+    const seen = new Set<string>();
+    const kept: string[] = [];
+    let ownChars = 0;
+    let totalChars = 0;
+
+    for (const raw of page.text.split("\n")) {
+      const line = raw.trim();
+      if (!line) continue;
+      if (boilerplate.has(line)) continue;
+
+      // The gallery marquee prints its sibling list twice. Consecutive repeats
+      // were already collapsed during extraction; these are separated by other
+      // lines, so they need dropping here.
+      if (seen.has(line)) continue;
+      seen.add(line);
+
+      kept.push(line);
+      totalChars += line.length;
+      if ((counts.get(line) ?? 0) <= 1) ownChars += line.length;
+    }
+
+    return {
+      url: page.url,
+      text: kept.join("\n\n"),
+      uniqueRatio: totalChars === 0 ? 0 : ownChars / totalChars,
+    };
+  });
 }

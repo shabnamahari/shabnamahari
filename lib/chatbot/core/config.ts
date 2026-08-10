@@ -33,6 +33,7 @@ export async function getRetrievalConfig(): Promise<RetrievalConfig> {
     rerankerEnabled: data.reranker_enabled,
     rerankerModel: data.reranker_model,
     rerankThreshold: data.rerank_threshold,
+    maxContextChunks: data.max_context_chunks,
     dualEmbedQueries: data.dual_embed_queries,
   };
 }

@@ -205,7 +205,13 @@ export async function search(
     .sort((a, b) => b.relevance - a.relevance);
 
   return {
-    chunks: scored.filter((c) => (c.relevance ?? 0) >= config.rerankThreshold),
+    // Threshold first, then cap. The threshold answers "is this related at
+    // all"; the cap answers "how much of it is worth reading". Without the cap
+    // a vague question keeps everything, because a vague question scores
+    // everything alike.
+    chunks: scored
+      .filter((c) => c.relevance >= config.rerankThreshold)
+      .slice(0, config.maxContextChunks),
     candidates: scored,
     translatedQuery,
     translationError,

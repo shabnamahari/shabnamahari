@@ -86,6 +86,7 @@ export type RetrievalConfig = {
   rerankerEnabled: boolean;
   rerankerModel: string | null;
   rerankThreshold: number;
+  maxContextChunks: number;
   dualEmbedQueries: boolean;
 };
 

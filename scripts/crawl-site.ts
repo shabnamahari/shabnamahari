@@ -53,18 +53,34 @@ async function main() {
   // Header, footer and navigation appear on every page. Left in, they would be
   // embedded once per page and every question would match every page.
   const cleaned = stripRepeatedBlocks(fetched.map((p) => ({ url: p.url, text: p.text })));
-  const textByUrl = new Map(cleaned.map((p) => [p.url, p.text]));
+  const byUrl = new Map(cleaned.map((p) => [p.url, p]));
 
   let ok = 0;
   let empty = 0;
+  const keptUrls = new Set<string>();
+
+  // A page has to clear both bars. Length alone let the gallery pages through:
+  // stripped of the shared paragraph they still carry a list of their five
+  // sibling programs, which is long enough to look like content and matches
+  // every question about any program equally well.
+  const MIN_CHARS = 120;
+  const MIN_UNIQUE_RATIO = 0.35;
 
   for (const page of fetched) {
-    const text = textByUrl.get(page.url) ?? page.text;
+    const cleanedPage = byUrl.get(page.url);
+    const text = cleanedPage?.text ?? page.text;
+    const uniqueRatio = cleanedPage?.uniqueRatio ?? 1;
 
-    // A page whose prose is entirely boilerplate has nothing to say. Storing it
-    // would add a document that can only ever match navigation words.
-    if (text.replace(/\s/g, "").length < 120) {
-      console.log(`  · ${page.path} — too little prose after boilerplate removal, skipped`);
+    if (text.replace(/\s/g, "").length < MIN_CHARS) {
+      console.log(`  · ${page.path} — nothing left after boilerplate, skipped`);
+      empty += 1;
+      continue;
+    }
+
+    if (uniqueRatio < MIN_UNIQUE_RATIO) {
+      console.log(
+        `  · ${page.path} — ${Math.round(uniqueRatio * 100)}% of it appears on other pages, skipped`,
+      );
       empty += 1;
       continue;
     }
@@ -79,13 +95,51 @@ async function main() {
       console.log(
         `  ${result.replaced ? "↻" : "✓"} ${page.path} — ${result.chunks} chunk(s), ${result.lang}`,
       );
+      keptUrls.add(page.url);
       ok += 1;
     } catch (error) {
       console.log(`  ✗ ${page.path} — ${error instanceof Error ? error.message : error}`);
     }
   }
 
+  // Skipping a page is not the same as removing it. A page that was ingested
+  // by an earlier crawl and is skipped by this one stays in the knowledge base,
+  // still `ready`, still answering questions from whatever it said last time —
+  // which is how tightening the boilerplate rules could leave the exact
+  // documents it was meant to remove standing.
+  //
+  // Same for a route that no longer exists. What should be in the knowledge
+  // base is what this crawl decided to keep, so anything else with a crawled
+  // URL goes.
+  const removed = await removeStaleCrawledDocuments(keptUrls, origin);
+
   console.log(`\n${ok} page(s) in the knowledge base, ${empty} skipped as boilerplate.`);
+  if (removed > 0) console.log(`${removed} stale page(s) removed from an earlier crawl.`);
+}
+
+/**
+ * Deletes crawled documents that this run did not keep.
+ *
+ * Scoped to `url` documents from this origin, so nothing uploaded by hand and
+ * nothing in `content/kb` is ever touched by a crawl.
+ */
+async function removeStaleCrawledDocuments(
+  keptUrls: Set<string>,
+  origin: string,
+): Promise<number> {
+  const { db } = await import("@/lib/chatbot/db/client");
+
+  const { data } = await db()
+    .from("documents")
+    .select("id, source_url")
+    .eq("source_type", "url")
+    .like("source_url", `${origin}%`);
+
+  const stale = (data ?? []).filter((d) => d.source_url && !keptUrls.has(d.source_url));
+  if (stale.length === 0) return 0;
+
+  await db().from("documents").delete().in("id", stale.map((d) => d.id));
+  return stale.length;
 }
 
 main().catch((error) => {
