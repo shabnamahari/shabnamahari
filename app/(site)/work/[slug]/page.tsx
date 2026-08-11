@@ -6,7 +6,13 @@ import RevealLine from "@/components/RevealLine";
 import Asterisk from "@/components/Asterisk";
 import ParenMedia from "@/components/ParenMedia";
 import ShowReel from "@/components/ShowReel";
-import { PROJECTS, getProject, galleryItems, reelImages } from "@/lib/projects";
+import {
+  PROJECTS,
+  getProject,
+  galleryItems,
+  galleryTitle,
+  reelImages,
+} from "@/lib/projects";
 
 export function generateStaticParams() {
   return PROJECTS.map((p) => ({ slug: p.slug }));
@@ -100,7 +106,7 @@ export default async function ProjectPage({
       {/* gallery */}
       <div className="page-margin flex flex-col gap-y-[50px]">
         <RevealLine as="h2" className="text-h2 text-center">
-          {project.galleryHeading ?? "Gallery"}
+          {galleryTitle(project)}
         </RevealLine>
         <HoverExpand images={galleryPanels} entry="load" />
       </div>

@@ -497,6 +497,100 @@ body {
   }
 }
 
+/* ---- the marker-bar reveal (components/HighlightReveal.tsx) ---- */
+
+.hl-word {
+  position: relative;
+  display: inline-block;
+}
+
+/*
+ * `::after`, not `::before`. Both would sit above the text in the usual case,
+ * but the word carries an opacity animation of its own, and an element mid-way
+ * through one is a stacking context — at `z-index: auto` that puts it level
+ * with the bar, where tree order decides, and a `::before` loses. Last in the
+ * tree, the bar wins outright and needs no z-index to do it.
+ *
+ * The insets are what make it read as one bar rather than a row of text
+ * selections. Sideways they are half a word space, so neighbouring bars meet
+ * over the gap and the sweep crosses the whole line unbroken; vertically they
+ * are just enough to clear the descenders, since the em box already covers the
+ * capitals and anything more turns the marker into a slab.
+ */
+.hl-word::after {
+  content: "";
+  position: absolute;
+  inset: -0.06em -0.14em -0.14em;
+  background-color: var(--color-ink);
+  transform: scaleX(0);
+  transform-origin: left center;
+  pointer-events: none;
+}
+
+.hl-text {
+  display: inline-block;
+  /* The bar is the only thing that ever uncovers a word; until one runs, there
+     is nothing to see. */
+  opacity: 0;
+}
+
+@keyframes hl-bar {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+  48% {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+  /* The origin flips only at full width, where left and right look identical —
+     any other frame and the bar would jump the length of the word. */
+  48.01% {
+    transform: scaleX(1);
+    transform-origin: right center;
+  }
+  100% {
+    transform: scaleX(0);
+    transform-origin: right center;
+  }
+}
+
+/* A switch, not a fade: the word is printed at the instant the bar starts to
+   retreat, and the bar itself is what makes that look gradual. */
+@keyframes hl-text-in {
+  0%,
+  47.99% {
+    opacity: 0;
+  }
+  48%,
+  100% {
+    opacity: 1;
+  }
+}
+
+.hl-reveal.is-visible .hl-word::after,
+[data-active="true"] .hl-reveal[data-trigger="active"] .hl-word::after {
+  animation: hl-bar 0.85s cubic-bezier(0.5, 0, 0.2, 1) var(--hl-stagger) both;
+}
+
+.hl-reveal.is-visible .hl-text,
+[data-active="true"] .hl-reveal[data-trigger="active"] .hl-text {
+  animation: hl-text-in 0.85s linear var(--hl-stagger) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The bar is the whole effect; there is no gentler version of a black rectangle
+     crossing the words, so it does not appear and the text is simply there. */
+  .hl-word::after {
+    display: none;
+  }
+
+  .hl-text {
+    opacity: 1;
+    animation: none;
+  }
+}
+
 /* ---- panel titles: the two skiper text effects, played on open ---- */
 
 .title-word {
