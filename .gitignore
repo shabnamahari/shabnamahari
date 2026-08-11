@@ -54,3 +54,6 @@ next-env.d.ts
 # The trailing space in the directory name is real, and must be escaped —
 # git strips unescaped trailing whitespace from a pattern.
 /chatbot\ /
+
+# scratch scripts written while debugging; never part of the site
+/scripts/.tmp/
