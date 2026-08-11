@@ -1,0 +1,60 @@
+name: Brand evaluation
+
+# Split into two jobs on purpose.
+#
+# Retrieval costs embeddings and a rerank — pennies, seconds — so it runs on
+# every push. The brand suite calls the model for every case in two languages,
+# which costs real money and takes minutes, so it runs on pull requests and on
+# demand.
+#
+# The split also makes a failure easier to read. When the brand suite goes red,
+# the first question is always whether the bot said the wrong thing or simply
+# never found the right passage, and the retrieval job answers that before
+# anyone opens a log.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  retrieval:
+    name: Retrieval
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run eval:retrieval
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+  brand:
+    name: Brand rules
+    runs-on: ubuntu-latest
+    # Not gated on `retrieval` passing. A retrieval regression and a voice
+    # regression are different problems, and seeing both in one run is more
+    # useful than seeing the first and guessing at the second.
+    if: github.event_name != 'push'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run eval
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

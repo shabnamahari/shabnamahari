@@ -15,6 +15,12 @@ export type HoverExpandImage = {
   title: string;
   /** Optional second line under the title, in muted ink. */
   roles?: string;
+  /**
+   * An animated cut of `src` — the same artwork with the figures in it moving.
+   * Plays only while the panel is open; `src` stays the poster underneath, so a
+   * category without a clip yet simply shows the still and nothing breaks.
+   */
+  video?: string;
 };
 
 /**
@@ -97,6 +103,30 @@ export default function HoverExpand({
                 unoptimized
                 className="size-full object-cover"
               />
+
+              {/*
+                Mounted only while the panel is open, which is what keeps the
+                other five clips off the wire — a closed strip is two dozen
+                pixels tall and has nothing to show a video in anyway. Closing
+                unmounts it, so playback and any in-flight download stop with
+                it.
+
+                The still above stays put underneath and acts as the poster:
+                between the panel opening and the first frame decoding there is
+                artwork in the frame, not a black rectangle.
+              */}
+              {image.video && isActive && (
+                <video
+                  src={image.video}
+                  autoPlay
+                  loop
+                  // Muted is not a preference here — without it the browser
+                  // refuses to autoplay at all.
+                  muted
+                  playsInline
+                  className="hover-expand-clip absolute inset-0 size-full object-cover"
+                />
+              )}
             </Link>
 
             <div className="hover-expand-title text-note">

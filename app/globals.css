@@ -157,10 +157,17 @@ body {
 
 /* ---- link underline pattern ---- */
 
+/*
+ * No `overflow: hidden` here. An inline-block whose overflow is anything but
+ * visible takes its bottom margin edge as its baseline instead of its text's,
+ * so a link set inside a sentence aligned by its underside and rode above the
+ * words either side of it. Nothing was being clipped by it in any case — the
+ * rule underneath is an absolutely positioned ::after, and the box has no
+ * fixed height for content to escape.
+ */
 .body-link {
   position: relative;
   display: inline-block;
-  overflow: hidden;
   padding-bottom: 2px;
   line-height: 1.1;
 }
@@ -414,6 +421,33 @@ body {
   border-radius: 1.5rem;
 }
 
+/*
+ * The clip fades up over its own still rather than cutting to it. The first
+ * frame of the clip and the still are the same drawing, so the cut is nearly
+ * invisible anyway — but "nearly" is the problem: a one-frame colour shift
+ * reads as a glitch, and a fade of this length reads as nothing at all.
+ */
+@keyframes panel-clip-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.hover-expand-clip {
+  animation: panel-clip-in 0.25s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The clip is the motion; there is no toned-down version of it, so it does
+     not play at all and the still it sits on becomes the panel. */
+  .hover-expand-clip {
+    display: none;
+  }
+}
+
 .hover-expand-title {
   grid-column: 3;
   justify-self: start;
@@ -494,9 +528,27 @@ body {
   animation-delay: var(--stagger);
 }
 
+/*
+ * Armed but not yet fired. A panel waiting to open is closed to a strip, so it
+ * never needed this; a row waiting to be scrolled to is in plain sight, and
+ * without it the words would sit there fully drawn and then animate in on top
+ * of themselves.
+ */
+[data-active="false"] .title-reveal .title-word {
+  opacity: 0;
+}
+
+/* The underline lives on the link, not on the words inside it, so hiding the
+   words alone left a row of bare rules floating where the titles would be. */
+[data-active="false"] .body-link::after {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  [data-active="true"] .title-word {
+  [data-active="true"] .title-word,
+  [data-active="false"] .title-word {
     animation: none;
+    opacity: 1;
   }
 }
 

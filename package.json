@@ -6,22 +6,37 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:rls-check": "tsx --conditions=react-server scripts/rls-check.ts",
+    "kb:crawl": "tsx --conditions=react-server scripts/crawl-site.ts",
+    "brain": "tsx --conditions=react-server scripts/brain.ts",
+    "kb:content": "tsx --conditions=react-server scripts/ingest-content.ts",
+    "eval": "vitest run",
+    "eval:retrieval": "vitest run evals/retrieval.eval.ts",
+    "eval:watch": "vitest"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.112.2",
     "lenis": "^1.3.23",
     "next": "16.2.9",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.21.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "pg": "^8.23.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.23.11",
+    "typescript": "^5",
+    "vitest": "^4.1.10"
   }
 }
