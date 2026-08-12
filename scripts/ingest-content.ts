@@ -16,10 +16,46 @@ import "./load-env";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
+import { db } from "@/lib/chatbot/db/client";
 import { ingestDocument } from "@/lib/chatbot/core/ingest/ingest";
 import type { Lang } from "@/lib/chatbot/core/types";
 
 const DIR = join(process.cwd(), "content", "kb");
+const KEY = "content://kb/";
+
+/**
+ * Deletes documents whose file is no longer in content/kb.
+ *
+ * Re-running replaced each file it found and left everything else alone, which
+ * is correct until a file is renamed or split — then the old document stays in
+ * the knowledge base and the bot answers from both. It nearly happened here:
+ * `policies` became `payment-and-policies`, and the abandoned copy still said
+ * the pre-recorded courses were "offline", which is the one wording Shabnam had
+ * just corrected. Retrieval would have had no way to tell which was current.
+ */
+async function removeStale(present: string[]): Promise<number> {
+  const keep = present.map((file) => `${KEY}${file}`);
+
+  const { data, error } = await db()
+    .from("documents")
+    .select("id, source_url, title")
+    .like("source_url", `${KEY}%`);
+
+  if (error) throw new Error(`could not list knowledge-base documents: ${error.message}`);
+
+  const stale = (data ?? []).filter((doc) => !keep.includes(doc.source_url ?? ""));
+  if (stale.length === 0) return 0;
+
+  for (const doc of stale) console.log(`  – ${doc.source_url?.slice(KEY.length)} (removed)`);
+
+  const { error: deleteError } = await db()
+    .from("documents")
+    .delete()
+    .in("id", stale.map((doc) => doc.id));
+
+  if (deleteError) throw new Error(`could not remove stale documents: ${deleteError.message}`);
+  return stale.length;
+}
 
 /**
  * Reads the leading `--- ... ---` block.
@@ -103,7 +139,10 @@ async function main() {
     }
   }
 
+  const removed = await removeStale(files);
+
   console.log(`\n${ok} of ${files.length} file(s) in the knowledge base.`);
+  if (removed > 0) console.log(`${removed} document(s) no longer on disk were removed.`);
 }
 
 main().catch((error) => {
