@@ -1,38 +1,27 @@
 ---
-title: Placement Assessment
+title: Placement assessment
 lang: en
 tags: [placement, assessment, start]
 ---
 
-# Placement Assessment
+# Placement assessment
 
 The placement assessment is the first step. Before any course, we find out where
 you stand today.
 
-## What it covers
-
 You are sent a link to an online test. It covers the four skills — Reading,
 Listening, Writing and Speaking — plus grammar and vocabulary.
 
-## How it works
+**You do not need to prepare anything in advance.** You open the link and take
+the test.
 
-The test is online. You take the written part on your own. The Speaking part is
-booked with you separately, after you have done the written part.
+You take the written part whenever you like, and it takes about one hour. The
+Speaking part is booked with you separately, after the written part, and takes
+about fifteen minutes. Because that time is arranged separately, it is not
+necessarily on the same day as the written part.
 
-Because the Speaking time is arranged separately, it is not necessarily on the
-same day as the written part.
+The result is your English level on the international scale: A1, A2, B1, B2, C1
+or C2. That result is sent to you about one hour after the Speaking test.
 
-## How long it takes
-
-The written part takes about one hour. The Speaking part takes about fifteen
-minutes.
-
-## What you get
-
-Your English level on the international scale — A1, A2, B1, B2, C1 or C2.
-
-Your result is sent to you about one hour after the Speaking test.
-
-## Cost
-
-The placement assessment is free.
+The placement assessment is free. You may take it without joining a course,
+though it is most useful when you are considering one.
