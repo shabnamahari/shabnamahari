@@ -299,7 +299,18 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
          the site underneath stays clickable; what it buys is that the open
          conversation can claim the space between the bar and the bottom of the
          window rather than growing shorter or taller with every answer. */
-      className="pointer-events-none fixed inset-x-0 top-0 z-50 flex h-svh flex-col gap-3 p-4"
+      /*
+       * Absolute, not fixed — it belongs to the top of the page, not to the
+       * screen.
+       *
+       * Fixed, it followed the window down and covered the site no matter how
+       * far you scrolled; there was nothing behind it to reveal. Absolute puts
+       * it at the top of the document, so scrolling leaves it behind and the
+       * site has the screen to itself, and scrolling back to the top brings it
+       * out again exactly where it was — which is the behaviour in the
+       * reference Shabnam sent.
+       */
+      className="pointer-events-none absolute inset-x-0 top-0 z-50 flex h-svh flex-col gap-3 p-4"
     >
       {/* 1 — the way in. Closed, this is the whole thing: a question and five
           answers to it. Picking one opens the conversation and asks it. */}
