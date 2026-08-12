@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { TextRevealH } from "@/components/TitleEffects";
+import HighlightReveal from "@/components/HighlightReveal";
 
 export type HoverExpandImage = {
   href: string;
@@ -130,16 +130,21 @@ export default function HoverExpand({
             </Link>
 
             <div className="hover-expand-title text-note">
-              <TextRevealH text={image.title} />
+              <HighlightReveal text={image.title} trigger="active" />
               {/* Only the open row has the height to carry a role list; on a
                   closed strip they would run over the titles either side. */}
               {image.roles && isActive && (
                 <span className="hover-expand-roles text-muted-ink">
-                  <TextRevealH
+                  <HighlightReveal
                     text={`(${image.roles})`}
+                    trigger="active"
                     // Picks up where the title left off, so the two lines are
                     // one wave running down the block, not two racing each other.
                     startIndex={image.title.split(" ").length}
+                    // A role list runs to a dozen words where a title runs to
+                    // two, and at the title's spacing the last of them would
+                    // still be arriving long after the panel opened.
+                    speed={0.07}
                   />
                 </span>
               )}

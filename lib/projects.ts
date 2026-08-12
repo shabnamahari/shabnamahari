@@ -32,9 +32,22 @@ export type Project = {
   description: string;
   /** Replaces the "( 01 )" gallery numbering with a caption, in order. */
   galleryLabels?: GalleryLabel[];
-  /** Heading above the gallery grid. Defaults to "Gallery". */
+  /**
+   * The noun this project calls its gallery entries — "Programs", "Insights",
+   * "Areas". Kept bare because the entry pages set it mid-sentence ("Other
+   * programs in Ielts"), where the heading's "All" would not fit. Use
+   * `galleryTitle` for the heading itself. Defaults to "Gallery".
+   */
   galleryHeading?: string;
 };
+
+/**
+ * The heading above the gallery grid: the noun with "All" in front of it. The
+ * fallback stands alone — "All Gallery" is not English.
+ */
+export function galleryTitle(project: Project) {
+  return project.galleryHeading ? `All ${project.galleryHeading}` : "Gallery";
+}
 
 export const GALLERY_COUNT = 6;
 
