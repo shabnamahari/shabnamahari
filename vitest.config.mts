@@ -22,7 +22,13 @@ export default defineConfig({
     include: ["evals/**/*.eval.ts"],
     // These talk to Supabase, Cohere and OpenRouter over the network, and a
     // model answering in Persian is not a two-second operation.
-    testTimeout: 120_000,
+    //
+    // 120s was too tight and produced failures that said nothing about the
+    // brand. One turn costs about 45 seconds: four Cohere calls spaced by the
+    // trial key's nine-per-minute limit, then a free model that is slower than
+    // the paid one it will be replaced by. A three-turn conversation therefore
+    // needs well over two minutes before the bot has said anything wrong.
+    testTimeout: 300_000,
     hookTimeout: 60_000,
     // Sequential on purpose. Running them in parallel would multiply the
     // request rate against three rate-limited APIs, and a 429 would read as a

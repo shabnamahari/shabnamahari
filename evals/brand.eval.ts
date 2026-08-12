@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import {
   answerLanguage,
   bannedWords,
+  faWord,
   idiomsInEnglish,
   latinInPersian,
   taglineViolations,
@@ -128,7 +129,7 @@ describe("the guardrails", () => {
     // what the placement assessment establishes.
     expect(
       /\b(yes|that'?s right|correct|sounds right)\b/i.test(last.answer) ||
-        /\b(بله|درسته|درست است|همین‌طور است)\b/.test(last.answer),
+        faWord("بله", "درسته", "درست است", "همین‌طور است").test(last.answer),
       `it agreed with the guess:\n${last.answer}`,
     ).toBe(false);
 
@@ -280,9 +281,40 @@ describe("language behaviour", () => {
       "و بعدش چه اتفاقی می‌افتد؟",
     ]);
 
+    // Named verbs rather than a morphological rule. The plural ending «‑ید» is
+    // tempting to match with a pattern, but «امید», «کلید», «سفید» and «جدید»
+    // all end in it and none of them are addressing anyone.
+    const formal = faWord(
+      "شما", "شماست", "برایتان",
+      "می‌کنید", "می‌شوید", "می‌توانید", "می‌دهید", "می‌گیرید", "می‌خواهید",
+      "دارید", "هستید", "کنید", "شوید", "باشید", "بدهید", "بگیرید", "ببینید",
+      "بفرستید",
+    );
+
     expect(
-      /\bشما\b|شما را|شماست|برایتان|می‌کنید|می‌دهید|هستید/.test(turns[0].answer),
+      formal.test(turns[0].answer),
       `first answer was not formal:\n${turns[0].answer}`,
     ).toBe(true);
+
+    // The second half of this test's own name, which it never used to check.
+    // Stated as the absence of «شما» rather than the presence of «تو», because
+    // an answer can carry the pronoun sequence correctly and still address
+    // nobody directly — and a test that demands a word the answer had no reason
+    // to use fails for the wrong reason.
+    // Checked before formality, because the failure it catches is worse and
+    // otherwise arrives disguised as a pronoun problem. A model that reasons
+    // out loud puts its whole monologue in `content` — in one run the second
+    // answer was several paragraphs of English deliberation quoting the banned
+    // word list and the contact rules back at itself. Everything a visitor must
+    // never see, addressed to nobody, saved to `messages` as the answer.
+    expect(
+      answerLanguage(turns[1].answer),
+      `the model thought out loud instead of answering:\n${turns[1].answer}`,
+    ).toBe("fa");
+
+    expect(
+      formal.test(turns[1].answer),
+      `second answer was still formal:\n${turns[1].answer}`,
+    ).toBe(false);
   });
 });

@@ -159,10 +159,19 @@ function turnDirectives(
     // survive it — kept in the database rather than in the prompt because the
     // list grows, and because the eval suite reads the same row as its
     // allow-list, so the check can never drift from the instruction.
+    // Written as a spelling rule and marked as one. Joined with « · » and
+    // introduced as a bare list, the model read it as content and reproduced it
+    // whole: it once told someone the assessment measures
+    // «Reading · Listening · Speaking · Writing · Sir Cue» — its own name
+    // offered as a fifth IELTS skill — and signed the answer off with the
+    // tagline, which is on the list for the same reason.
     if (latinAllowlist.length > 0) {
       lines.push(
-        `این‌ها را به همین شکل لاتین بنویس، چون معادل فارسیِ جاافتاده ندارند: ` +
-          latinAllowlist.join(" · "),
+        `قاعده‌ی املا، نه محتوا. اگر — و فقط اگر — در جوابت به یکی از این‌ها ` +
+          `اشاره کردی، لاتین بنویسش، چون معادل فارسیِ جاافتاده ندارد: ` +
+          latinAllowlist.map((t) => `«${t}»`).join("، ") +
+          `\nخودِ این فهرست را نقل نکن، از آن فهرستی نساز، و هیچ‌کدام را جایی ` +
+          `که موضوع جواب نیست نیاور.`,
       );
     }
   }
@@ -501,6 +510,14 @@ export async function* converse(input: ConverseInput): AsyncGenerator<ConverseEv
       last_message_at: new Date().toISOString(),
       // From the second answer on, Persian moves to «تو».
       ...(lang === "fa" && !conversation.faInformal ? { fa_informal: true } : {}),
+      // The column was read on every turn and written on none, so the bot was
+      // told it had not yet given the link no matter how many times it had, and
+      // it offered it again on the next question. Recorded from the answer
+      // itself rather than from the intent to offer it, because the directive
+      // permits the link and the model decides.
+      ...(placementUrl && !conversation.placementLinkSent && answer.includes(placementUrl)
+        ? { placement_link_sent_at: new Date().toISOString() }
+        : {}),
     })
     .eq("id", conversation.id);
 

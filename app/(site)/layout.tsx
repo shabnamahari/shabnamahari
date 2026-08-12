@@ -2,6 +2,7 @@ import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import CustomCursor from "@/components/CustomCursor";
 import LightboxProvider from "@/components/Lightbox";
 import SiteChrome from "@/components/SiteChrome";
+import AssistantMount from "@/components/chat/mount";
 
 /**
  * The marketing site's chrome: header, footer, smooth scroll, custom cursor,
@@ -27,6 +28,10 @@ export default function SiteLayout({
           <SiteChrome>{children}</SiteChrome>
         </LightboxProvider>
       </SmoothScrollProvider>
+      {/* Outside the chrome and outside Lenis. Inside SmoothScrollProvider the
+          conversation's own scrolling container fights the page's, and the
+          panel has to sit above the header rather than inside it. */}
+      <AssistantMount />
     </>
   );
 }

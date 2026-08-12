@@ -18,7 +18,29 @@
   --color-paper: #f7f6f4; /* cards, modals, sticky headers */
   --color-red-ink: #c42a1e; /* red as text, not decoration */
   --color-confirm: #3f6b54; /* form success only, never marketing */
+  /* The same green — hue 150°, unchanged — carried all the way up in lightness.
+     #3f6b54 was chosen against cream and reads at 3.3:1 on the assistant's
+     panel; #6fa98a fixed that while the panel was nearly opaque. Now that the
+     panel is genuinely see-through, the cream page behind it lifts the
+     background too, and only a green this light clears 4.5:1 against it. The
+     transparency Shabnam asked for is what sets this value, not taste. */
+  --color-confirm-lit: #c2efd4;
+  /* The assistant's surfaces. Its ground is near-black rather than cream, so it
+     carries its own set rather than inverting the site's. */
+  --color-chat-ground: #050505;
+  /* As thin as this can go and still be read, and the number is arrived at
+     rather than chosen.
+     Over the cream page the panel composites to about #646362. White text sits
+     at 5.9:1 there and the green above at 4.65:1 — both just clear the 4.5:1
+     minimum. One step further, 0.55, and white itself drops to 4.8:1 while the
+     green would need a luminance of 0.94, which is to say it would have to stop
+     being green. So this is the floor while the user's own words are a colour;
+     going thinner means giving that up and marking them some other way. */
+  --color-chat-panel: rgb(0 0 0 / 0.58);
+  --color-chat-edge: rgb(255 255 255 / 0.08);
+  --color-chat-dim: #8a8a8a;
   --font-kumbh: var(--font-kumbh);
+  --font-vazirmatn: var(--font-vazirmatn);
   --font-psl: var(--font-psl);
   --font-psr: var(--font-psr);
   --font-nhm: var(--font-nhm);
@@ -52,6 +74,27 @@ body {
   a,
   button {
     cursor: none;
+  }
+
+  /* Hiding the cursor is only safe where CustomCursor is mounted to draw one,
+     and that component belongs to the marketing chrome in `(site)`. The
+     assistant sits outside it, so the rule above would leave a text field with
+     no pointer at all — you would be typing into something you cannot see
+     yourself click. Surfaces opt back in by declaring themselves. */
+  [data-surface="chat"],
+  [data-surface="chat"] a,
+  [data-surface="chat"] button {
+    cursor: auto;
+  }
+
+  [data-surface="chat"] a,
+  [data-surface="chat"] button {
+    cursor: pointer;
+  }
+
+  [data-surface="chat"] textarea,
+  [data-surface="chat"] input {
+    cursor: text;
   }
 }
 
