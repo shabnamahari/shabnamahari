@@ -5,6 +5,7 @@ import {
   Newsreader,
   Instrument_Sans,
   Inter,
+  Vazirmatn,
 } from "next/font/google";
 import "./globals.css";
 
@@ -49,6 +50,20 @@ const nhm = Instrument_Sans({
   display: "swap",
 });
 
+// Persian, everywhere Persian is read: the assistant and, later, the panel.
+//
+// One family, not two. The brand's Latin type has an editorial serif layer, and
+// the temptation is to find a Persian serif to match it — but a good one that is
+// free does not exist, and a bad one would be more conspicuous than no serif at
+// all. So the Persian editorial voice is made from weight and size within
+// Vazirmatn instead, which is why 300 is loaded alongside 400 and 700.
+const vazirmatn = Vazirmatn({
+  variable: "--font-vazirmatn",
+  weight: ["300", "400", "700"],
+  subsets: ["arabic"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Shabnam Ahari — IELTS & English Coaching",
   description: "Your goal speaks English.",
@@ -73,7 +88,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${kumbhSans.variable} ${psl.variable} ${psr.variable} ${nhm.variable} ${grotesk.variable}`}
+      className={`${kumbhSans.variable} ${psl.variable} ${psr.variable} ${nhm.variable} ${grotesk.variable} ${vazirmatn.variable}`}
     >
       <body className="bg-cream text-ink font-nhm text-body antialiased">
         {children}

@@ -21,6 +21,28 @@ export type Violation = { rule: string; found: string; detail?: string };
 const PERSIAN = /[؀-ٟٮ-ۯۺ-ۿ]/g;
 const LATIN = /[A-Za-z]/g;
 
+/**
+ * A word boundary that works in Persian.
+ *
+ * JavaScript's `\b` is defined against `[A-Za-z0-9_]` alone, so between a space
+ * and a Persian letter there is no transition and therefore no boundary:
+ * `/\bشما\b/` matches nothing, ever. Two checks in this suite were written that
+ * way and neither did its job — one could never find the formal pronoun it was
+ * looking for and failed on every run, the other could never find the agreement
+ * it was meant to forbid and passed on every run while testing nothing. The
+ * second is the worse of the two, because a test that cannot fail is
+ * indistinguishable from a test that is working.
+ *
+ * Plain substring matching is not the answer either: «شما» is the opening of
+ * «شماره» and «شمال», and the bot says «شماره» whenever it asks for a phone
+ * number.
+ */
+const FA_LETTER = "؀-ۿ‌";
+
+export function faWord(...words: string[]): RegExp {
+  return new RegExp(`(?<![${FA_LETTER}])(?:${words.join("|")})(?![${FA_LETTER}])`);
+}
+
 /** Things that are Latin by nature and say nothing about the writer's language. */
 function stripInherentlyLatin(text: string): string {
   return text

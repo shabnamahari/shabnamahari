@@ -21,11 +21,18 @@ export default function Header({
   return (
     // Menu toggle only — the small wordmark that used to sit on the left
     // collided with the footer's "( Menu )" label at the bottom of the page.
-    <div className="fixed top-0 left-0 z-[999999999] flex w-full items-center justify-end p-[15px] text-white mix-blend-difference">
+    // `pointer-events-none` on the bar, `auto` on the button.
+    //
+    // This is full width and sits above everything on the page, so without it
+    // the strip across the top of every route swallows every click that lands
+    // in it — an invisible bar the width of the window. Nothing noticed while
+    // there was only ever empty space up there; the assistant put a control in
+    // that strip and it could not be pressed.
+    <div className="pointer-events-none fixed top-0 left-0 z-[999999999] flex w-full items-center justify-end p-[15px] text-white mix-blend-difference">
       <button
         type="button"
         onClick={onToggleMenu}
-        className="group text-sm font-semibold tracking-wide uppercase"
+        className="group pointer-events-auto text-sm font-semibold tracking-wide uppercase"
       >
         {isBracketed ? (
           <>
