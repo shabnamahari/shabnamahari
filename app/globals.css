@@ -77,23 +77,29 @@ body {
   }
 
   /* Hiding the cursor is only safe where CustomCursor is mounted to draw one,
-     and that component belongs to the marketing chrome in `(site)`. The
-     assistant sits outside it, so the rule above would leave a text field with
-     no pointer at all — you would be typing into something you cannot see
-     yourself click. Surfaces opt back in by declaring themselves. */
-  [data-surface="chat"],
-  [data-surface="chat"] a,
-  [data-surface="chat"] button {
+     and that component belongs to the marketing chrome in `(site)`. Anything
+     outside it — the assistant, the panel — would be left with no pointer at
+     all: you would be typing into something you cannot see yourself click.
+
+     Surfaces opt back in by naming themselves, and the test is whether
+     `data-surface` is set at all rather than a list of values. Written as a
+     list, the panel was missed for three sections and nobody could see what
+     they were clicking; the next surface would have been missed the same way. */
+  [data-surface],
+  [data-surface] a,
+  [data-surface] button {
     cursor: auto;
   }
 
-  [data-surface="chat"] a,
-  [data-surface="chat"] button {
+  [data-surface] a,
+  [data-surface] button,
+  [data-surface] select,
+  [data-surface] summary {
     cursor: pointer;
   }
 
-  [data-surface="chat"] textarea,
-  [data-surface="chat"] input {
+  [data-surface] textarea,
+  [data-surface] input:not([type="checkbox"]):not([type="radio"]) {
     cursor: text;
   }
 }
