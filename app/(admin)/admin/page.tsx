@@ -18,15 +18,25 @@ const SECTIONS = [
   { name: "Model", note: "Which model answers, and the fallback" },
   { name: "Prompt", note: "What Sir Cue is told to be", href: "/admin/prompt" },
   { name: "Playground", note: "One question, both languages, side by side" },
-  { name: "Conversations", note: "What people actually asked" },
+  {
+    name: "Conversations",
+    note: "What people actually asked",
+    href: "/admin/conversations",
+  },
+  {
+    name: "People",
+    note: "Who left a name, a number, or an exam date",
+    href: "/admin/leads",
+  },
 ] as const satisfies readonly { name: string; note: string; href?: string }[];
 
 async function counts() {
   const client = db();
-  const [documents, chunks, conversations, unanswered] = await Promise.all([
+  const [documents, chunks, conversations, people, unanswered] = await Promise.all([
     client.from("documents").select("id", { count: "exact", head: true }),
     client.from("chunks").select("id", { count: "exact", head: true }),
     client.from("conversations").select("id", { count: "exact", head: true }),
+    client.from("leads").select("id", { count: "exact", head: true }),
     client.from("unanswered").select("id", { count: "exact", head: true }),
   ]);
 
@@ -34,6 +44,8 @@ async function counts() {
     { label: "Documents", value: documents.count ?? 0 },
     { label: "Chunks", value: chunks.count ?? 0 },
     { label: "Conversations", value: conversations.count ?? 0 },
+    // The one number on this row that is worth money rather than upkeep.
+    { label: "People", value: people.count ?? 0 },
     { label: "Unanswered", value: unanswered.count ?? 0 },
   ];
 }
@@ -54,7 +66,7 @@ export default async function AdminHome() {
         <SignOut />
       </header>
 
-      <section className="mt-10 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4">
+      <section className="mt-10 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-5">
         {stats.map((stat) => (
           <div key={stat.label}>
             <div className="font-nhm text-3xl font-bold tabular-nums">
