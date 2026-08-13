@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 
 import HighlightReveal from "@/components/HighlightReveal";
 import type { Lang } from "@/lib/chatbot/core/types";
@@ -89,7 +90,21 @@ const UI = {
  * when you can still make out what is behind: enough blur to keep the text in
  * front readable, not so much that the page becomes fog.
  */
-const PANEL = "rounded-[28px] border border-chat-edge bg-chat-panel backdrop-blur-[5px]";
+const PANEL =
+  "rounded-[var(--chat-r)] border border-chat-edge bg-chat-panel backdrop-blur-[5px]";
+
+/**
+ * The corner, in px, on all four panels.
+ *
+ * Held as a custom property on the stack rather than a class on each panel, for
+ * the same reason as WIDTH and BAR: four numbers that must agree should be one
+ * number.
+ *
+ * 14 is Shabnam's, picked against 6 with both on screen. At 28 the panels read
+ * as pills; this is soft without being a lozenge, and nearer the square corner
+ * the site's own media sits in. `?r=` still overrides, the way `?bar=` does.
+ */
+const RADIUS_DEFAULT = 14;
 
 /**
  * One width for all four, and the single reason they can never drift apart.
@@ -130,6 +145,7 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
   const [busy, setBusy] = useState(false);
   const [conversationId, setConversationId] = useState<string | undefined>();
   const [barPx, setBarPx] = useState(BAR_DEFAULT);
+  const [radiusPx, setRadiusPx] = useState(RADIUS_DEFAULT);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -145,6 +161,8 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
     if (params.has("ask")) setOpen(true);
     const bar = Number(params.get("bar"));
     if (Number.isFinite(bar) && bar >= 32 && bar <= 96) setBarPx(bar);
+    const radius = Number(params.get("r"));
+    if (Number.isFinite(radius) && radius >= 0 && radius <= 40) setRadiusPx(radius);
   }, []);
 
   useEffect(() => {
@@ -312,6 +330,7 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
        * reference Shabnam sent.
        */
       className="pointer-events-none absolute inset-x-0 top-0 z-50 flex h-svh flex-col gap-3 p-4"
+      style={{ "--chat-r": `${radiusPx}px` } as CSSProperties}
     >
       {/* 1 — the way in. Closed, this is the whole thing: a question and five
           answers to it. Picking one opens the conversation and asks it. */}
