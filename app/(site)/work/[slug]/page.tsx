@@ -65,7 +65,7 @@ export default async function ProjectPage({
   return (
     <div className="flex flex-col gap-y-[100px] pb-[100px] md:gap-y-[200px] md:pb-[200px]">
       {/* hero: ✳ ( video ) + name */}
-      <h1 className="flex min-h-[100svh] w-full flex-col items-center justify-center gap-y-2 overflow-hidden py-[15px]">
+      <h1 className="hero-stack [--hero-lines:2]">
         <div className="relative flex shrink-0 items-center px-16 md:px-28">
           <span className="absolute left-16 md:left-24 w-[calc((0.9em+2.7vw)*1.5)] max-md:w-10 -translate-x-full pt-1 text-ink">
             <Asterisk />

@@ -12,17 +12,9 @@ export default function Hero() {
   const media = <VideoSlot src={HERO_VIDEO} label="Showreel" />;
 
   return (
-    /*
-     * The top padding is the assistant's, not the headline's.
-     *
-     * The bar now sits permanently across the top of this page, and the
-     * headline began directly underneath it with no air in between. This clears
-     * the bar and leaves roughly the gap the reference layout keeps between its
-     * own bar and its first word. It is padding rather than a margin so the
-     * lines still centre in what is left, and the block still fills the
-     * viewport on a short window instead of pushing its last line off-screen.
-     */
-    <h1 className="flex min-h-[100svh] w-full flex-col items-center justify-center gap-y-2 overflow-hidden py-[15px] pt-[clamp(8rem,18vh,13rem)]">
+    /* Five lines, so the whole sentence is visible on a short window — see
+       .hero-stack in globals.css. */
+    <h1 className="hero-stack">
       <div className="flex w-full justify-center overflow-hidden">
         <RevealLine className="text-h1 text-center whitespace-nowrap">
           Your

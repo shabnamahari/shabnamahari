@@ -118,6 +118,53 @@ body {
   font-size: calc(0.75em + 12vw);
 }
 
+/* ---- the hero that has to fit the window ----
+ *
+ * Four pages open with the same block: a stack of huge lines, centred, filling
+ * the viewport. Two things now act on it that did not before.
+ *
+ * The assistant's bar sits permanently across the top of every page, so the
+ * first line has to start below it. `--hero-top` is that clearance, and it is a
+ * property rather than a padding value because the type cap below has to know
+ * how much room it took.
+ *
+ * And the type was sized off width alone. On a short window — Shabnam's is
+ * about 640px tall — five lines of `calc(0.75em + 12vw)` come to more than the
+ * viewport, so the last one fell off the bottom and the showreel box landed on
+ * top of it. Capping by height is what makes the whole sentence visible;
+ * raising the block alone could not, because the block was taller than the
+ * window to begin with. The cap is the height left over after the clearance,
+ * the gaps and a little air, divided among the lines — so it is inert on a tall
+ * window and only bites when one is short.
+ */
+/* The line count is a var() fallback rather than a declaration here, because a
+   declaration would win: this rule is unlayered and Tailwind's utilities are
+   layered, so `[--hero-lines:4]` on a page would lose to it. */
+.hero-stack {
+  --hero-top: clamp(4.5rem, 12vh, 8rem);
+
+  display: flex;
+  width: 100%;
+  min-height: 100svh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  overflow: hidden;
+  padding-top: var(--hero-top);
+  padding-bottom: 15px;
+}
+
+.hero-stack .text-h1 {
+  font-size: min(
+    calc(0.75em + 12vw),
+    calc(
+      (100svh - var(--hero-top) - 2rem - (var(--hero-lines, 5) - 1) * 0.5rem) /
+        (0.78 * var(--hero-lines, 5))
+    )
+  );
+}
+
 .text-h1-2 {
   font-size: 12vw;
 }

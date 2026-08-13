@@ -22,7 +22,7 @@ const PHOTOS = [
 export default function AboutPage() {
   return (
     <div className="flex flex-col gap-y-[100px] pb-[100px] md:gap-y-[200px] md:pb-[200px]">
-      <h1 className="flex min-h-[100svh] w-full flex-col items-center justify-center gap-y-2 overflow-hidden py-[15px]">
+      <h1 className="hero-stack [--hero-lines:4]">
         <div className="flex w-full justify-center overflow-hidden">
           <RevealLine className="text-h1 text-center whitespace-nowrap">
             I am

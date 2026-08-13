@@ -36,7 +36,8 @@ const TILE_SIZES: Record<string, string> = {
 export default function ServicesPage() {
   return (
     <div className="flex flex-col gap-y-[100px] pb-[100px] md:gap-y-[200px] md:pb-[200px]">
-      <h1 className="flex min-h-[100svh] w-full flex-col items-center justify-center gap-y-2 overflow-hidden py-[15px]">
+      {/* Five lines — "This is" was starting underneath the assistant's bar. */}
+      <h1 className="hero-stack">
         <div className="flex w-full justify-center overflow-hidden">
           <RevealLine className="text-h1 text-center whitespace-nowrap">
             This is
