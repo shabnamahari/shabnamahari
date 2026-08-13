@@ -48,6 +48,12 @@ function stripInherentlyLatin(text: string): string {
   return text
     .replace(/https?:\/\/\S+/g, " ")
     .replace(/\S+@\S+\.\S+/g, " ")
+    // A handle, for the same reason as the email above it: @SHABNAMAHARI is
+    // not a Latin word chosen over a Persian one, it is an address that exists
+    // in exactly one spelling. The bot prints it at the end of Persian answers
+    // because it is Shabnam's Telegram, and the check was calling that a
+    // violation.
+    .replace(/@[A-Za-z0-9_]{3,}/g, " ")
     // Markdown link targets, which carry a URL even when the label is Persian.
     .replace(/\]\([^)]*\)/g, "]")
     .replace(/`[^`]*`/g, " ")
