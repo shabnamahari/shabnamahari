@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { requireAdmin, recordAction } from "@/lib/admin/auth";
+import { LEAD_STATUSES, type LeadStatus } from "@/lib/admin/leads";
 import { db } from "@/lib/chatbot/db/client";
 
 /**
@@ -14,21 +15,9 @@ import { db } from "@/lib/chatbot/db/client";
  * this person got to, and whatever was learned by actually speaking to them.
  */
 
-export type LeadStatus =
-  | "new"
-  | "contacted"
-  | "placement_taken"
-  | "enrolled"
-  | "lost";
-
-export const LEAD_STATUSES: readonly LeadStatus[] = [
-  "new",
-  "contacted",
-  "placement_taken",
-  "enrolled",
-  "lost",
-];
-
+// The statuses themselves are in `lib/admin/leads.ts`, not here. A `"use
+// server"` module exports server references rather than values, so a constant
+// declared beside these actions is unreadable from the browser that needs it.
 export type LeadResult = { ok: true } | { ok: false; error: string };
 
 async function requireOwner() {
