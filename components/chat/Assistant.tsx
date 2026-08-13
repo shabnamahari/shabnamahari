@@ -135,6 +135,19 @@ function fontFor(lang: Lang): string {
   return lang === "fa" ? "font-vazirmatn" : "font-nhm";
 }
 
+/** A query parameter as a number inside a range, or null if it is not there. */
+function readNumber(
+  params: URLSearchParams,
+  key: string,
+  min: number,
+  max: number,
+): number | null {
+  const raw = params.get(key);
+  if (raw === null) return null;
+  const value = Number(raw);
+  return Number.isFinite(value) && value >= min && value <= max ? value : null;
+}
+
 export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
   const [open, setOpen] = useState(false);
   /** `?chat=off` takes the assistant off the page, for looking at the site alone. */
@@ -159,10 +172,12 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
     const params = new URLSearchParams(window.location.search);
     if (params.get("chat") === "off") setHidden(true);
     if (params.has("ask")) setOpen(true);
-    const bar = Number(params.get("bar"));
-    if (Number.isFinite(bar) && bar >= 32 && bar <= 96) setBarPx(bar);
-    const radius = Number(params.get("r"));
-    if (Number.isFinite(radius) && radius >= 0 && radius <= 40) setRadiusPx(radius);
+    // `has` before `Number`, because `Number(null)` is 0 rather than NaN. The
+    // radius accepts 0 as a real value, so an absent `?r=` read as a deliberate
+    // square and every panel on the live site lost its corners. `?bar=` had the
+    // same hole and only survived it because its floor happens to be 32.
+    setBarPx(readNumber(params, "bar", 32, 96) ?? BAR_DEFAULT);
+    setRadiusPx(readNumber(params, "r", 0, 40) ?? RADIUS_DEFAULT);
   }, []);
 
   useEffect(() => {
