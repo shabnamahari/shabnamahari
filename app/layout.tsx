@@ -65,7 +65,9 @@ const vazirmatn = Vazirmatn({
 });
 
 export const metadata: Metadata = {
-  title: "Shabnam Ahari — IELTS & English Coaching",
+  // Shabnam's words. "Coaching" undersold it and left out the business English
+  // side entirely, which is a third of what she teaches.
+  title: "Shabnam Ahari — Ielts and business English studio",
   description: "Your goal speaks English.",
 };
 
