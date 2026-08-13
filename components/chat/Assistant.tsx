@@ -5,6 +5,7 @@ import type { CSSProperties } from "react";
 
 import HighlightReveal from "@/components/HighlightReveal";
 import TelegramMark from "@/components/TelegramMark";
+import MessageText from "@/components/chat/MessageText";
 import type { Lang } from "@/lib/chatbot/core/types";
 
 /**
@@ -479,7 +480,7 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
                     m.role === "user" ? "text-confirm-lit" : "text-white",
                   ].join(" ")}
                 >
-                  {m.text}
+                  <MessageText text={m.text} />
                 </p>
               ))}
 
