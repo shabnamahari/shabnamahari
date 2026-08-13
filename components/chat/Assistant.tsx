@@ -225,6 +225,8 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
       const answerId = crypto.randomUUID();
       let answerLang = turnLang;
       let opened = false;
+      /** Whether the reader was told, one way or another, how this went. */
+      let answered = false;
 
       try {
         const res = await fetch("/api/chat", {
@@ -269,6 +271,7 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
 
             if (event.type === "delta") {
               const chunk = event.text as string;
+              answered = true;
               if (!opened) {
                 opened = true;
                 setMessages((prev) => [
@@ -283,6 +286,7 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
             }
 
             if (event.type === "error") {
+              answered = true;
               setMessages((prev) => [
                 ...prev,
                 {
@@ -294,6 +298,21 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
               ]);
             }
           }
+        }
+
+        // The stream ended having said nothing.
+        //
+        // Not a case the brain can report, because the brain is not there any
+        // more: the connection was cut. A turn on the free models can take over
+        // a minute — one model is rate-limited, the next is tried, and the
+        // request runs past what the platform allows — and what the reader saw
+        // was their own question, the dots stopping, and no reply at all. An
+        // assistant that goes quiet reads as broken. It says so instead.
+        if (!answered) {
+          setMessages((prev) => [
+            ...prev,
+            { id: crypto.randomUUID(), role: "bot", text: t.failed, lang: turnLang },
+          ]);
         }
       } catch {
         setMessages((prev) => [
