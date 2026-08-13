@@ -19,5 +19,13 @@ export const metadata: Metadata = {
 export default function AdminLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return <div className="bg-paper text-ink min-h-screen">{children}</div>;
+  // `data-surface` is what gives the system cursor back. globals.css hides it
+  // for the whole document because the site draws its own, and that component
+  // is mounted in `(site)` only — so without this attribute the panel is a
+  // screen full of fields you cannot see yourself click.
+  return (
+    <div data-surface="panel" className="bg-paper text-ink min-h-screen">
+      {children}
+    </div>
+  );
 }
