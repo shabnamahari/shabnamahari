@@ -5,6 +5,22 @@ import SiteChrome from "@/components/SiteChrome";
 import AssistantMount from "@/components/chat/mount";
 
 /**
+ * Rebuild these pages in the background every quarter of an hour.
+ *
+ * The assistant's greeting is read from `channel_copy` while a page is being
+ * prerendered, so without this it is whatever the database said at the moment
+ * of the last deploy — frozen there until someone deploys again. Two things
+ * follow from that, and both bit within an hour of going live: an edit to the
+ * greeting changed nothing on the site, and one build could not reach Supabase,
+ * quietly baked the hardcoded fallback into every page, and left it there.
+ *
+ * Fifteen minutes is the window in which either of those now corrects itself.
+ * It costs one small query per page per quarter hour. When the admin panel can
+ * edit this copy it should call `revalidatePath` on save and not wait.
+ */
+export const revalidate = 900;
+
+/**
  * The marketing site's chrome: header, footer, smooth scroll, custom cursor,
  * lightbox.
  *

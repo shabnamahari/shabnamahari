@@ -51,8 +51,11 @@ async function fetchCopy(): Promise<Record<Lang, Copy>> {
       const lang = row.lang as Lang;
       if (row.welcome) copy[lang] = { welcome: row.welcome };
     }
-  } catch {
-    // No credentials, or no database to reach. Both mean the same thing here.
+  } catch (cause) {
+    // No credentials, or no database to reach. Both mean the same thing to the
+    // reader — but not to us, so it is said out loud. Silence here is how the
+    // fallback greeting got onto the live site without anyone being told.
+    console.warn("[assistant] greeting fell back to the hardcoded copy:", cause);
   }
 
   return copy;
