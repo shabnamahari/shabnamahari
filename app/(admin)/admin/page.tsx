@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 const SECTIONS = [
   { name: "Knowledge base", note: "What the bot may answer from", href: "/admin/knowledge" },
   { name: "Model", note: "Which model answers, and the fallback" },
-  { name: "Prompt", note: "What Sir Cue is told to be" },
+  { name: "Prompt", note: "What Sir Cue is told to be", href: "/admin/prompt" },
   { name: "Playground", note: "One question, both languages, side by side" },
   { name: "Conversations", note: "What people actually asked" },
 ] as const satisfies readonly { name: string; note: string; href?: string }[];
