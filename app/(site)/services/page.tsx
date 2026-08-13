@@ -64,7 +64,7 @@ export default function ServicesPage() {
             <ParenMedia>
               <ShowReel
                 beat={0.5}
-                alt="The three programs"
+                alt="The three Programs"
                 frames={PROJECTS.map((project) => (
                   <KineticTypeTile
                     key={project.slug}

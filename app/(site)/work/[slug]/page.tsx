@@ -111,10 +111,10 @@ export default async function ProjectPage({
         <HoverExpand images={galleryPanels} entry="load" />
       </div>
 
-      {/* other programs */}
+      {/* other Programs */}
       <div className="page-margin flex flex-col gap-y-[50px]">
         <RevealLine as="h2" className="text-h2 text-center">
-          Other programs you might be interested in
+          Other Programs you might be interested in
         </RevealLine>
         <div className="flex flex-col items-center gap-y-[30px]">
           {others.map((other) => (

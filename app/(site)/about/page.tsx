@@ -91,7 +91,7 @@ export default function AboutPage() {
             method, aimed at your exact band.
           </p>
           <a href="/services" className="body-link">
-            More about our programs
+            More about our Programs
           </a>
         </div>
       </div>
