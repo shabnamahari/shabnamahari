@@ -103,14 +103,6 @@ body {
   --hl-bar: #ffffff;
 }
 
-/* The count-in can only count with a script running. Without one it would be a
-   cream screen over a page that had already finished. */
-@media (scripting: none) {
-  [data-preload] {
-    display: none;
-  }
-}
-
 /* ---- adcker-derived typography utilities ---- */
 
 .text-h1,

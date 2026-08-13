@@ -6,7 +6,6 @@ import Header from "@/components/Header";
 import MenuOverlay from "@/components/MenuOverlay";
 import Footer from "@/components/Footer";
 import BackControl from "@/components/BackControl";
-import Preloader from "@/components/Preloader";
 import { backTarget } from "@/lib/back";
 
 export default function SiteChrome({
@@ -22,9 +21,6 @@ export default function SiteChrome({
 
   return (
     <>
-      {/* Mounted here rather than per page, so it runs on the document load and
-          never again on a navigation between routes. */}
-      <Preloader />
       <Header
         isMenuOpen={isMenuOpen}
         onToggleMenu={() => setIsMenuOpen((open) => !open)}
