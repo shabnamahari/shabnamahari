@@ -3,7 +3,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/admin/auth";
 import { db } from "@/lib/chatbot/db/client";
 import LeadRow, { type Lead } from "@/components/admin/LeadRow";
-import type { LeadStatus } from "./actions";
+import type { LeadStatus } from "@/lib/admin/leads";
 
 export const dynamic = "force-dynamic";
 

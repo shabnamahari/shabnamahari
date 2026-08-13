@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 
+import { markNotified, updateLead } from "@/app/(admin)/admin/leads/actions";
 import {
   LEAD_STATUSES,
-  markNotified,
-  updateLead,
+  LEAD_STATUS_LABEL as LABEL,
   type LeadStatus,
-} from "@/app/(admin)/admin/leads/actions";
+} from "@/lib/admin/leads";
 
 export type Lead = {
   id: string;
@@ -24,14 +24,6 @@ export type Lead = {
   notes: string | null;
   conversationId: string | null;
   createdAt: string;
-};
-
-const LABEL: Record<LeadStatus, string> = {
-  new: "New",
-  contacted: "Contacted",
-  placement_taken: "Took the assessment",
-  enrolled: "Enrolled",
-  lost: "Lost",
 };
 
 /** Days from today, negative once the date has passed. */
