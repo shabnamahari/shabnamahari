@@ -98,6 +98,19 @@ body {
   }
 }
 
+/* The marker bar takes the assistant's colour rather than the site's ink. */
+[data-surface="chat"] {
+  --hl-bar: #ffffff;
+}
+
+/* The count-in can only count with a script running. Without one it would be a
+   cream screen over a page that had already finished. */
+@media (scripting: none) {
+  [data-preload] {
+    display: none;
+  }
+}
+
 /* ---- adcker-derived typography utilities ---- */
 
 .text-h1,
@@ -611,7 +624,11 @@ body {
   content: "";
   position: absolute;
   inset: -0.06em -0.14em -0.14em;
-  background-color: var(--color-ink);
+  /* The bar is whatever colour the text is about to be, because it is the thing
+     that prints it. Ink on the cream site; white inside the assistant, where a
+     black bar over black glass would be invisible and the words would simply
+     appear. */
+  background-color: var(--hl-bar, var(--color-ink));
   transform: scaleX(0);
   transform-origin: left center;
   pointer-events: none;

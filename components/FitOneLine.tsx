@@ -37,9 +37,19 @@ export default function FitOneLine({
       // last pass left it, so widening the window grows the row back.
       el.style.fontSize = `${max}px`;
       const available = el.clientWidth;
-      const needed = row.scrollWidth;
-      if (needed > available && available > 0) {
-        el.style.fontSize = `${Math.max(min, Math.floor((max * available) / needed))}px`;
+      if (available <= 0 || row.scrollWidth <= available) return;
+
+      // Estimate, then check. Width is not quite linear in font size —
+      // letter-spacing does not scale with it and every glyph advance is
+      // rounded — so the ratio lands a hair wide. On the AI & Ielts page,
+      // whose row is the five longest titles in the program, one pass left it
+      // ten pixels over and `overflow: hidden` sliced a word off each end.
+      let size = Math.max(min, Math.floor((max * available) / row.scrollWidth));
+      el.style.fontSize = `${size}px`;
+
+      while (size > min && row.scrollWidth > available) {
+        size -= 1;
+        el.style.fontSize = `${size}px`;
       }
     };
 

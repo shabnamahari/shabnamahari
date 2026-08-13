@@ -3,6 +3,15 @@ import { getProject } from "./projects";
 export type BackTarget = { href: string; label: string };
 
 /**
+ * What /services is called to a visitor.
+ *
+ * Its heading is "This is what you learn" and the menu calls it Learn, so Back
+ * has to as well. Naming it "Programs" here — which is what the page's title
+ * tag says — promised a page by that name that does not exist.
+ */
+const LEARN = "Learn";
+
+/**
  * Where a page's ( Back ) leads, or null if the page has no way back.
  *
  * Only the pages you reach by going *into* something get one. Index, About and
@@ -19,7 +28,7 @@ export type BackTarget = { href: string; label: string };
 export function backTarget(pathname: string): BackTarget | null {
   const parts = pathname.split("/").filter(Boolean);
 
-  if (parts[0] === "auth") return { href: "/services", label: "Programs" };
+  if (parts[0] === "auth") return { href: "/services", label: LEARN };
 
   if (parts[0] !== "work") return null;
 
@@ -30,5 +39,5 @@ export function backTarget(pathname: string): BackTarget | null {
   // that lists all three.
   return parts[2]
     ? { href: `/work/${project.slug}`, label: project.name }
-    : { href: "/services", label: "Programs" };
+    : { href: "/services", label: LEARN };
 }

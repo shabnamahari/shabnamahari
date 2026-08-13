@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import HighlightReveal from "@/components/HighlightReveal";
 import type { Lang } from "@/lib/chatbot/core/types";
 
 /**
@@ -346,10 +347,16 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
             className={`${WIDTH} ${PANEL} pointer-events-auto min-h-0 flex-1 overflow-y-auto px-6 py-7 sm:px-8`}
           >
             <div dir={lang === "fa" ? "rtl" : "ltr"}>
+              {/*
+                * The greeting is printed by the marker, the way the entry
+                * titles are — the one gesture the site uses to introduce a
+                * line. Keyed on the language so switching replays it instead
+                * of swapping the words under a bar that has already gone.
+                */}
               <p
-                className={`${fontFor(lang)} text-[1.0625rem] leading-[1.75] whitespace-pre-wrap text-white`}
+                className={`${fontFor(lang)} text-[1.0625rem] leading-[1.75] text-white`}
               >
-                {copy[lang].welcome}
+                <HighlightReveal key={lang} text={copy[lang].welcome} />
               </p>
 
               {/* Under the greeting rather than in the bar above it: they are

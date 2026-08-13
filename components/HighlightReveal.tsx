@@ -29,6 +29,41 @@ import type { CSSProperties } from "react";
  * trailing space inside an inline-block is collapsed away, which would run the
  * whole title into one unbroken bar.
  */
+const RTL_LETTER = /[֐-ࣿיִ-﷿ﹰ-﻿]/;
+const LATIN_LETTER = /[A-Za-z]/;
+
+const isLatinRun = (word: string) =>
+  LATIN_LETTER.test(word) && !RTL_LETTER.test(word);
+
+/**
+ * The words, with any Latin phrase inside Persian kept in one piece.
+ *
+ * Each word is an inline-block, which bidi treats as one neutral object rather
+ * than as the letters inside it. In a right-to-left line two of those in a row
+ * are therefore placed right to left, and "Sir Cue" came out "Cue Sir" — the
+ * bot's own name, backwards, the moment the greeting was split for the marker.
+ * A Latin phrase in one box is one object, and there is nothing left to
+ * reorder.
+ *
+ * Nothing changes for a line with no right-to-left letters in it: an English
+ * title still gets a bar per word.
+ */
+function tokenise(text: string): string[] {
+  const words = text.split(" ");
+  if (!RTL_LETTER.test(text)) return words;
+
+  const out: string[] = [];
+  for (const word of words) {
+    const last = out.length - 1;
+    if (last >= 0 && isLatinRun(out[last]) && isLatinRun(word)) {
+      out[last] = `${out[last]} ${word}`;
+    } else {
+      out.push(word);
+    }
+  }
+  return out;
+}
+
 export default function HighlightReveal({
   text,
   /** Seconds between one word starting and the next. */
@@ -67,7 +102,7 @@ export default function HighlightReveal({
     return () => observer.disconnect();
   }, [trigger]);
 
-  const parts = text.split(" ");
+  const parts = tokenise(text);
 
   return (
     <span ref={ref} className={`hl-reveal ${className}`} data-trigger={trigger}>
