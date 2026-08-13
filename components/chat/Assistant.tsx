@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 
 import HighlightReveal from "@/components/HighlightReveal";
+import TelegramMark from "@/components/TelegramMark";
 import type { Lang } from "@/lib/chatbot/core/types";
 
 /**
@@ -53,6 +54,16 @@ const TOPICS: { en: [string, string]; fa: [string, string] }[] = [
   },
 ];
 
+/**
+ * The same assistant, in Telegram.
+ *
+ * Not Shabnam's own account — that one is in the footer under "Reach out" and
+ * reaches a person. This reaches the bot, and the two must never be confused:
+ * someone who wants an answer at midnight should get the bot, and someone who
+ * wants Shabnam should get Shabnam.
+ */
+const BOT_TELEGRAM = "https://t.me/SirCue_bot";
+
 const UI = {
   en: {
     title: "What are you looking for?",
@@ -62,6 +73,7 @@ const UI = {
     failed: "That did not go through. Try again.",
     /** The label names the language you are switching to, not the one you are in. */
     switchLabel: "Persian",
+    onTelegram: "Also on Telegram",
   },
   fa: {
     // Not a translation of the English. «دنبال چه چیزی می‌گردید؟» is a shop
@@ -77,6 +89,8 @@ const UI = {
     close: "بستن",
     failed: "نرسید. یک بار دیگر بفرستید.",
     switchLabel: "English",
+    // «هم» carries the whole idea: this conversation, somewhere else too.
+    onTelegram: "در تلگرام هم هستم",
   },
 } as const;
 
@@ -433,6 +447,25 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
                   );
                 })}
               </div>
+
+              {/*
+                The same assistant, somewhere you can close the tab and still
+                come back to. Under the chips rather than beside the language
+                switch: the chips are three ways to start this conversation, and
+                this is a fourth — a quiet one, in dim type, because it is an
+                offer and not a button competing with them.
+              */}
+              <a
+                href={BOT_TELEGRAM}
+                target="_blank"
+                rel="noreferrer"
+                className={`${fontFor(
+                  lang,
+                )} text-chat-dim mt-5 inline-flex items-center gap-2 text-[0.8125rem] transition-colors hover:text-white`}
+              >
+                <TelegramMark className="h-[0.95em] w-[0.95em]" />
+                {t.onTelegram}
+              </a>
             </div>
 
             <div className="mt-8 flex flex-col gap-6">
