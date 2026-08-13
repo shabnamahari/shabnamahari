@@ -14,12 +14,12 @@ export const dynamic = "force-dynamic";
  * thing is missing or merely hidden.
  */
 const SECTIONS = [
-  { name: "Knowledge base", note: "What the bot may answer from", ready: false },
-  { name: "Model", note: "Which model answers, and the fallback", ready: false },
-  { name: "Prompt", note: "What Sir Cue is told to be", ready: false },
-  { name: "Playground", note: "One question, both languages, side by side", ready: false },
-  { name: "Conversations", note: "What people actually asked", ready: false },
-] as const;
+  { name: "Knowledge base", note: "What the bot may answer from", href: "/admin/knowledge" },
+  { name: "Model", note: "Which model answers, and the fallback" },
+  { name: "Prompt", note: "What Sir Cue is told to be" },
+  { name: "Playground", note: "One question, both languages, side by side" },
+  { name: "Conversations", note: "What people actually asked" },
+] as const satisfies readonly { name: string; note: string; href?: string }[];
 
 async function counts() {
   const client = db();
@@ -78,11 +78,19 @@ export default async function AdminHome() {
               className="border-rule flex items-center justify-between border-b py-4"
             >
               <div>
-                <div className="text-[0.9375rem]">{section.name}</div>
+                <div className="text-[0.9375rem]">
+                  {"href" in section ? (
+                    <Link href={section.href} className="underline underline-offset-4">
+                      {section.name}
+                    </Link>
+                  ) : (
+                    section.name
+                  )}
+                </div>
                 <div className="text-muted-ink text-sm">{section.note}</div>
               </div>
               <span className="text-muted-ink text-xs tracking-wide uppercase">
-                {section.ready ? "open" : "not built yet"}
+                {"href" in section ? "open" : "not built yet"}
               </span>
             </li>
           ))}
