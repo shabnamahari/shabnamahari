@@ -9,6 +9,15 @@ const MENU_LINKS = [
   { label: "About", href: "/about" },
 ];
 
+/**
+ * Shabnam herself, not the assistant.
+ *
+ * Two Telegram addresses exist now and they must not be confused: this one
+ * reaches a person, @SirCue_bot reaches the bot. Everything on this page that
+ * says "reach out" means this one.
+ */
+export const SHABNAM_TELEGRAM = "https://t.me/SHABNAMAHARI";
+
 const REACH_OUT_LINKS = [
   {
     label: "LinkedIn",
@@ -18,7 +27,7 @@ const REACH_OUT_LINKS = [
   // used for work, so it was sending people somewhere they cannot be answered.
   {
     label: "Telegram",
-    href: "https://t.me/SHABNAMAHARI",
+    href: SHABNAM_TELEGRAM,
   },
 ];
 
@@ -37,8 +46,18 @@ export default function Footer() {
           there.
         </RevealLine>
         <div className="col-span-12 flex justify-center">
+          {/*
+            The site's main call to action, and it pointed at hello@adcker.com —
+            an address from the template this was built from, live on the
+            published site. Anyone who pressed it wrote to nobody.
+
+            It goes to Telegram rather than to a corrected mailbox because that
+            is where Shabnam actually answers, and because the knowledge base
+            already tells people so: the consultation is booked "directly with
+            Shabnam, on Telegram".
+          */}
           <a
-            href="mailto:hello@adcker.com"
+            href={SHABNAM_TELEGRAM}
             className="body-link"
             target="_blank"
             rel="noreferrer"
