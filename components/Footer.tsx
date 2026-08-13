@@ -14,9 +14,11 @@ const REACH_OUT_LINKS = [
     label: "LinkedIn",
     href: "https://www.linkedin.com/in/shabnam-ahari-372573101",
   },
+  // Telegram rather than Instagram: the Instagram account is private and not
+  // used for work, so it was sending people somewhere they cannot be answered.
   {
-    label: "Instagram",
-    href: "https://www.instagram.com/shabnameahari?igsh=MTlycGVmdmN0dG1hNg%3D%3D&utm_source=qr",
+    label: "Telegram",
+    href: "https://t.me/SHABNAMAHARI",
   },
 ];
 

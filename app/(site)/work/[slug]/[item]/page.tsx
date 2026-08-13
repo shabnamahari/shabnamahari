@@ -275,7 +275,7 @@ export default async function GalleryItemPage({
 
         <div className="flex w-full flex-col items-center gap-y-[18px]">
           <RevealLine className="text-note text-confirm text-center">
-            Other {heading.toLowerCase()} in{" "}
+            Other {heading} in{" "}
             <Link href={`/work/${slug}`} className="body-link">
               {project.name}
             </Link>

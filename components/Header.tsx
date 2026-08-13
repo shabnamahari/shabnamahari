@@ -1,21 +1,20 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-
 /**
- * Where Menu is bracketed. It is a pair with that page's ( Back ), which is the
- * only reason the gesture exists; everywhere else the word is left alone.
+ * Menu is bracketed wherever ( Back ) sits under it. It is a pair with that
+ * word, which is the only reason the gesture exists; on a page with no way
+ * back the word is left alone.
  */
-const BRACKETED_ON = "/auth";
-
 export default function Header({
   isMenuOpen,
   onToggleMenu,
+  hasBack = false,
 }: {
   isMenuOpen: boolean;
   onToggleMenu: () => void;
+  hasBack?: boolean;
 }) {
-  const isBracketed = usePathname() === BRACKETED_ON;
+  const isBracketed = hasBack;
   const label = isMenuOpen ? "Close" : "Menu";
 
   return (

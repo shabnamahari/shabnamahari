@@ -35,8 +35,11 @@ export type Project = {
   /**
    * The noun this project calls its gallery entries — "Programs", "Insights",
    * "Areas". Kept bare because the entry pages set it mid-sentence ("Other
-   * programs in Ielts"), where the heading's "All" would not fit. Use
+   * Programs in Ielts"), where the heading's "All" would not fit. Use
    * `galleryTitle` for the heading itself. Defaults to "Gallery".
+   *
+   * These three are names, not descriptions, so they keep their capital mid
+   * sentence — Shabnam's rule.
    */
   galleryHeading?: string;
 };
