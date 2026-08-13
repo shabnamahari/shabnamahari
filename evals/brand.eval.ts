@@ -6,6 +6,8 @@ import {
   faWord,
   idiomsInEnglish,
   latinInPersian,
+  nameRepeats,
+  spokenVerbForms,
   taglineViolations,
   unsupportedNumbers,
 } from "./checks";
@@ -64,6 +66,16 @@ function expectUniversallyClean(turn: TurnResult) {
     expect(
       latinInPersian(turn.answer, settings.latinAllowlist),
       `latin script in a Persian answer:\n${turn.answer}`,
+    ).toEqual([]);
+
+    expect(
+      nameRepeats(turn.answer, settings.handoffNote.fa),
+      `her name instead of «ایشان» in:\n${turn.answer}`,
+    ).toEqual([]);
+
+    expect(
+      spokenVerbForms(turn.answer),
+      `spoken verb form in:\n${turn.answer}`,
     ).toEqual([]);
   } else {
     expect(

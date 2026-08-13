@@ -120,13 +120,26 @@ export async function evalSettings() {
   const { data } = await db()
     .from("settings")
     .select("key, value")
-    .in("key", ["banned_words", "fa_latin_allowlist", "placement_url"]);
+    .in("key", [
+      "banned_words",
+      "fa_latin_allowlist",
+      "placement_url",
+      "contact_handoff_note",
+    ]);
 
   const map = new Map((data ?? []).map((row) => [row.key, row.value]));
+  const handoff = (map.get("contact_handoff_note") as Record<Lang, string>) ?? {
+    en: "",
+    fa: "",
+  };
   return {
     bannedWords: (map.get("banned_words") as Record<Lang, string[]>) ?? { en: [], fa: [] },
     latinAllowlist: (map.get("fa_latin_allowlist") as string[]) ?? [],
     placementUrl: (map.get("placement_url") as string) ?? "",
+    // Read rather than hardcoded, for the same reason as the lists above it:
+    // the name check subtracts this line before counting, so a copy of it in
+    // the test would silently stop matching the day Shabnam rewords it.
+    handoffNote: handoff,
   };
 }
 

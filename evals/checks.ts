@@ -206,6 +206,73 @@ export function taglineViolations(text: string): Violation[] {
 }
 
 // ---------------------------------------------------------------------------
+// Persian register
+// ---------------------------------------------------------------------------
+
+/**
+ * Her name once per answer, «ایشان» after that.
+ *
+ * The rule is in the Persian prompt (0022). The check is here because the
+ * repeated name is the one tone failure that looks fine sentence by sentence —
+ * you only hear it across two of them, which is exactly what a reviewer reading
+ * for something else does not notice.
+ *
+ * `handoffNote` is passed in and subtracted first. That line is fixed copy
+ * Shabnam wrote and decided to keep as it stands, it names her, and the bot
+ * appends it verbatim whenever it hands someone over — so counting it would
+ * fail every handoff answer for a phrase the model did not write.
+ */
+export function nameRepeats(text: string, handoffNote = ""): Violation[] {
+  const NAME = "شبنم";
+  const body = handoffNote ? text.split(handoffNote).join(" ") : text;
+
+  // Persian has no word boundary a regex can see, and «شبنم» opens nothing
+  // longer that this bot says, so a plain count is right here.
+  const count = body.split(NAME).length - 1;
+  if (count < 2) return [];
+
+  return [
+    {
+      rule: "her name repeated instead of «ایشان»",
+      found: NAME,
+      detail: `said ${count} times in one answer`,
+    },
+  ];
+}
+
+/**
+ * Verb endings that were left spoken.
+ *
+ * 0023 draws the line where Shabnam draws it: warm connectors are welcome
+ * («خب», «الان», «یه»), the verbs stay whole. Closeness is the pronoun's job.
+ *
+ * An explicit list rather than a pattern for «می‌...ه». That pattern also
+ * matches «می‌رفته» and «می‌شده», which are correct written past-habituals, and
+ * a check that reddens a good answer is how the Latin allow-list came to reject
+ * fifteen words Shabnam had signed off. Deliberately not exhaustive: every
+ * entry is a form the bot has produced or plausibly will.
+ */
+const SPOKEN_FORMS = [
+  "می‌کنه", "میکنه", "می‌شه", "میشه", "می‌ده", "میده", "می‌گه", "میگه",
+  "می‌ره", "میره", "می‌سنجه", "می‌تونه", "میتونه", "می‌خواد", "میخواد",
+  "می‌گیره", "می‌مونه", "می‌بره", "نمی‌کنه", "نمی‌شه",
+  // «بده» is deliberately absent: it is the ordinary written imperative in
+  // «آزمون را بده», not a contraction of anything. It was on this list for one
+  // run, and the case below caught it.
+  "باشه", "داره", "نداره", "بشه",
+  "اون", "اونا", "اینا", "چیه", "کیه", "دیگه", "توئه",
+  // «را» written as «رو». The boundary helper keeps it out of «روی» and «روز».
+  "رو",
+];
+
+export function spokenVerbForms(text: string): Violation[] {
+  return SPOKEN_FORMS.filter((form) => faWord(form).test(text)).map((form) => ({
+    rule: "spoken form where the written one belongs",
+    found: form,
+  }));
+}
+
+// ---------------------------------------------------------------------------
 // Numbers
 // ---------------------------------------------------------------------------
 
