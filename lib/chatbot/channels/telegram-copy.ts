@@ -45,3 +45,61 @@ export const TG: Record<Lang, Record<string, string>> = {
     notText: "فقط متن می‌توانم بخوانم.",
   },
 };
+
+/**
+ * What Telegram shows about the bot before anyone has said anything to it.
+ *
+ * This is the only copy in the project that no request ever renders — it lives
+ * on Telegram's servers, set once by `npm run tg:profile`. It had been set by
+ * hand, which meant the words a stranger reads first existed nowhere anybody
+ * could find them, and a new bot token would have started blank with nobody
+ * knowing what to type back in.
+ *
+ * The name is not translated. It is the mark, and a mark that changes shape by
+ * language is two marks — the same rule that keeps the tagline in English
+ * inside Persian copy.
+ */
+export const TG_PROFILE = {
+  name: "Sir Cue",
+
+  /**
+   * The default is bilingual and the Persian entry is not.
+   *
+   * Telegram picks by the reader's app language, and plenty of Shabnam's
+   * audience run Telegram in English while asking in Persian. So the default —
+   * what everyone outside a named language sees — carries both, and someone
+   * whose app is actually in Persian is not made to read past an English
+   * paragraph to reach their own.
+   */
+  en: {
+    /** Above the START button on an empty chat. Telegram's limit is 120. */
+    short: "Shabnam Ahari's assistant. Ask about the courses and how to begin.",
+    /** The bot's profile page. Telegram's limit is 512. */
+    description: [
+      "I'm Sir Cue, Shabnam Ahari's assistant. Ask me about the IELTS courses — what each one covers, how sessions run, and where to begin.",
+      "",
+      "من Sir Cue هستم، دستیارِ شبنم آهاری. درباره‌ی دوره‌های آیلتس بپرسید — اینکه هر دوره شامل چه چیزی است، جلسه‌ها چطور برگزار می‌شوند، و از کجا باید شروع کرد.",
+    ].join("\n"),
+    commands: [
+      { command: "start", description: "Start over" },
+      { command: "help", description: "What I can answer" },
+      { command: "reset", description: "A fresh conversation" },
+      { command: "lang", description: "English / فارسی" },
+    ],
+  },
+
+  fa: {
+    short: "دستیارِ شبنم آهاری. درباره‌ی دوره‌ها و اینکه از کجا شروع کنید بپرسید.",
+    description:
+      "من Sir Cue هستم، دستیارِ شبنم آهاری. درباره‌ی دوره‌های آیلتس بپرسید — اینکه هر دوره شامل چه چیزی است، جلسه‌ها چطور برگزار می‌شوند، و از کجا باید شروع کرد.",
+    // The command itself stays Latin — Telegram only accepts a-z, 0-9 and _ —
+    // and only the line beside it is Persian. That is also how a person types
+    // it, so translating the name would describe something they cannot send.
+    commands: [
+      { command: "start", description: "از نو" },
+      { command: "help", description: "چه چیزهایی را جواب می‌دهم" },
+      { command: "reset", description: "یک گفتگوی تازه" },
+      { command: "lang", description: "English / فارسی" },
+    ],
+  },
+} as const;
