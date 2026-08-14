@@ -2,7 +2,7 @@ import "server-only";
 
 import { sendMessage } from "@/lib/chatbot/channels/telegram";
 import { db } from "@/lib/chatbot/db/client";
-import { siteUrl } from "@/lib/site-url";
+import { reachableSiteUrl } from "@/lib/site-url";
 import type { Tool } from "./index";
 
 /**
@@ -108,7 +108,9 @@ async function notify(
     const chatId = Number(data?.value);
     if (!Number.isFinite(chatId) || chatId === 0) return false;
 
-    const site = siteUrl();
+    // Reachable, not merely configured. A link to localhost on a phone is
+    // worse than no link: it looks like something to press and is not.
+    const site = reachableSiteUrl();
     const link = site ? `\n\n${site}/admin/conversations/${conversationId}` : "";
 
     await sendMessage(
