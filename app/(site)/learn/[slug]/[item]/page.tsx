@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Asterisk from "@/components/Asterisk";
 import ParenMedia from "@/components/ParenMedia";
 import AuthLink from "@/components/AuthLink";
+import { learnHref } from "@/lib/routes";
 import FitOneLine from "@/components/FitOneLine";
 import RevealLine from "@/components/RevealLine";
 import RevealOnView from "@/components/RevealOnView";
@@ -46,7 +47,7 @@ export function generateStaticParams() {
 }
 
 /**
- * The gallery entry a /work/[slug]/[item] URL points at. The panels on the
+ * The gallery entry a /learn/[slug]/[item] URL points at. The panels on the
  * program page are built the same way — entries in order, captioned by
  * `galleryLabels` — so the caption is looked up by position, not stored twice.
  * The URL segment itself is a name rather than that position, so a shared link
@@ -230,7 +231,7 @@ export default async function GalleryItemPage({
        */}
       <div className="page-margin flex flex-col items-center gap-y-[60px]">
         <AuthLink
-          from={{ href: `/work/${slug}/${entry.slug}`, label: entry.title }}
+          from={{ href: learnHref(slug, entry.slug), label: entry.title }}
           className="group relative block overflow-hidden text-center"
         >
           {/*
@@ -276,7 +277,7 @@ export default async function GalleryItemPage({
         <div className="flex w-full flex-col items-center gap-y-[18px]">
           <RevealLine className="text-note text-confirm text-center">
             Other {heading} in{" "}
-            <Link href={`/work/${slug}`} className="body-link">
+            <Link href={learnHref(slug)} className="body-link">
               {project.name}
             </Link>
           </RevealLine>

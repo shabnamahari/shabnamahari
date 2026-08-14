@@ -5,6 +5,7 @@ import Asterisk from "./Asterisk";
 import ParenMedia from "./ParenMedia";
 import VideoSlot from "./VideoSlot";
 import { scrollContactIntoView } from "@/lib/scrollToContact";
+import { LEARN } from "@/lib/routes";
 
 type Item = {
   label: string;
@@ -81,7 +82,7 @@ export default function MenuOverlay({
 
   const items: Item[] = [
     { label: "Index", href: "/", note: "Home" },
-    { label: "Learn", href: "/services", note: "What you do" },
+    { label: "Learn", href: LEARN, note: "What you do" },
     { label: "About", href: "/about", note: "Who I am" },
     {
       label: "Contact",

@@ -9,6 +9,7 @@
  */
 
 import "./load-env";
+import { LEARN, learnHref } from "@/lib/routes";
 import { extractFromHtml, stripRepeatedBlocks } from "@/lib/chatbot/core/ingest/extract";
 import { ingestDocument } from "@/lib/chatbot/core/ingest/ingest";
 
@@ -19,9 +20,9 @@ import { ingestDocument } from "@/lib/chatbot/core/ingest/ingest";
  */
 async function routes(): Promise<string[]> {
   const { PROJECTS, galleryItems } = await import("@/lib/projects");
-  const paths = ["/", "/about", "/services"];
+  const paths = ["/", "/about", LEARN];
   for (const project of PROJECTS) {
-    paths.push(`/work/${project.slug}`);
+    paths.push(learnHref(project.slug));
     for (const item of galleryItems(project.slug)) paths.push(item.href);
   }
   return paths;

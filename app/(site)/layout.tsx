@@ -30,8 +30,8 @@ export const revalidate = 900;
  * scroll, which fights a conversation's own scrolling container, and
  * `cursor: none` is the wrong call in an admin panel where precision matters.
  *
- * Route groups don't appear in URLs, so `/`, `/about`, `/services` and
- * `/work/...` are all exactly where they were.
+ * Route groups don't appear in URLs, so `/`, `/about`, `/learn` and
+ * `/learn/...` are all exactly where they were.
  */
 export default function SiteLayout({
   children,

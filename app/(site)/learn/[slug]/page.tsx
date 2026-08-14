@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import HoverExpand from "@/components/HoverExpand";
+import { learnHref } from "@/lib/routes";
 import RevealLine from "@/components/RevealLine";
 import Asterisk from "@/components/Asterisk";
 import ParenMedia from "@/components/ParenMedia";
@@ -120,7 +121,7 @@ export default async function ProjectPage({
           {others.map((other) => (
             <Link
               key={other.slug}
-              href={`/work/${other.slug}`}
+              href={learnHref(other.slug)}
               className="group relative block overflow-hidden"
             >
               <span className="text-h2 ease-custom-text-links block transition-all duration-700 group-hover:-translate-y-full">

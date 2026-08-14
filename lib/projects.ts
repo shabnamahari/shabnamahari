@@ -1,3 +1,5 @@
+import { learnHref } from "./routes";
+
 export type GalleryLabel = {
   title: string;
   /**
@@ -22,12 +24,12 @@ export type Project = {
   name: string;
   /**
    * The word as the kinetic tile sets it, one entry per line, plus the root
-   * frequency of its hover sound. Shared so the homepage and /services can't
+   * frequency of its hover sound. Shared so the homepage and /learn can't
    * drift apart; only the type size differs between the two, since one tile is
    * small and square and the other is wide.
    */
   tile: { lines: string[]; tone: number };
-  /** Wide cover shown on /services */
+  /** Wide cover shown on /learn */
   cover: string;
   description: string;
   /** Replaces the "( 01 )" gallery numbering with a caption, in order. */
@@ -178,9 +180,9 @@ export const PROJECTS: Project[] = [
  * Ielts → first, Blogcasts → second, Business English → third.
  */
 export const HOMEPAGE_LINKS = {
-  ielts: `/work/${PROJECTS[0].slug}`,
-  blogcasts: `/work/${PROJECTS[1].slug}`,
-  businessEnglish: `/work/${PROJECTS[2].slug}`,
+  ielts: learnHref(PROJECTS[0].slug),
+  blogcasts: learnHref(PROJECTS[1].slug),
+  businessEnglish: learnHref(PROJECTS[2].slug),
 };
 
 export function getProject(slug: string) {
@@ -233,7 +235,7 @@ function slugifyTitle(title: string) {
  * were one value until the URLs were named, and keeping them apart is the whole
  * point: the numbering is positional, so reordering the gallery used to
  * silently repoint every link ever shared. A link to
- * /work/ielts/placement-assessment survives being moved down the list.
+ * /learn/ielts/placement-assessment survives being moved down the list.
  */
 export function galleryItems(slug: string) {
   const labels = getProject(slug)?.galleryLabels;
@@ -247,7 +249,7 @@ export function galleryItems(slug: string) {
     return {
       num,
       slug: item,
-      href: `/work/${slug}/${item}`,
+      href: learnHref(slug, item),
       image: `https://picsum.photos/seed/${slug}-${num}/600/1000`,
     };
   });

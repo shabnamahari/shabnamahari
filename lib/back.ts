@@ -1,15 +1,17 @@
 import { getProject } from "./projects";
+import { LEARN, learnHref } from "./routes";
 
 export type BackTarget = { href: string; label: string };
 
 /**
- * What /services is called to a visitor.
+ * What the Learn section is called to a visitor.
  *
  * Its heading is "This is what you learn" and the menu calls it Learn, so Back
  * has to as well. Naming it "Programs" here — which is what the page's title
- * tag says — promised a page by that name that does not exist.
+ * tag used to say — promised a page by that name that does not exist. The
+ * address now agrees with both.
  */
-const LEARN = "Learn";
+const LEARN_LABEL = "Learn";
 
 /**
  * Where a page's ( Back ) leads, or null if the page has no way back.
@@ -17,7 +19,7 @@ const LEARN = "Learn";
  * Only the pages you reach by going *into* something get one. Index, About and
  * Programs are what Menu opens onto — a Back on those would point at whatever
  * you happened to look at before, which is not a place the site knows about.
- * Everything under /work is nested, and /auth is a detour from an entry page.
+ * Everything under /learn is nested, and /auth is a detour from an entry page.
  *
  * The answer is a destination rather than a boolean because history is not
  * good enough here: an entry page is reachable from its project page, from the
@@ -28,9 +30,12 @@ const LEARN = "Learn";
 export function backTarget(pathname: string): BackTarget | null {
   const parts = pathname.split("/").filter(Boolean);
 
-  if (parts[0] === "auth") return { href: "/services", label: LEARN };
+  if (parts[0] === "auth") return { href: LEARN, label: LEARN_LABEL };
 
-  if (parts[0] !== "work") return null;
+  // `LEARN` is "/learn", so its first segment is what a nested page begins
+  // with. Compared against the constant rather than a literal, so renaming the
+  // section again cannot leave this test looking for the old name.
+  if (`/${parts[0]}` !== LEARN) return null;
 
   const project = parts[1] ? getProject(parts[1]) : undefined;
   if (!project) return null;
@@ -38,6 +43,6 @@ export function backTarget(pathname: string): BackTarget | null {
   // An entry goes back to its own project; a project goes back to the page
   // that lists all three.
   return parts[2]
-    ? { href: `/work/${project.slug}`, label: project.name }
-    : { href: "/services", label: LEARN };
+    ? { href: learnHref(project.slug), label: project.name }
+    : { href: LEARN, label: LEARN_LABEL };
 }
