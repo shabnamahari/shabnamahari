@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 /**
  * Searching and narrowing the conversation list.
  *
@@ -56,12 +58,12 @@ export default function ConversationFilters({
           button that does nothing. A link rather than a reset, so it returns to
           the unfiltered page rather than to the last submitted values. */}
       {q || channel || lang ? (
-        <a
+        <Link
           href="/admin/conversations"
           className="text-muted-ink hover:text-ink shrink-0 text-sm underline underline-offset-4 transition-colors"
         >
           Clear
-        </a>
+        </Link>
       ) : null}
     </form>
   );
