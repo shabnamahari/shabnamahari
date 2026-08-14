@@ -37,6 +37,12 @@ const TABLES = [
   "audit_log",
   "telegram_relay",
   "rate_limit",
+  // The list is written by hand, so a table added without touching it is a
+  // table this check silently reports nothing about — which is the one failure
+  // mode a security check must not have. These two hold people's addresses and
+  // their live sign-in codes.
+  "accounts",
+  "email_codes",
 ] as const;
 
 function required(name: string): string {

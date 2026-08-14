@@ -134,13 +134,23 @@ const TONES: Record<
 function Field({
   label,
   tone,
+  value,
+  onChange,
   type = "text",
   autoComplete,
+  disabled = false,
+  inputMode,
+  maxLength,
 }: {
   label: string;
   tone: Tone;
+  value: string;
+  onChange: (value: string) => void;
   type?: string;
   autoComplete?: string;
+  disabled?: boolean;
+  inputMode?: "text" | "email" | "numeric";
+  maxLength?: number;
 }) {
   const id = useId();
   const t = TONES[tone];
@@ -164,8 +174,13 @@ function Field({
       <input
         id={id}
         type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
         autoComplete={autoComplete}
-        className={`${t.input} pointer-events-auto min-w-0 flex-1 bg-transparent pb-1 text-[0.875rem] outline-none transition-colors`}
+        inputMode={inputMode}
+        maxLength={maxLength}
+        disabled={disabled}
+        className={`${t.input} pointer-events-auto min-w-0 flex-1 bg-transparent pb-1 text-[0.875rem] outline-none transition-colors disabled:opacity-50`}
       />
     </div>
   );
@@ -196,32 +211,164 @@ export function AuthPanels({
     phase ? revealStep(index, PANELS, "up", phase) : {};
   const anim = phase ? revealClass("up", phase) : "";
 
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  /*
+   * Whether a code has been asked for, which is the only thing that makes this
+   * form two steps rather than one.
+   *
+   * Before it, the button sends; after it, the button verifies. Kept as its own
+   * flag rather than inferred from the code field being non-empty, because
+   * someone who types into that field before asking for anything would
+   * otherwise appear to be halfway through a round trip that never started.
+   */
+  const [sent, setSent] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+
+  /*
+   * The form does both, which was Shabnam's call: an address that has an account
+   * is signed into it and one that does not gets an account made. Nobody has to
+   * say in advance which they are doing, so nothing here asks.
+   */
+  async function requestCode() {
+    setBusy(true);
+    setNote(null);
+    try {
+      const res = await fetch("/api/auth/code", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, name }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        setNote(data.error ?? "Something went wrong. Try again.");
+        return;
+      }
+      setSent(true);
+      // Neutral on purpose, and it matches what the endpoint will and will not
+      // confirm: whether this address has an account here is not something a
+      // stranger gets to find out by typing it in.
+      setNote("If that is a real mailbox, a code is on its way.");
+    } catch {
+      setNote("Something went wrong. Try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function submitCode() {
+    setBusy(true);
+    setNote(null);
+    try {
+      const res = await fetch("/api/auth/verify", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, code }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        setNote(data.error ?? "That code is not right.");
+        return;
+      }
+      // A full navigation rather than a client one: the session arrived as a
+      // Set-Cookie on that response, and every server component that has
+      // already rendered on this page believes nobody is signed in.
+      window.location.assign("/account");
+    } catch {
+      setNote("Something went wrong. Try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const ready = sent ? /^\d{6}$/.test(code) : email.trim() !== "";
+
   return (
     <div className="flex flex-col gap-3">
       {/* 1 — name, email, code, and the one control that is meant to be
           pressed first. */}
-      <div className={`${WIDTH} ${t.panel} ${anim} pointer-events-auto px-6 py-5`} style={step(0)}>
+      <form
+        className={`${WIDTH} ${t.panel} ${anim} pointer-events-auto px-6 py-5`}
+        style={step(0)}
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (busy || !ready) return;
+          void (sent ? submitCode() : requestCode());
+        }}
+      >
         <div className="flex flex-col gap-4">
           {/* Capitalised on Shabnam's instruction, and consistently with how the
               site already treats Areas, Insights and Programs: these are the
               names of the things asked for, not sentences about them. */}
-          <Field label="Name:" tone={tone} autoComplete="name" />
-          <Field label="Email:" tone={tone} type="email" autoComplete="email" />
-          <Field label="Enter code :" tone={tone} autoComplete="one-time-code" />
+          <Field
+            label="Name:"
+            tone={tone}
+            value={name}
+            onChange={setName}
+            autoComplete="name"
+            disabled={busy}
+          />
+          <Field
+            label="Email:"
+            tone={tone}
+            value={email}
+            onChange={setEmail}
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            // Locked once a code is out, because it is the address the code was
+            // sent to that is being proven. Editing it here would leave the
+            // form asking the server to check a number against a mailbox it was
+            // never sent to.
+            disabled={busy || sent}
+          />
+          <Field
+            label="Enter code :"
+            tone={tone}
+            value={code}
+            onChange={(v) => setCode(v.replace(/\D/g, "").slice(0, 6))}
+            autoComplete="one-time-code"
+            inputMode="numeric"
+            maxLength={6}
+            disabled={busy}
+          />
         </div>
 
         {/* Centred under the three rows, not beside the code field: it acts on
             the email above it, and putting it on the row would have made it
             look like it acts on the code. */}
-        <div className="mt-5 flex justify-center">
+        <div className="mt-5 flex flex-col items-center gap-3">
           <button
-            type="button"
-            className={`${t.button} rounded-full border px-5 py-1.5 text-[0.875rem] transition-colors`}
+            type="submit"
+            disabled={busy || !ready}
+            className={`${t.button} rounded-full border px-5 py-1.5 text-[0.875rem] transition-colors disabled:opacity-40`}
           >
-            send code
+            {busy ? "…" : sent ? "sign in" : "send code"}
           </button>
+
+          {note && (
+            <p className={`${t.label} text-center text-[0.8125rem]`} aria-live="polite">
+              {note}
+            </p>
+          )}
+
+          {sent && !busy && (
+            <button
+              type="button"
+              onClick={() => {
+                setSent(false);
+                setCode("");
+                setNote(null);
+              }}
+              className={`${t.label} text-[0.75rem] underline underline-offset-4 opacity-70`}
+            >
+              use a different address
+            </button>
+          )}
         </div>
-      </div>
+      </form>
 
       {/*
         2 — the fork between the two ways in.
@@ -248,16 +395,20 @@ export function AuthPanels({
       </div>
 
       {/* 3 — the one-press way in. */}
-      <button
-        type="button"
-        /* The edge brightens on hover rather than the fill. Lightening the fill
+      <a
+        href="/api/auth/google/start"
+        /* A link, not a button with a handler: this leaves the site. Google's
+           own screen is the next page, so it should behave like any other
+           navigation — openable in a new tab, and one entry in the history.
+
+           The edge brightens on hover rather than the fill. Lightening the fill
            undoes the very thing the alpha was set for: over the cream page a
            lighter panel takes the type back under contrast. */
         className={`${WIDTH} ${t.panel} ${anim} ${t.or} pointer-events-auto flex items-center justify-center text-[0.9375rem] transition-colors hover:border-confirm-lit`}
         style={{ height: GOOGLE_BAR, ...step(2) }}
       >
         continue with google
-      </button>
+      </a>
 
       {/* 4 — the terms. On the ground itself with no panel around it, because it
           is not a control: it is the sentence the bar below it commits you to,
@@ -349,7 +500,11 @@ export default function AuthSignUp() {
             }}
             className="block w-full text-center text-[0.9375rem] text-white"
           >
-            Sign up if you don&rsquo;t have an account
+            {/* One form does both now, so the bar cannot go on addressing only
+                the half that has never been here. It leads with signing in
+                because that is the repeat visit — the one that happens over and
+                over — and still names the other in the same breath. */}
+            Sign in, or create an account
           </button>
         </div>
       </div>

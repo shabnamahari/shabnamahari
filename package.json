@@ -17,7 +17,8 @@
     "eval:watch": "vitest",
     "admin:password": "tsx --conditions=react-server scripts/admin-password.ts",
     "tg:profile": "tsx --conditions=react-server scripts/telegram-profile.ts",
-    "db:clear-conversations": "tsx --conditions=react-server scripts/clear-conversations.ts"
+    "db:clear-conversations": "tsx --conditions=react-server scripts/clear-conversations.ts",
+    "auth:smoke": "tsx --conditions=react-server scripts/auth-smoke.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",
