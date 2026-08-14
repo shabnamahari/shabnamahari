@@ -96,6 +96,67 @@ function Field({
   );
 }
 
+/**
+ * The stack itself: the form, the fork, Google, and the terms.
+ *
+ * Split out from the bar below because it is wanted in two places — under the
+ * home page's closing line, where a bar opens it, and on `/auth`, where it is
+ * the whole point of the page and stands open with no bar at all. One copy, so
+ * the two can never drift into two forms.
+ *
+ * It assumes a dark ground. Both panels are transparent and both sets of type
+ * are light, so on the site's cream this would be a white box on a white page.
+ * Whoever places it owes it a black behind it.
+ */
+export function AuthPanels() {
+  return (
+    <div className="flex flex-col gap-3">
+      {/* 1 — name, email, code, and the one control that is meant to be
+          pressed first. */}
+      <div className={`${WIDTH} ${PANEL_GREEN} px-6 py-5`}>
+        <div className="flex flex-col gap-4">
+          <Field label="name:" autoComplete="name" />
+          <Field label="email:" type="email" autoComplete="email" />
+          <Field label="enter code :" autoComplete="one-time-code" />
+        </div>
+
+        {/* Centred under the three rows, not beside the code field: it acts on
+            the email above it, and putting it on the row would have made it
+            look like it acts on the code. */}
+        <div className="mt-5 flex justify-center">
+          <button
+            type="button"
+            className="text-confirm-lit rounded-full border border-confirm-lit/45 px-5 py-1.5 text-[0.875rem] transition-colors hover:border-confirm-lit hover:bg-confirm-lit/10"
+          >
+            send code
+          </button>
+        </div>
+      </div>
+
+      {/* 2 — the fork between the two ways in. */}
+      <p className="text-confirm-lit text-center text-[0.875rem] font-bold">
+        or
+      </p>
+
+      {/* 3 — the one-press way in. */}
+      <button
+        type="button"
+        className={`${WIDTH} ${PANEL_GREEN} text-confirm-lit flex items-center justify-center text-[0.9375rem] transition-colors hover:bg-confirm/40`}
+        style={{ height: GOOGLE_BAR }}
+      >
+        continue with google
+      </button>
+
+      {/* 4 — the terms. On the black itself with no panel around it, because it
+          is not a control: it is the sentence the bar below it commits you to,
+          and boxing it would have made it look like a fourth thing to press. */}
+      <p className={`${WIDTH} text-center text-[0.8125rem] text-white`}>
+        By signing up, you agree to our Terms and Privacy Policy.
+      </p>
+    </div>
+  );
+}
+
 export default function AuthSignUp() {
   const [open, setOpen] = useState(false);
   const stackRef = useRef<HTMLDivElement>(null);
@@ -113,50 +174,8 @@ export default function AuthSignUp() {
       */}
       <div ref={stackRef}>
         {open && (
-          <div className="flex flex-col gap-3 pb-3">
-            {/* 1 — name, email, code, and the one control that is meant to be
-                pressed first. */}
-            <div className={`${WIDTH} ${PANEL_GREEN} px-6 py-5`}>
-              <div className="flex flex-col gap-4">
-                <Field label="name:" autoComplete="name" />
-                <Field label="email:" type="email" autoComplete="email" />
-                <Field label="enter code :" autoComplete="one-time-code" />
-              </div>
-
-              {/* Centred under the three rows, not beside the code field: it
-                  acts on the email above it, and putting it on the row would
-                  have made it look like it acts on the code. */}
-              <div className="mt-5 flex justify-center">
-                <button
-                  type="button"
-                  className="text-confirm-lit rounded-full border border-confirm-lit/45 px-5 py-1.5 text-[0.875rem] transition-colors hover:border-confirm-lit hover:bg-confirm-lit/10"
-                >
-                  send code
-                </button>
-              </div>
-            </div>
-
-            {/* 2 — the fork between the two ways in. */}
-            <p className="text-confirm-lit text-center text-[0.875rem] font-bold">
-              or
-            </p>
-
-            {/* 3 — the one-press way in. */}
-            <button
-              type="button"
-              className={`${WIDTH} ${PANEL_GREEN} text-confirm-lit flex items-center justify-center text-[0.9375rem] transition-colors hover:bg-confirm/40`}
-              style={{ height: GOOGLE_BAR }}
-            >
-              continue with google
-            </button>
-
-            {/* 4 — the terms. On the footer's own black with no panel around
-                it, because it is not a control: it is the sentence the bar
-                below it commits you to, and boxing it would have made it look
-                like a fourth thing to press. */}
-            <p className={`${WIDTH} text-center text-[0.8125rem] text-white`}>
-              By signing up, you agree to our Terms and Privacy Policy.
-            </p>
+          <div className="pb-3">
+            <AuthPanels />
           </div>
         )}
       </div>

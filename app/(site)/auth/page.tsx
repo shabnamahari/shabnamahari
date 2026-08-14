@@ -1,23 +1,31 @@
 import type { Metadata } from "next";
-import { TextRevealH } from "@/components/TitleEffects";
+import { AuthPanels } from "@/components/AuthSignUp";
 
 export const metadata: Metadata = {
   title: "Set Up Your Account — Shabnam Ahari",
 };
 
 /**
- * Where "Set Up Your Account" lands until sign-up and sign-in are built. Held
- * empty on purpose: one line, the site's footer under it, and the same
- * entrance the gallery captions use, so arriving here reads as the same pause
- * the entry pages state rather than a broken link.
+ * Where "Set Up Your Account" lands.
+ *
+ * The same panels the home page's footer opens, standing open — there is no bar
+ * to press here because pressing the link was the press. This page held "( in
+ * production )" while sign-up did not exist; the link now arrives somewhere
+ * that does something.
+ *
+ * Black rather than the site's cream, and that is not a choice made here so
+ * much as one inherited: the panels are transparent glass with light type, so
+ * they need a dark ground to be panels at all. The header and ( Back ) sit in
+ * `mix-blend-difference`, so they invert against it without being told.
  */
 export default function AuthPage() {
   return (
-    <section className="flex min-h-[100svh] w-full items-center justify-center px-[15px]">
-      {/* Note size, the same as the line on every entry page — the pause is
-          the same pause, and setting it larger here made it a headline. */}
-      <div data-active="true" className="text-note text-muted-ink text-center">
-        <TextRevealH text="( in production )" />
+    <section
+      data-surface="auth"
+      className="bg-ink flex min-h-[100svh] w-full items-center justify-center px-[15px] py-[120px] text-white"
+    >
+      <div className="w-full">
+        <AuthPanels />
       </div>
     </section>
   );
