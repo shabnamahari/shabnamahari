@@ -70,7 +70,9 @@ const TONES: Record<
     button: string;
     or: string;
     terms: string;
-    /** For the two lines with no panel under them — see where it is used. */
+    /** The two rules that run out from "or" to either edge of the measure. */
+    rule: string;
+    /** For the two rows with no panel of their own — see where it is used. */
     bare: string;
   }
 > = {
@@ -85,7 +87,27 @@ const TONES: Record<
       "text-confirm-lit border-confirm-lit/45 hover:border-confirm-lit hover:bg-confirm-lit/10",
     or: "text-confirm-lit",
     terms: "text-white",
-    bare: "mix-blend-difference",
+    rule: "bg-confirm-lit/45",
+    /*
+     * Bare on the black, and on its own glass below it.
+     *
+     * These two rows have no panel by Shabnam's design — type straight onto the
+     * footer. That holds on a wide screen, where the black reaches high enough
+     * to be behind them. On a phone it does not: measured at 390px, "or" opens
+     * 108px above the footer's edge and the terms line straddles it, so both
+     * were sitting on cream and photographs, and both were invisible.
+     *
+     * `mix-blend-difference` — the site's own answer, and how ( Menu ) and
+     * ( Back ) survive either ground — rescues them over flat cream but not over
+     * a mid-grey photograph, which is the worst case a difference blend has.
+     * So below `md` they take the same glass the panels have, which is dark
+     * enough to hold its type over anything the page can put behind it (5:1 on
+     * the lightest part of a photograph, 8:1 on a mid-tone). From `md` up the
+     * glass goes away and they are bare again, exactly as specified.
+     */
+    bare:
+      "bg-auth-panel backdrop-blur-[5px] rounded-[14px] py-2 " +
+      "md:rounded-none md:bg-transparent md:py-0 md:backdrop-blur-none md:mix-blend-difference",
   },
   /*
    * Ink rather than the dark green, on Shabnam's instruction — she wanted to see
@@ -100,8 +122,9 @@ const TONES: Record<
     button: "text-ink border-ink/30 hover:border-ink hover:bg-ink/5",
     or: "text-ink",
     terms: "text-ink",
-    // /auth is one flat cream page, so nothing has to survive a change of
-    // ground and the blend would only muddy the ink.
+    rule: "bg-ink/25",
+    // /auth is one flat cream page at every width, so nothing has to survive a
+    // change of ground: no glass, and no blend to muddy the ink.
     bare: "",
   },
 };
@@ -199,9 +222,12 @@ export function AuthPanels({
           pressed first. */}
       <div className={`${WIDTH} ${t.panel} ${anim} pointer-events-auto px-6 py-5`} style={step(0)}>
         <div className="flex flex-col gap-4">
-          <Field label="name:" tone={tone} autoComplete="name" />
-          <Field label="email:" tone={tone} type="email" autoComplete="email" />
-          <Field label="enter code :" tone={tone} autoComplete="one-time-code" />
+          {/* Capitalised on Shabnam's instruction, and consistently with how the
+              site already treats Areas, Insights and Programs: these are the
+              names of the things asked for, not sentences about them. */}
+          <Field label="Name:" tone={tone} autoComplete="name" />
+          <Field label="Email:" tone={tone} type="email" autoComplete="email" />
+          <Field label="Enter code :" tone={tone} autoComplete="one-time-code" />
         </div>
 
         {/* Centred under the three rows, not beside the code field: it acts on
@@ -235,9 +261,11 @@ export function AuthPanels({
         against cream it is no longer green, which is Shabnam's to accept or
         refuse.
       */}
-      <p className={`${t.or} ${t.bare} ${anim} text-center text-[0.875rem] font-bold`} style={step(1)}>
-        or
-      </p>
+      <div className={`${WIDTH} ${t.bare} ${anim} flex items-center gap-3`} style={step(1)}>
+        <span className={`${t.rule} h-px flex-1`} />
+        <span className={`${t.or} text-[0.875rem] font-bold`}>or</span>
+        <span className={`${t.rule} h-px flex-1`} />
+      </div>
 
       {/* 3 — the one-press way in. */}
       <button
@@ -255,7 +283,7 @@ export function AuthPanels({
           is not a control: it is the sentence the bar below it commits you to,
           and boxing it would have made it look like a fourth thing to press. */}
       <p
-        className={`${WIDTH} ${t.terms} ${t.bare} ${anim} text-center text-[0.8125rem]`}
+        className={`${WIDTH} ${t.terms} ${t.bare} ${anim} px-4 text-center text-[0.8125rem] md:px-0`}
         style={step(3)}
       >
         By signing up, you agree to our Terms and Privacy Policy.

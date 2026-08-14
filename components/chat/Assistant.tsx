@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
+import { usePathname } from "next/navigation";
 
 import HighlightReveal from "@/components/HighlightReveal";
 import TelegramMark from "@/components/TelegramMark";
@@ -174,7 +175,18 @@ function readNumber(
   return Number.isFinite(value) && value >= min && value <= max ? value : null;
 }
 
+/**
+ * Pages the assistant stays off.
+ *
+ * Sign-up is a page with one thing to do on it, and the assistant arrives there
+ * as a second bar in the same measure asking a competing question — two panels
+ * at the top of a short page, only one of which is the reason you came. It is
+ * kept out rather than restyled: Shabnam's call, and the right one.
+ */
+const NOT_HERE = new Set(["/auth"]);
+
 export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   /** `?chat=off` takes the assistant off the page, for looking at the site alone. */
   const [hidden, setHidden] = useState(false);
@@ -379,7 +391,7 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
     [busy, conversationId, lang, t.failed],
   );
 
-  if (hidden) return null;
+  if (hidden || NOT_HERE.has(pathname)) return null;
 
   return (
     <div
