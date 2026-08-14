@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
+import { usePathname } from "next/navigation";
 
 import HighlightReveal from "@/components/HighlightReveal";
 import TelegramMark from "@/components/TelegramMark";
 import MessageText from "@/components/chat/MessageText";
 import NotRight from "@/components/chat/NotRight";
 import type { Lang } from "@/lib/chatbot/core/types";
+import { revealClass, revealStep, revealTotalMs, type Phase } from "@/lib/reveal";
 
 /**
  * The assistant, floating over the site.
@@ -174,8 +176,31 @@ function readNumber(
   return Number.isFinite(value) && value >= min && value <= max ? value : null;
 }
 
+/**
+ * Pages the assistant stays off.
+ *
+ * Sign-up is a page with one thing to do on it, and the assistant arrives there
+ * as a second bar in the same measure asking a competing question — two panels
+ * at the top of a short page, only one of which is the reason you came. It is
+ * kept out rather than restyled: Shabnam's call, and the right one.
+ */
+const NOT_HERE = new Set(["/auth"]);
+
+/** The conversation, the composer and the language switch. */
+const PANELS = 3;
+
 export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
-  const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  /*
+   * What the three panels below the bar are doing, rather than merely whether
+   * they are there. `null` is closed with nothing mounted; "out" is the fold
+   * away, which is watched now instead of happening instantly — Shabnam asked
+   * for the assistant to take sign-up's effect exactly, and that includes
+   * closing. `PANELS` is how many there are, which the stagger has to count.
+   */
+  const [phase, setPhase] = useState<Phase | null>(null);
+  const open = phase === "in";
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   /** `?chat=off` takes the assistant off the page, for looking at the site alone. */
   const [hidden, setHidden] = useState(false);
   const [lang, setLang] = useState<Lang>("en");
@@ -191,13 +216,46 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
 
   const t = UI[lang];
 
+  /*
+   * Closing is watched now, so it cannot be a plain `setOpen(false)`.
+   *
+   * The panels stay mounted through their own fold-away and are dropped when
+   * the last of them has finished — `revealTotalMs` knows that length, and it
+   * returns 0 when the reader has asked for less motion, so nothing sits on
+   * screen waiting out an animation that never ran. A press during the fold is
+   * ignored rather than queued, for the same reason as on sign-up: reversing
+   * mid-flight would mean recomputing every panel's delay from wherever it had
+   * got to.
+   */
+  const close = useCallback(() => {
+    setPhase("out");
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setPhase(null), revealTotalMs(PANELS));
+  }, []);
+
+  /*
+   * Down, because these three hang below their bar — sign-up's stand above
+   * theirs. Each is uncovered from the edge nearest the bar, so both stacks
+   * grow away from the thing that was pressed, which is what makes it one
+   * effect in two places rather than one of them running backwards.
+   */
+  const anim = phase ? revealClass("down", phase) : "";
+  const step = (index: number): CSSProperties =>
+    phase ? revealStep(index, PANELS, "down", phase) : {};
+
+  const toggle = useCallback(() => {
+    if (phase === "out") return;
+    if (phase === null) setPhase("in");
+    else close();
+  }, [phase, close]);
+
   // `/assistant` is a real address that has to keep working, so it redirects
   // here and says so in the query rather than rendering a second copy of the
   // page underneath a second copy of the panel.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("chat") === "off") setHidden(true);
-    if (params.has("ask")) setOpen(true);
+    if (params.has("ask")) setPhase("in");
     // `has` before `Number`, because `Number(null)` is 0 rather than NaN. The
     // radius accepts 0 as a real value, so an absent `?r=` read as a deliberate
     // square and every panel on the live site lost its corners. `?bar=` had the
@@ -379,7 +437,7 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
     [busy, conversationId, lang, t.failed],
   );
 
-  if (hidden) return null;
+  if (hidden || NOT_HERE.has(pathname)) return null;
 
   return (
     <div
@@ -425,7 +483,7 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
       >
         <button
           type="button"
-          onClick={() => setOpen((v) => !v)}
+          onClick={toggle}
           aria-expanded={open}
           className={`${fontFor(lang)} block w-full text-center text-[0.9375rem] text-white`}
         >
@@ -435,7 +493,7 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
         {open && (
           <button
             type="button"
-            onClick={() => setOpen(false)}
+            onClick={close}
             aria-label={t.close}
             className="text-chat-dim absolute right-4 top-1/2 -translate-y-1/2 text-base leading-none transition-colors hover:text-white"
           >
@@ -444,12 +502,13 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
         )}
       </div>
 
-      {open && (
+      {phase && (
         <>
           {/* 2 — the conversation. The only panel that scrolls. */}
           <div
             ref={scrollRef}
-            className={`${WIDTH} ${PANEL} pointer-events-auto min-h-0 flex-1 overflow-y-auto px-6 py-7 sm:px-8`}
+            className={`${WIDTH} ${PANEL} ${anim} pointer-events-auto min-h-0 flex-1 overflow-y-auto px-6 py-7 sm:px-8`}
+            style={step(0)}
           >
             <div dir={lang === "fa" ? "rtl" : "ltr"}>
               {/*
@@ -541,8 +600,8 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
               e.preventDefault();
               void send(draft);
             }}
-            className={`${WIDTH} ${PANEL} pointer-events-auto flex shrink-0 items-center gap-2 px-4`}
-            style={{ height: barPx }}
+            className={`${WIDTH} ${PANEL} ${anim} pointer-events-auto flex shrink-0 items-center gap-2 px-4`}
+            style={{ height: barPx, ...step(1) }}
           >
             <textarea
               ref={inputRef}
@@ -587,8 +646,8 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
               «فارسی» would be unreadable to the very person who needs to press
               it, which is someone currently being spoken to in English. */}
           <div
-            className={`${WIDTH} ${PANEL} pointer-events-auto flex shrink-0 items-center justify-center`}
-            style={{ height: barPx }}
+            className={`${WIDTH} ${PANEL} ${anim} pointer-events-auto flex shrink-0 items-center justify-center`}
+            style={{ height: barPx, ...step(2) }}
           >
             <button
               type="button"

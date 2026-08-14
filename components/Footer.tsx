@@ -1,8 +1,10 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import RevealLine from "./RevealLine";
 import { LEARN } from "@/lib/routes";
 import FooterWordmark from "./FooterWordmark";
+import AuthSignUp from "./AuthSignUp";
 
 const MENU_LINKS = [
   { label: "Index", href: "/" },
@@ -33,8 +35,21 @@ const REACH_OUT_LINKS = [
 ];
 
 export default function Footer() {
+  /*
+   * The footer is on every page in the group; sign-up is on one.
+   *
+   * Shabnam placed it above the "First attempt or third" line specifically, and
+   * that line is the home page's closing argument — the bar reads as the answer
+   * to it. On /about or a lesson page it would be the same bar with nothing
+   * above it to answer, which is how a call to action turns into furniture.
+   */
+  const isHome = usePathname() === "/";
+
   return (
-    <footer className="bg-ink px-[15px] text-white">
+    // `relative` for the sign-up stack alone, which hangs off the top padding
+    // rather than taking a row in the grid — see AuthSignUp for why.
+    <footer className="bg-ink relative px-[15px] text-white">
+      {isHome ? <AuthSignUp /> : null}
       <div className="page-grid gap-y-[30px] py-[100px] md:py-[200px]">
         <RevealLine
           as="h2"
