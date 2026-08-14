@@ -28,6 +28,11 @@ const SECTIONS = [
     note: "Who left a name, a number, or an exam date",
     href: "/admin/leads",
   },
+  {
+    name: "Waiting for you",
+    note: "Conversations the bot handed over",
+    href: "/admin/queue",
+  },
 ] as const satisfies readonly { name: string; note: string; href?: string }[];
 
 async function counts() {

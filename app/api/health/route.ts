@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { siteUrl } from "@/lib/site-url";
+
 /**
  * Which pieces of configuration this deployment can actually see.
  *
@@ -51,6 +53,12 @@ export async function GET() {
       missing,
       runtime: process.env.NEXT_RUNTIME ?? "nodejs",
       vercelEnv: process.env.VERCEL_ENV ?? "local",
+      // Printed in full, unlike everything above it, because it is not a secret
+      // — it is this site's public address. It is here because a handoff
+      // notification carries a link built from it, and an empty one means
+      // Shabnam gets told someone needs her with no way to reach the
+      // conversation. That failure is silent everywhere else.
+      siteUrl: siteUrl() || null,
       config,
     },
     { status: missing.length === 0 ? 200 : 503 },
