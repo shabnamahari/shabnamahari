@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { db } from "@/lib/chatbot/db/client";
+import { allowTurn, callerAddress } from "@/lib/chatbot/core/rate-limit";
 
 /**
  * Somebody saying an answer was wrong.
@@ -38,6 +39,13 @@ export async function POST(request: Request): Promise<Response> {
     typeof body.comment === "string" && body.comment.trim()
       ? body.comment.trim().slice(0, MAX_COMMENT)
       : null;
+
+  // A report costs a read and a write, and this endpoint is public. The unique
+  // index already means one row per answer no matter how often it is pressed,
+  // so the ceiling here is on the asking rather than on the storing.
+  if (!(await allowTurn(`fb:${callerAddress(request.headers) ?? "unknown"}`))) {
+    return NextResponse.json({ ok: false }, { status: 429 });
+  }
 
   const supabase = db();
 

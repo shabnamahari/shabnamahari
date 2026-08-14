@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 
 import { db } from "@/lib/chatbot/db/client";
+import { allowLogin, callerAddress } from "@/lib/chatbot/core/rate-limit";
 import {
   SESSION_COOKIE,
   SESSION_MAX_AGE,
@@ -43,6 +44,11 @@ export async function POST(request: NextRequest): Promise<Response> {
   const email = typeof body.email === "string" ? body.email.trim() : "";
   const password = typeof body.password === "string" ? body.password : "";
   if (!email || !password) return FAILED;
+
+  // Answered exactly as a wrong password is, so this still says nothing about
+  // which addresses have accounts — including to somebody probing for the
+  // limit itself.
+  if (!(await allowLogin(callerAddress(request.headers), email))) return FAILED;
 
   const { data } = await db()
     .from("admin_users")

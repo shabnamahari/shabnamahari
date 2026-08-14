@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { currentAdmin } from "@/lib/admin/auth";
 import { reachableSiteUrl, siteUrl } from "@/lib/site-url";
 
 /**
@@ -46,6 +47,25 @@ function seen(name: string): { set: boolean; length: number; quoted: boolean } {
 export async function GET() {
   const config = Object.fromEntries(EXPECTED.map((name) => [name, seen(name)]));
   const missing = EXPECTED.filter((name) => !seen(name).set);
+
+  // Signed out, this says whether something is wrong and nothing about what.
+  //
+  // The detail below is not a secret — names, lengths, a flag — but together it
+  // is a free description of which providers this site is wired to and whether
+  // their keys are present and well formed, on a public URL, to anybody who
+  // guesses the path. That is reconnaissance, and it costs nothing to withhold.
+  //
+  // The unauthenticated answer is deliberately not empty. The reason this file
+  // exists is a morning spent unable to tell a misconfigured deployment from a
+  // broken one, and `ok: false` is the signal that was missing — it has to
+  // survive even when the thing that is misconfigured is the sign-in itself.
+  const admin = await currentAdmin();
+  if (!admin) {
+    return NextResponse.json(
+      { ok: missing.length === 0 },
+      { status: missing.length === 0 ? 200 : 503 },
+    );
+  }
 
   return NextResponse.json(
     {

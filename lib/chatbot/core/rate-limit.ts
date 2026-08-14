@@ -32,6 +32,26 @@ export const LIMITS = {
   ],
 } as const;
 
+/**
+ * How often a password may be guessed.
+ *
+ * Tighter than everything above, because the thing behind this door is not an
+ * answer about a course. Shabnam's address is not a secret — the bot gives it
+ * out when it hands someone over — so the only thing between a guesser and the
+ * panel was scrypt, and scrypt at a quarter of a second is real work that a
+ * patient attacker simply waits through. Ten wrong passwords went through in
+ * three seconds before this.
+ *
+ * Counted per address and per address-and-email together. Per email alone is
+ * deliberately absent: it would let anybody lock Shabnam out of her own panel
+ * by guessing at her address from somewhere else, which trades a break-in for
+ * a lockout.
+ */
+export const LOGIN_LIMITS = [
+  { seconds: 900, max: 8 },
+  { seconds: 86_400, max: 60 },
+] as const;
+
 type Window = { seconds: number; max: number };
 
 async function withinWindow(bucket: string, window: Window): Promise<boolean> {
@@ -72,6 +92,31 @@ export async function allowTurn(
   if (address) {
     for (const window of LIMITS.address) {
       if (!(await withinWindow(`ip:${address}`, window))) return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Whether this sign-in attempt may be made.
+ *
+ * A failed check answers exactly as a wrong password does, so the endpoint
+ * still says nothing about which addresses have accounts.
+ */
+export async function allowLogin(
+  address: string | undefined,
+  email: string,
+): Promise<boolean> {
+  // With no address to count — a direct call, an odd proxy — the email pair is
+  // all there is, and it is better than nothing.
+  const buckets = address
+    ? [`login-ip:${address}`, `login:${address}:${email.toLowerCase()}`]
+    : [`login-email:${email.toLowerCase()}`];
+
+  for (const bucket of buckets) {
+    for (const window of LOGIN_LIMITS) {
+      if (!(await withinWindow(bucket, window))) return false;
     }
   }
 
