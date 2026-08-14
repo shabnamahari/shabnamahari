@@ -125,8 +125,14 @@ export default function QueueRow({
 
       {waiting.claimed ? (
         <p className="text-muted-ink mt-2 text-xs">
-          Sir Cue is silent in this conversation. It answers again when you give
-          it back.
+          {waiting.channel === "telegram"
+            ? "Sir Cue is silent here. Their messages come to your Telegram — reply to one to answer, or /back to hand it over again."
+            : // Nothing can be pushed into a browser, so taking a web
+              // conversation is a note to yourself rather than a handover. Said
+              // out loud, because the button reads as though it does more than
+              // it can here — and Sir Cue keeps answering, deliberately, since
+              // nobody else is going to.
+              "This one is from the website, so there is nothing to reply through. Sir Cue keeps answering them; reach them on whatever they left on the People page."}
         </p>
       ) : null}
     </li>

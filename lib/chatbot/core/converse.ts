@@ -38,13 +38,28 @@ async function loadOrCreateConversation(
   const supabase = db();
 
   if (input.conversationId) {
-    const { data, error } = await supabase
+    // Matched on who is asking as well as on the id.
+    //
+    // The web client sends this back with every turn, which means it is a value
+    // the caller controls, and it was being trusted. Anyone holding another
+    // person's conversation id could post into their conversation — and, worse,
+    // read it: the last ten turns go into the prompt, so "what did I tell you
+    // earlier?" would have answered with somebody else's name and phone number.
+    //
+    // A v4 uuid is not guessable, so this was a lock rather than an open door.
+    // It is still the caller's value, and the check costs two clauses.
+    const { data } = await supabase
       .from("conversations")
       .select("id, lang, fa_informal, placement_link_sent_at, status")
       .eq("id", input.conversationId)
-      .single();
-    if (error || !data) throw new Error(`unknown conversation: ${input.conversationId}`);
-    return {
+      .eq("channel", input.channel)
+      .eq("external_user_id", input.externalUserId)
+      .maybeSingle();
+
+    // No match starts a new conversation rather than failing. Throwing would
+    // have told the caller whether the id exists, and a stale id after a
+    // cleared table is an ordinary event, not an error worth showing anyone.
+    if (data) return {
       id: data.id,
       lang: data.lang,
       faInformal: data.fa_informal,
@@ -280,15 +295,23 @@ export async function* converse(input: ConverseInput): AsyncGenerator<ConverseEv
     lang,
   });
 
-  // Shabnam has taken this conversation over from the queue, so the bot says
-  // nothing at all. The message above is still recorded — it is what she will
-  // read — but there is no answer, no retrieval and no model call.
+  // Shabnam has taken this conversation over, so the bot says nothing at all.
+  // The message above is still recorded — it is what she will read — but there
+  // is no answer, no retrieval and no model call.
   //
   // Silence rather than "a human will reply shortly": she is already in this
   // conversation, and a bot interjecting to announce her is both noise and a
   // promise about timing that nobody asked it to make. It answers again the
   // moment she gives the conversation back.
-  if (conversation.humanActive) {
+  //
+  // Only where she can actually reply, which today means Telegram. Claiming a
+  // web conversation used to gag the bot as well, and there is nobody on the
+  // other side of that silence: the relay cannot push to a browser, so she has
+  // no way to answer and the visitor was shown "that did not go through" for a
+  // turn that worked perfectly. Taking a web conversation means "I have seen
+  // this, I will reach them on the number they left" — which is a note to
+  // herself, and no reason to stop answering the person still typing.
+  if (conversation.humanActive && input.channel === "telegram") {
     await supabase
       .from("conversations")
       .update({ last_message_at: new Date().toISOString() })
