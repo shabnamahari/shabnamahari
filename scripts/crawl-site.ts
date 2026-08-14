@@ -112,7 +112,7 @@ async function main() {
   // Same for a route that no longer exists. What should be in the knowledge
   // base is what this crawl decided to keep, so anything else with a crawled
   // URL goes.
-  const removed = await removeStaleCrawledDocuments(keptUrls, origin);
+  const removed = await removeStaleCrawledDocuments(keptUrls);
 
   console.log(`\n${ok} page(s) in the knowledge base, ${empty} skipped as boilerplate.`);
   if (removed > 0) console.log(`${removed} stale page(s) removed from an earlier crawl.`);
@@ -121,20 +121,26 @@ async function main() {
 /**
  * Deletes crawled documents that this run did not keep.
  *
- * Scoped to `url` documents from this origin, so nothing uploaded by hand and
- * nothing in `content/kb` is ever touched by a crawl.
+ * Scoped to `url` documents, which only this script ever writes — everything
+ * uploaded by hand, written in the panel or loaded from `content/kb` is `text`
+ * and is never touched by a crawl.
+ *
+ * Deliberately not scoped to the origin as well. The knowledge base mirrors one
+ * site, so a page crawled from a different address is the same page under a
+ * name that is no longer used. Matching on origin left those behind: the first
+ * crawl from the live site, after the section was renamed to /learn, put a
+ * second copy of all six pages in the knowledge base beside six from
+ * localhost — same content twice in retrieval, and the stale copies carried
+ * the old /work addresses into the prompt the model reads. The same thing would
+ * happen again the day this site gets its own domain.
  */
-async function removeStaleCrawledDocuments(
-  keptUrls: Set<string>,
-  origin: string,
-): Promise<number> {
+async function removeStaleCrawledDocuments(keptUrls: Set<string>): Promise<number> {
   const { db } = await import("@/lib/chatbot/db/client");
 
   const { data } = await db()
     .from("documents")
     .select("id, source_url")
-    .eq("source_type", "url")
-    .like("source_url", `${origin}%`);
+    .eq("source_type", "url");
 
   const stale = (data ?? []).filter((d) => d.source_url && !keptUrls.has(d.source_url));
   if (stale.length === 0) return 0;
