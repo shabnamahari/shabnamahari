@@ -26,8 +26,9 @@ export type Tool = {
 };
 
 import { captureLead } from "./capture-lead";
+import { handoffToHuman } from "./handoff-to-human";
 
-const REGISTRY: Tool[] = [captureLead];
+const REGISTRY: Tool[] = [captureLead, handoffToHuman];
 
 export function toolDefinitions(): ToolDefinition[] {
   return REGISTRY.map((tool) => tool.definition);

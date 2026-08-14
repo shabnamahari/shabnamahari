@@ -28,13 +28,19 @@ const HISTORY_TURNS = 10;
 
 async function loadOrCreateConversation(
   input: ConverseInput,
-): Promise<{ id: string; lang: Lang; faInformal: boolean; placementLinkSent: boolean }> {
+): Promise<{
+  id: string;
+  lang: Lang;
+  faInformal: boolean;
+  placementLinkSent: boolean;
+  humanActive: boolean;
+}> {
   const supabase = db();
 
   if (input.conversationId) {
     const { data, error } = await supabase
       .from("conversations")
-      .select("id, lang, fa_informal, placement_link_sent_at")
+      .select("id, lang, fa_informal, placement_link_sent_at, status")
       .eq("id", input.conversationId)
       .single();
     if (error || !data) throw new Error(`unknown conversation: ${input.conversationId}`);
@@ -43,6 +49,7 @@ async function loadOrCreateConversation(
       lang: data.lang,
       faInformal: data.fa_informal,
       placementLinkSent: Boolean(data.placement_link_sent_at),
+      humanActive: data.status === "human_active",
     };
   }
 
@@ -75,7 +82,13 @@ async function loadOrCreateConversation(
     .single();
 
   if (error || !data) throw new Error(`conversation insert failed: ${error?.message}`);
-  return { id: data.id, lang: data.lang, faInformal: false, placementLinkSent: false };
+  return {
+    id: data.id,
+    lang: data.lang,
+    faInformal: false,
+    placementLinkSent: false,
+    humanActive: false,
+  };
 }
 
 async function loadHistory(conversationId: string): Promise<ChatMessage[]> {
@@ -266,6 +279,22 @@ export async function* converse(input: ConverseInput): AsyncGenerator<ConverseEv
     content: input.text,
     lang,
   });
+
+  // Shabnam has taken this conversation over from the queue, so the bot says
+  // nothing at all. The message above is still recorded — it is what she will
+  // read — but there is no answer, no retrieval and no model call.
+  //
+  // Silence rather than "a human will reply shortly": she is already in this
+  // conversation, and a bot interjecting to announce her is both noise and a
+  // promise about timing that nobody asked it to make. It answers again the
+  // moment she gives the conversation back.
+  if (conversation.humanActive) {
+    await supabase
+      .from("conversations")
+      .update({ last_message_at: new Date().toISOString() })
+      .eq("id", conversation.id);
+    return;
+  }
 
   const [retrievalConfig, modelConfig, systemPrompt] = await Promise.all([
     getRetrievalConfig(),
