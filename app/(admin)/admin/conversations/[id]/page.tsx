@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { requireAdmin } from "@/lib/admin/auth";
 import { db } from "@/lib/chatbot/db/client";
+import RetrievedSources, { type Source } from "@/components/admin/RetrievedSources";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,59 @@ type Message = {
   retrieved_chunk_ids: string[];
   created_at: string;
 };
+
+type ChunkRow = {
+  id: string;
+  document_id: string;
+  content: string;
+  lang: string;
+  chunk_index: number;
+};
+
+/**
+ * The passages behind a conversation, by chunk id.
+ *
+ * Two plain queries rather than one with an embedded `documents(title)`.
+ * PostgREST decides whether an embed comes back as an object or a
+ * one-element array from the relationship it infers, and a title that
+ * silently resolves to `undefined` looks exactly like a document with no
+ * name. Two selects have no inference in them to be wrong about.
+ */
+async function loadSources(ids: string[]): Promise<Map<string, Source>> {
+  const unique = [...new Set(ids)];
+  if (unique.length === 0) return new Map();
+
+  const client = db();
+  const { data: chunkRows } = await client
+    .from("chunks")
+    .select("id, document_id, content, lang, chunk_index")
+    .in("id", unique);
+
+  const chunks = (chunkRows ?? []) as ChunkRow[];
+  if (chunks.length === 0) return new Map();
+
+  const { data: docRows } = await client
+    .from("documents")
+    .select("id, title")
+    .in("id", [...new Set(chunks.map((c) => c.document_id))]);
+
+  const titles = new Map(
+    ((docRows ?? []) as { id: string; title: string }[]).map((d) => [d.id, d.title]),
+  );
+
+  return new Map(
+    chunks.map((row) => [
+      row.id,
+      {
+        id: row.id,
+        title: titles.get(row.document_id) ?? "Untitled",
+        lang: row.lang,
+        chunkIndex: row.chunk_index,
+        content: row.content,
+      },
+    ]),
+  );
+}
 
 /**
  * One conversation, whole.
@@ -66,6 +120,19 @@ export default async function ConversationPage({
 
   const messages = (messageRows ?? []) as Message[];
   const spent = messages.reduce((sum, m) => sum + Number(m.cost ?? 0), 0);
+
+  // Every passage this conversation touched, fetched once and handed out per
+  // message. One query rather than one per answer, and the same chunk retrieved
+  // by three turns is read from the database once.
+  //
+  // A chunk can be gone — deleting a document takes its chunks with it, and the
+  // knowledge base is edited from the panel. The id then resolves to nothing,
+  // which is shown as a smaller count rather than an error: the answer was
+  // grounded in something that no longer exists, and that is worth seeing
+  // rather than crashing on.
+  const sourcesById = await loadSources(
+    messages.flatMap((message) => message.retrieved_chunk_ids),
+  );
 
   return (
     <main className="mx-auto max-w-3xl px-[15px] py-16">
@@ -144,14 +211,16 @@ export default async function ConversationPage({
                 {message.content}
               </p>
               {message.model_used ? (
-                <p className="text-muted-ink mt-1.5 text-xs tabular-nums">
-                  {message.model_used}
-                  {message.retrieved_chunk_ids.length > 0
-                    ? ` · read ${message.retrieved_chunk_ids.length} chunk${
-                        message.retrieved_chunk_ids.length === 1 ? "" : "s"
-                      }`
-                    : " · answered from nothing"}
-                </p>
+                <>
+                  <p className="text-muted-ink mt-1.5 text-xs tabular-nums">
+                    {message.model_used}
+                  </p>
+                  <RetrievedSources
+                    sources={message.retrieved_chunk_ids
+                      .map((chunkId) => sourcesById.get(chunkId))
+                      .filter((source): source is Source => Boolean(source))}
+                  />
+                </>
               ) : null}
             </article>
           );
