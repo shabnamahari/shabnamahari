@@ -31,7 +31,12 @@ export function proxy(request: NextRequest) {
 
   const login = new URL("/admin/login", request.url);
   // So signing in lands where they were going, rather than at the front door.
-  if (pathname !== "/admin") login.searchParams.set("next", pathname);
+  // The query string comes too. Without it, signing in from a link to a
+  // filtered list — /admin/conversations?q=refund — lands on the unfiltered
+  // one, and the thing that was being looked for has to be typed again.
+  if (pathname !== "/admin") {
+    login.searchParams.set("next", `${pathname}${request.nextUrl.search}`);
+  }
   return NextResponse.redirect(login);
 }
 

@@ -79,7 +79,19 @@ export default async function LeadsPage() {
         >
           ← Panel
         </Link>
-        <h1 className="font-nhm mt-3 text-2xl font-bold tracking-tight">People</h1>
+        <div className="flex items-baseline justify-between gap-4">
+          <h1 className="font-nhm mt-3 text-2xl font-bold tracking-tight">People</h1>
+          {leads.length > 0 ? (
+            // A plain link, not a button: it is a GET that returns a file, and
+            // the browser already knows how to do that.
+            <a
+              href="/admin/leads/export"
+              className="text-muted-ink hover:text-ink shrink-0 text-sm underline underline-offset-4 transition-colors"
+            >
+              Download as CSV
+            </a>
+          ) : null}
+        </div>
         <p className="text-muted-ink mt-1 text-sm">
           Everyone who told Sir Cue something about themselves. Only what they
           actually said — the bot records nothing it was not given.
