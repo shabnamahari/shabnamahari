@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { NextRequest } from "next/server";
 
 import { converse } from "@/lib/chatbot/core/converse";
+import { allowTurn, callerAddress } from "@/lib/chatbot/core/rate-limit";
 import type { Lang } from "@/lib/chatbot/core/types";
 
 /**
@@ -29,6 +30,13 @@ function badRequest(message: string): Response {
   return Response.json({ error: message }, { status: 400 });
 }
 
+/**
+ * Said in both languages, because the turn that was refused is the only clue
+ * to which one this person reads, and it was refused before anything looked.
+ */
+const TOO_MANY =
+  "That is a lot of questions at once. Give it a minute and ask again.\n\nسؤال‌ها پشت سر هم زیاد شد. یک دقیقه صبر کنید و دوباره بپرسید.";
+
 export async function POST(request: NextRequest): Promise<Response> {
   let body: Body;
   try {
@@ -54,6 +62,16 @@ export async function POST(request: NextRequest): Promise<Response> {
 
   const existingUid = request.cookies.get(UID_COOKIE)?.value;
   const uid = existingUid ?? randomUUID();
+
+  // Every turn past this line costs money — an embedding, then a generation —
+  // and this endpoint is public, is one POST, and had nothing in front of it.
+  //
+  // Counted against the cookie and against the address, because either alone
+  // is trivially defeated: a cleared cookie is a new person, and one person can
+  // be behind a shared address with fifty others.
+  if (!(await allowTurn(uid, callerAddress(request.headers)))) {
+    return Response.json({ error: TOO_MANY }, { status: 429 });
+  }
 
   const encoder = new TextEncoder();
 

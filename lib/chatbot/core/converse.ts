@@ -1,6 +1,7 @@
 import "server-only";
 
 import { db } from "@/lib/chatbot/db/client";
+import { readBudget } from "./budget";
 import { getActivePrompt, getModelConfig, getRetrievalConfig } from "./config";
 import { OpenRouterError, stream, type ChatMessage } from "./generate/openrouter";
 import { nextConversationLang } from "./ingest/lang";
@@ -419,16 +420,24 @@ export async function* converse(input: ConverseInput): AsyncGenerator<ConverseEv
   // run emptied the account and every answer became an error: both paid models
   // returned 402, in a system that had a free model configured for exactly this
   // and never reached for it.
-  const { data: budget } = await supabase
-    .from("budget_config")
-    .select("over_cap_model")
-    .maybeSingle();
+  const budget = await readBudget();
 
-  const attempts = [
-    modelConfig.activeModel,
-    modelConfig.fallbackModel,
-    budget?.over_cap_model ?? null,
-  ].filter((m): m is string => Boolean(m));
+  // Over the cap, the cheap model goes first rather than last.
+  //
+  // It has always been third in this list, which is the order for "both paid
+  // models failed" and exactly the wrong order for "the month has cost enough".
+  // Reaching the cap is not an error to fall back from — it is a decision to
+  // spend nothing more, and putting the paid models ahead of it would spend on
+  // every turn while believing it was capped.
+  //
+  // Answering does not stop. Section 09 asks for a cheaper model rather than
+  // silence, which is right for a bot that is the front door: an expensive
+  // month should degrade, not close.
+  const attempts = (
+    budget?.overCap && budget.overCapModel
+      ? [budget.overCapModel, modelConfig.fallbackModel]
+      : [modelConfig.activeModel, modelConfig.fallbackModel, budget?.overCapModel ?? null]
+  ).filter((m): m is string => Boolean(m));
 
   let answer = "";
   let usage = { tokensIn: 0, tokensOut: 0, costUsd: 0 };
