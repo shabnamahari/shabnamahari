@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { siteUrl } from "@/lib/site-url";
+import { reachableSiteUrl, siteUrl } from "@/lib/site-url";
 
 /**
  * Which pieces of configuration this deployment can actually see.
@@ -59,6 +59,11 @@ export async function GET() {
       // Shabnam gets told someone needs her with no way to reach the
       // conversation. That failure is silent everywhere else.
       siteUrl: siteUrl() || null,
+      // What a Telegram notification would actually put in a message. Reported
+      // separately because the two differ exactly where it matters: on a
+      // laptop the first is localhost and the second is empty, and the whole
+      // point is that the second never becomes a link nobody can press.
+      reachableSiteUrl: reachableSiteUrl() || null,
       config,
     },
     { status: missing.length === 0 ? 200 : 503 },
