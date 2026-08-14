@@ -35,6 +35,8 @@ const TABLES = [
   "budget_config",
   "admin_users",
   "audit_log",
+  "telegram_relay",
+  "rate_limit",
 ] as const;
 
 function required(name: string): string {
