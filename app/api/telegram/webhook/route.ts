@@ -102,14 +102,27 @@ async function setPreferredLang(chatId: number, lang: Lang): Promise<void> {
     );
 }
 
-/** The conversation this chat is currently in, if one is still open. */
+/**
+ * The conversation this chat is currently in, if it has not been closed.
+ *
+ * Anything but `closed`, not `open` alone. `open` was wrong the moment a
+ * handoff existed: it sets the conversation to `needs_human`, so the person's
+ * very next message found nothing and started a brand new conversation — with
+ * no history, and a second handoff for the same request. Shabnam's first real
+ * test produced exactly that, two conversations twenty-six seconds apart, and
+ * her reply went to the one that was no longer live.
+ *
+ * `human_active` has to be included for the same reason and a worse one: that
+ * is the state where she is answering, and a fresh conversation beside it would
+ * be answered by the bot while she believed she was the one talking.
+ */
 async function openConversation(chatId: number): Promise<string | undefined> {
   const { data } = await db()
     .from("conversations")
     .select("id")
     .eq("channel", "telegram")
     .eq("external_user_id", String(chatId))
-    .eq("status", "open")
+    .neq("status", "closed")
     .order("last_message_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -117,13 +130,33 @@ async function openConversation(chatId: number): Promise<string | undefined> {
   return data?.id;
 }
 
+/**
+ * `/start` and `/reset`: everything this chat had is finished.
+ *
+ * Any handoff still standing is released with it. Someone starting over has
+ * left the conversation Shabnam was asked into, and a queue entry pointing at
+ * an abandoned conversation is a person she thinks is waiting who is not.
+ */
 async function closeConversations(chatId: number): Promise<void> {
-  await db()
+  const supabase = db();
+
+  const { data: live } = await supabase
     .from("conversations")
-    .update({ status: "closed" })
+    .select("id")
     .eq("channel", "telegram")
     .eq("external_user_id", String(chatId))
-    .eq("status", "open");
+    .neq("status", "closed");
+
+  const ids = (live ?? []).map((c) => c.id);
+  if (ids.length === 0) return;
+
+  await supabase
+    .from("handoffs")
+    .update({ released_at: new Date().toISOString() })
+    .in("conversation_id", ids)
+    .is("released_at", null);
+
+  await supabase.from("conversations").update({ status: "closed" }).in("id", ids);
 }
 
 /** Whether Shabnam is in this conversation, which silences the model. */
@@ -169,6 +202,8 @@ async function answer(
   text: string,
   lang: Lang,
   conversationId: string | undefined,
+  /** Only a language they chose with `/lang`. A guess must not be forced. */
+  forceLang: Lang | undefined,
 ): Promise<void> {
   await sendTyping(chatId);
 
@@ -184,9 +219,14 @@ async function answer(
       externalUserId: String(chatId),
       text,
       conversationId,
-      forceLang: lang,
+      forceLang,
     })) {
-      if (event.type === "delta") {
+      // The brain decides what language this turn is in, and says so before the
+      // first token. Taken rather than assumed, so a failure further down is
+      // reported in the language of the answer rather than of the guess.
+      if (event.type === "conversation") {
+        lang = event.lang;
+      } else if (event.type === "delta") {
         answered += event.text;
 
         const now = Date.now();
@@ -286,8 +326,19 @@ export async function POST(request: NextRequest): Promise<Response> {
   }
 
   // `language_code` is the Telegram interface language, which is a guess about
-  // a person and not a statement by them. It seeds the first turn and is
-  // overridden by anything they actually do.
+  // a person and not a statement by them.
+  //
+  // The distinction is load-bearing and was being thrown away. `lang` below
+  // picks the channel's own copy — the placeholder, the failure line — and for
+  // that a guess is fine. `stored` is different: it is only ever written by
+  // `/lang`, so it is the one thing here a person actually chose, and it is the
+  // only thing passed to the brain as `forceLang`.
+  //
+  // Passing the guess as well meant Shabnam, whose Telegram is in English,
+  // wrote «میخوام با شبنم صحبت کنم» and was answered in English — and would
+  // have been forever, because `forceLang` wins unconditionally and no amount
+  // of Persian could move it. The language of a conversation is decided by
+  // what someone writes, which is what `nextConversationLang` is for.
   const stored = await preferredLang(chatId);
   const lang: Lang =
     stored ?? (message.from?.language_code?.startsWith("fa") ? "fa" : "en");
@@ -350,6 +401,6 @@ export async function POST(request: NextRequest): Promise<Response> {
     return ACK;
   }
 
-  await answer(chatId, text, lang, conversationId);
+  await answer(chatId, text, lang, conversationId, stored);
   return ACK;
 }
