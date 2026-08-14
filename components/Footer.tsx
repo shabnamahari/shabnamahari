@@ -46,9 +46,11 @@ export default function Footer() {
   const isHome = usePathname() === "/";
 
   return (
-    <footer className="bg-ink px-[15px] text-white">
+    // `relative` for the sign-up stack alone, which hangs off the top padding
+    // rather than taking a row in the grid — see AuthSignUp for why.
+    <footer className="bg-ink relative px-[15px] text-white">
+      {isHome ? <AuthSignUp /> : null}
       <div className="page-grid gap-y-[30px] py-[100px] md:py-[200px]">
-        {isHome ? <AuthSignUp /> : null}
         <RevealLine
           as="h2"
           className="col-span-12 md:col-span-10 md:col-start-2 text-h2 text-center"

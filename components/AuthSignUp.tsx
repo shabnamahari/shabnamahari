@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 
 /**
  * Sign-up, at the foot of the home page.
@@ -45,27 +46,80 @@ const GOOGLE_BAR = 52;
 const PANEL_WHITE = `${RADIUS} border border-white/25 bg-white/[0.08] backdrop-blur-[5px]`;
 
 /**
- * Green glass, same construction.
+ * The ground the panels are standing on, which decides everything else.
  *
- * `confirm` is the brand's green and `confirm-lit` is the same hue carried up
- * in lightness for dark grounds — the pair already exists because the assistant
- * needed it. The fill is the dark one so it stays a tint of the black behind
- * it; the type and the edge are the light one so they clear contrast against
- * that tint.
+ * They began as one set of colours because they began in one place. Then the
+ * same form was wanted on `/auth`, and `/auth` is the site's cream — where
+ * light type on transparent glass is a white box on a white page. So the panels
+ * take the ground as an argument instead of assuming it.
+ *
+ * The green tint is the one thing that survives both: `--color-confirm` at a
+ * low alpha reads as a tint of whatever is behind it, which is a dark green on
+ * black and a pale sage on cream. What has to change is the type — light on the
+ * dark ground, and the site's own ink on the light one.
  */
-const PANEL_GREEN = `${RADIUS} border border-confirm-lit/35 bg-confirm/25 backdrop-blur-[5px]`;
+type Tone = "dark" | "light";
+
+/** Every colour that differs between the two grounds, in one place. */
+const TONES: Record<
+  Tone,
+  {
+    panel: string;
+    label: string;
+    input: string;
+    button: string;
+    or: string;
+    terms: string;
+    /** For the two lines with no panel under them — see where it is used. */
+    bare: string;
+  }
+> = {
+  dark: {
+    // `auth-panel` rather than a tint of `confirm`, because these panels grow up
+    // off the footer and over the cream page behind it — see the token.
+    panel: `${RADIUS} border border-confirm-lit/35 bg-auth-panel backdrop-blur-[5px]`,
+    label: "text-confirm-lit",
+    input:
+      "border-b border-confirm-lit/25 text-white focus:border-confirm-lit/70",
+    button:
+      "text-confirm-lit border-confirm-lit/45 hover:border-confirm-lit hover:bg-confirm-lit/10",
+    or: "text-confirm-lit",
+    terms: "text-white",
+    bare: "mix-blend-difference",
+  },
+  /*
+   * Ink rather than the dark green, on Shabnam's instruction — she wanted to see
+   * the form on its own page in black type before any colour is settled there.
+   * The green stays in the tint and the edges, so the panels are still the same
+   * panels; only the reading matter is the site's ordinary ink.
+   */
+  light: {
+    panel: `${RADIUS} border border-confirm/40 bg-confirm/15 backdrop-blur-[5px]`,
+    label: "text-ink",
+    input: "border-b border-confirm/40 text-ink focus:border-confirm",
+    button: "text-ink border-ink/30 hover:border-ink hover:bg-ink/5",
+    or: "text-ink",
+    terms: "text-ink",
+    // /auth is one flat cream page, so nothing has to survive a change of
+    // ground and the blend would only muddy the ink.
+    bare: "",
+  },
+};
 
 /** One row of the form: its label, and the field it names. */
 function Field({
   label,
+  tone,
   type = "text",
   autoComplete,
 }: {
   label: string;
+  tone: Tone;
   type?: string;
   autoComplete?: string;
 }) {
   const id = useId();
+  const t = TONES[tone];
   return (
     <div className="flex items-baseline gap-3">
       {/*
@@ -75,10 +129,7 @@ function Field({
         other — the panel read as three unrelated rows instead of one form.
         Wide enough for the longest of the three, which is the code.
       */}
-      <label
-        htmlFor={id}
-        className="text-confirm-lit w-[7.5rem] shrink-0 text-[0.875rem]"
-      >
+      <label htmlFor={id} className={`${t.label} w-[7.5rem] shrink-0 text-[0.875rem]`}>
         {label}
       </label>
       {/*
@@ -90,11 +141,28 @@ function Field({
         id={id}
         type={type}
         autoComplete={autoComplete}
-        className="min-w-0 flex-1 border-b border-confirm-lit/25 bg-transparent pb-1 text-[0.875rem] text-white outline-none transition-colors focus:border-confirm-lit/70"
+        className={`${t.input} pointer-events-auto min-w-0 flex-1 bg-transparent pb-1 text-[0.875rem] outline-none transition-colors`}
       />
     </div>
   );
 }
+
+/**
+ * How the stack arrives.
+ *
+ * `?reveal=1` and `?reveal=2` on the home page switch between them so the two
+ * can be watched rather than described. Once Shabnam picks one this becomes a
+ * constant and the loser's keyframes come out of globals.css.
+ */
+type Reveal = 1 | 2 | null;
+
+const REVEAL_CLASS: Record<1 | 2, string> = {
+  1: "auth-rise",
+  2: "auth-unmask",
+};
+
+/** Between one panel starting and the next. */
+const STAGGER_MS = 90;
 
 /**
  * The stack itself: the form, the fork, Google, and the terms.
@@ -103,21 +171,37 @@ function Field({
  * home page's closing line, where a bar opens it, and on `/auth`, where it is
  * the whole point of the page and stands open with no bar at all. One copy, so
  * the two can never drift into two forms.
- *
- * It assumes a dark ground. Both panels are transparent and both sets of type
- * are light, so on the site's cream this would be a white box on a white page.
- * Whoever places it owes it a black behind it.
  */
-export function AuthPanels() {
+export function AuthPanels({
+  tone = "dark",
+  reveal = null,
+}: {
+  tone?: Tone;
+  reveal?: Reveal;
+}) {
+  const t = TONES[tone];
+
+  /*
+   * Bottom-up, so the panel nearest the bar you pressed moves first and the
+   * stack unrolls away from your hand. The children are written top-down, so
+   * the delay counts backwards: the terms line is last in the list and first to
+   * arrive. `null` means no animation at all, which is what /auth passes —
+   * nothing was pressed there, so there is nothing to reveal.
+   */
+  const COUNT = 4;
+  const step = (index: number): CSSProperties =>
+    reveal ? ({ "--stagger": `${(COUNT - 1 - index) * STAGGER_MS}ms` } as CSSProperties) : {};
+  const anim = reveal ? REVEAL_CLASS[reveal] : "";
+
   return (
     <div className="flex flex-col gap-3">
       {/* 1 — name, email, code, and the one control that is meant to be
           pressed first. */}
-      <div className={`${WIDTH} ${PANEL_GREEN} px-6 py-5`}>
+      <div className={`${WIDTH} ${t.panel} ${anim} pointer-events-auto px-6 py-5`} style={step(0)}>
         <div className="flex flex-col gap-4">
-          <Field label="name:" autoComplete="name" />
-          <Field label="email:" type="email" autoComplete="email" />
-          <Field label="enter code :" autoComplete="one-time-code" />
+          <Field label="name:" tone={tone} autoComplete="name" />
+          <Field label="email:" tone={tone} type="email" autoComplete="email" />
+          <Field label="enter code :" tone={tone} autoComplete="one-time-code" />
         </div>
 
         {/* Centred under the three rows, not beside the code field: it acts on
@@ -126,31 +210,54 @@ export function AuthPanels() {
         <div className="mt-5 flex justify-center">
           <button
             type="button"
-            className="text-confirm-lit rounded-full border border-confirm-lit/45 px-5 py-1.5 text-[0.875rem] transition-colors hover:border-confirm-lit hover:bg-confirm-lit/10"
+            className={`${t.button} rounded-full border px-5 py-1.5 text-[0.875rem] transition-colors`}
           >
             send code
           </button>
         </div>
       </div>
 
-      {/* 2 — the fork between the two ways in. */}
-      <p className="text-confirm-lit text-center text-[0.875rem] font-bold">
+      {/*
+        2 — the fork between the two ways in.
+
+        `BARE` on the dark tone, and this is the one place the stack's freedom to
+        climb costs something. The panels carry their own ground so they are
+        legible wherever they end up; these two lines have none by Shabnam's
+        design — white type straight onto the footer's black — and on a phone the
+        stack rises far enough that both land on the cream page instead, where
+        white on cream is nothing at all. Measured: on a 390px screen "or" sits
+        108px above the footer's edge and the terms line straddles it.
+
+        `mix-blend-difference` is the site's own answer to type that crosses both
+        grounds — it is how ( Menu ) and ( Back ) stay readable over cream and
+        black alike. On the black they render exactly as specified; over the
+        cream they invert and stay readable. The cost is the green: inverted
+        against cream it is no longer green, which is Shabnam's to accept or
+        refuse.
+      */}
+      <p className={`${t.or} ${t.bare} ${anim} text-center text-[0.875rem] font-bold`} style={step(1)}>
         or
       </p>
 
       {/* 3 — the one-press way in. */}
       <button
         type="button"
-        className={`${WIDTH} ${PANEL_GREEN} text-confirm-lit flex items-center justify-center text-[0.9375rem] transition-colors hover:bg-confirm/40`}
-        style={{ height: GOOGLE_BAR }}
+        /* The edge brightens on hover rather than the fill. Lightening the fill
+           undoes the very thing the alpha was set for: over the cream page a
+           lighter panel takes the type back under contrast. */
+        className={`${WIDTH} ${t.panel} ${anim} ${t.or} pointer-events-auto flex items-center justify-center text-[0.9375rem] transition-colors hover:border-confirm-lit`}
+        style={{ height: GOOGLE_BAR, ...step(2) }}
       >
         continue with google
       </button>
 
-      {/* 4 — the terms. On the black itself with no panel around it, because it
+      {/* 4 — the terms. On the ground itself with no panel around it, because it
           is not a control: it is the sentence the bar below it commits you to,
           and boxing it would have made it look like a fourth thing to press. */}
-      <p className={`${WIDTH} text-center text-[0.8125rem] text-white`}>
+      <p
+        className={`${WIDTH} ${t.terms} ${t.bare} ${anim} text-center text-[0.8125rem]`}
+        style={step(3)}
+      >
         By signing up, you agree to our Terms and Privacy Policy.
       </p>
     </div>
@@ -159,51 +266,70 @@ export function AuthPanels() {
 
 export default function AuthSignUp() {
   const [open, setOpen] = useState(false);
-  const stackRef = useRef<HTMLDivElement>(null);
+  const [reveal, setReveal] = useState<1 | 2>(1);
+  const barRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div data-surface="auth" className="col-span-12">
-      {/*
-        Opening inserts the stack above the bar, which pushes the bar — and the
-        headline under it — down the page. That is the correct flow and the
-        wrong feeling: the thing you just pressed walks away from the pointer.
-        So the newly opened stack is brought into view in the same gesture,
-        which turns the shift into the page following you rather than the button
-        escaping. `block: "center"` rather than `"start"`, so the footer
-        headline stays in frame underneath and the stack keeps its context.
-      */}
-      <div ref={stackRef}>
-        {open && (
-          <div className="pb-3">
-            <AuthPanels />
-          </div>
-        )}
-      </div>
+    /*
+     * Out of the flow entirely, and that is the whole point of it.
+     *
+     * In the grid this sat above the headline as a row, so opening it inserted
+     * three hundred pixels of panel and pushed "First attempt or third" — and
+     * everything under it — down the page. Shabnam put two screenshots side by
+     * side to show how far it moved. Taken out of flow, the headline never
+     * learns the stack exists: the bar holds its place above it and the panels
+     * grow up over the section behind.
+     *
+     * `top` is the footer's own top padding, which is where the headline
+     * starts, and the stack hangs from the bottom of that line rather than
+     * sitting on top of it. So the two numbers cannot disagree.
+     */
+    <div
+      data-surface="auth"
+      /*
+       * No z-index, deliberately. A positioned element already paints over the
+       * static content of the section above, which is all that is wanted here —
+       * and any z-index would make this a stacking context, which would seal the
+       * two blended lines off from the page they have to blend with.
+       */
+      className="pointer-events-none absolute inset-x-0 top-[100px] md:top-[200px]"
+    >
+      <div className="absolute inset-x-0 bottom-[30px] flex flex-col gap-3 px-[15px]">
+        {/*
+          Growing up over the photographs above is not a defect to be contained.
+          The panels are transparent for the same reason the assistant's are:
+          you are meant to see the site through them, and the site is what you
+          are signing up to.
+        */}
+        {open && <AuthPanels reveal={reveal} />}
 
-      {/* 5 — the way in, and when closed the whole of it. */}
-      <div
-        className={`${WIDTH} ${PANEL_WHITE} flex items-center justify-center`}
-        style={{ height: BAR }}
-      >
-        <button
-          type="button"
-          aria-expanded={open}
-          onClick={() => {
-            setOpen((v) => !v);
-            if (!open) {
-              // After paint, so the stack it is scrolling to exists.
-              requestAnimationFrame(() =>
-                stackRef.current?.scrollIntoView({
-                  behavior: "smooth",
-                  block: "center",
-                }),
-              );
-            }
-          }}
-          className="block w-full text-center text-[0.9375rem] text-white"
+        {/* The way in, and when closed the whole of it. */}
+        <div
+          ref={barRef}
+          className={`${WIDTH} ${PANEL_WHITE} pointer-events-auto flex items-center justify-center`}
+          style={{ height: BAR }}
         >
-          Sign up if you don&rsquo;t have an account
-        </button>
+          <button
+            type="button"
+            aria-expanded={open}
+            onClick={() => {
+              /*
+               * Read on the press rather than in an effect. The variant only
+               * matters at the moment the stack is built, and reading it here
+               * keeps it out of render — no second pass, no server and client
+               * disagreeing about a query string the server never saw.
+               */
+              if (!open) {
+                const v = new URLSearchParams(window.location.search).get("reveal");
+                setReveal(v === "2" ? 2 : 1);
+              }
+              setOpen((prev) => !prev);
+            }}
+            className="block w-full text-center text-[0.9375rem] text-white"
+          >
+            Sign up if you don&rsquo;t have an account
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -39,6 +39,23 @@
   --color-chat-panel: rgb(0 0 0 / 0.58);
   --color-chat-edge: rgb(255 255 255 / 0.08);
   --color-chat-dim: #8a8a8a;
+  /*
+   * Sign-up's green glass, and the alpha is arrived at rather than chosen.
+   *
+   * It began as `confirm` at 0.25, which was right while the panels only ever
+   * sat on the footer's black. Then they were allowed to grow up over the
+   * photographs above, where a light tint over cream left `confirm-lit` type at
+   * about 2:1 — the labels were there and could not be read.
+   *
+   * So the fill is a green dark enough to win against either ground, at the
+   * alpha where it just does. Over the cream page it composites to about
+   * #596660: `confirm-lit` sits at 4.75:1 there and white at 6:1, both just
+   * over the minimum. Over the footer it goes nearly black and the same type is
+   * far clearer. Thinner and the cream wins; heavier and it stops being glass,
+   * which is the one thing it has to stay — the site showing through is the
+   * point, exactly as it is for the assistant above.
+   */
+  --color-auth-panel: rgb(18 38 28 / 0.68);
   --font-kumbh: var(--font-kumbh);
   --font-vazirmatn: var(--font-vazirmatn);
   --font-psl: var(--font-psl);
@@ -779,5 +796,68 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .reel-frame {
     animation-play-state: paused;
+  }
+}
+
+/* ---- sign-up, opening ---- */
+
+/*
+ * Two ways for the stack to arrive, built to be chosen between rather than
+ * argued about. `?reveal=1` and `?reveal=2` on the home page switch them, the
+ * way `?bar=` and `?r=` switch the assistant's numbers. Once one is picked the
+ * other goes, and this comment with it.
+ *
+ * Both run bottom-up — the panel nearest the bar you just pressed moves first,
+ * so the stack unrolls away from your own hand rather than arriving at it. The
+ * stagger is set per panel in the component, because only the component knows
+ * how many there are.
+ */
+
+/* 1 — rise. The panel slides up into place under its own fade. */
+@keyframes auth-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.auth-rise {
+  animation: auth-rise 0.55s cubic-bezier(0.82, 0, 0.18, 1) both;
+  animation-delay: var(--stagger, 0ms);
+}
+
+/*
+ * 2 — unmask. Nothing moves: the panel is uncovered from its bottom edge
+ * upward, so it grows out of the bar instead of travelling to its place. The
+ * type stays still under the mask, which is the whole difference between this
+ * and the one above — at speed, a slide is read as the words moving and this is
+ * read as the panel opening.
+ */
+@keyframes auth-unmask {
+  from {
+    opacity: 0;
+    clip-path: inset(100% 0 0 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.auth-unmask {
+  animation: auth-unmask 0.6s cubic-bezier(0.82, 0, 0.18, 1) both;
+  animation-delay: var(--stagger, 0ms);
+}
+
+/* The arrival is the motion; there is no gentler version of it, so it does not
+   play and the panels are simply there. */
+@media (prefers-reduced-motion: reduce) {
+  .auth-rise,
+  .auth-unmask {
+    animation: none;
   }
 }
