@@ -15,7 +15,8 @@
     "eval": "vitest run",
     "eval:retrieval": "vitest run evals/retrieval.eval.ts",
     "eval:watch": "vitest",
-    "admin:password": "tsx --conditions=react-server scripts/admin-password.ts"
+    "admin:password": "tsx --conditions=react-server scripts/admin-password.ts",
+    "tg:profile": "tsx --conditions=react-server scripts/telegram-profile.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.2",
