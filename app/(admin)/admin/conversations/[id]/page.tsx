@@ -12,6 +12,7 @@ type Message = {
   role: string;
   content: string;
   lang: string;
+  from_human: boolean;
   model_used: string | null;
   cost: number | null;
   retrieved_chunk_ids: string[];
@@ -104,7 +105,9 @@ export default async function ConversationPage({
   const [{ data: messageRows }, { data: lead }, { data: gaps }] = await Promise.all([
     client
       .from("messages")
-      .select("id, role, content, lang, model_used, cost, retrieved_chunk_ids, created_at")
+      .select(
+      "id, role, content, lang, model_used, cost, retrieved_chunk_ids, from_human, created_at",
+    )
       .eq("conversation_id", id)
       .order("created_at", { ascending: true }),
     client
@@ -195,7 +198,12 @@ export default async function ConversationPage({
                 {message.role === "user"
                   ? "Them"
                   : message.role === "assistant"
-                    ? "Sir Cue"
+                    ? // Her replies are stored as `assistant` so the history the
+                      // model reads is right, but crediting the bot with what
+                      // she wrote would make the transcript lie about who spoke.
+                      message.from_human
+                      ? "You"
+                      : "Sir Cue"
                     : message.role}
               </div>
               <p

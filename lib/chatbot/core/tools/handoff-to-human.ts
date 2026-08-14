@@ -1,5 +1,6 @@
 import "server-only";
 
+import { rememberRelay } from "@/lib/chatbot/channels/relay";
 import { sendMessage } from "@/lib/chatbot/channels/telegram";
 import { db } from "@/lib/chatbot/db/client";
 import { reachableSiteUrl } from "@/lib/site-url";
@@ -113,10 +114,23 @@ async function notify(
     const site = reachableSiteUrl();
     const link = site ? `\n\n${site}/admin/conversations/${conversationId}` : "";
 
-    await sendMessage(
+    // Telegram conversations can be answered by replying to this message, so
+    // the notification says so. For web, replying would have nowhere to go —
+    // there is no way to push to a closed tab — and offering it would be an
+    // instruction that quietly fails.
+    const howTo =
+      channel === "telegram"
+        ? "\n\nReply to this message to answer them yourself."
+        : "";
+
+    const messageId = await sendMessage(
       chatId,
-      `Someone needs you — on ${channel}.\n\n${reason}${link}`,
+      `Someone needs you — on ${channel}.\n\n${reason}${howTo}${link}`,
     );
+
+    // This message becomes the handle for the whole conversation: her reply to
+    // it is what claims the conversation and delivers the first answer.
+    await rememberRelay(messageId, conversationId);
     return true;
   } catch {
     return false;

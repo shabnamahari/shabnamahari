@@ -8,6 +8,14 @@ import {
   sendMessage,
   sendTyping,
 } from "@/lib/chatbot/channels/telegram";
+import {
+  claimFromTelegram,
+  deliverToPerson,
+  forwardToOwner,
+  ownerChatId,
+  relayedConversation,
+  releaseFromTelegram,
+} from "@/lib/chatbot/channels/relay";
 import { TG } from "@/lib/chatbot/channels/telegram-copy";
 import type { Lang } from "@/lib/chatbot/core/types";
 
@@ -37,8 +45,10 @@ type Update = {
   message?: {
     message_id: number;
     chat: { id: number };
-    from?: { id: number; language_code?: string };
+    from?: { id: number; language_code?: string; first_name?: string };
     text?: string;
+    /** Set when this message is a reply. The relay is built entirely on it. */
+    reply_to_message?: { message_id: number };
   };
 };
 
@@ -49,6 +59,25 @@ type Update = {
  * chat instead, where they can act on them.
  */
 const ACK = new Response("ok", { status: 200 });
+
+/** Replying with this hands the conversation back to the bot. */
+const RELEASE = "/back";
+
+/**
+ * What the bot says to Shabnam, as opposed to what it says to anyone else.
+ *
+ * English, and short. These are receipts rather than copy: they are read once,
+ * by the person who asked for them, to find out whether the thing happened.
+ */
+const OWNER = {
+  delivered: "Sent. Sir Cue stays quiet here until you reply /back.",
+  released: "Given back to Sir Cue.",
+  notTelegram:
+    "That one came from the website, so there is nothing to send a message to. If they left a number it is on the People page.",
+  lost: "That did not send — I could not find where to send it.",
+  refused:
+    "Telegram would not deliver that. They may have blocked the bot. Nothing was recorded, so nothing shows in the transcript that they never saw.",
+} as const;
 
 /** The language this person last chose, if they ever did. */
 async function preferredLang(chatId: number): Promise<Lang | undefined> {
@@ -95,6 +124,17 @@ async function closeConversations(chatId: number): Promise<void> {
     .eq("channel", "telegram")
     .eq("external_user_id", String(chatId))
     .eq("status", "open");
+}
+
+/** Whether Shabnam is in this conversation, which silences the model. */
+async function heldByHuman(conversationId: string): Promise<boolean> {
+  const { data } = await db()
+    .from("conversations")
+    .select("status")
+    .eq("id", conversationId)
+    .maybeSingle();
+
+  return data?.status === "human_active";
 }
 
 /** The greeting Shabnam wrote, or the channel's own line if there is none. */
@@ -205,6 +245,46 @@ export async function POST(request: NextRequest): Promise<Response> {
   const chatId = message.chat.id;
   const text = message.text?.trim();
 
+  // Shabnam replying to something the bot showed her, before anything else.
+  //
+  // Her chat is the only one where a reply means this, and it has to be checked
+  // ahead of the ordinary path — otherwise her answer to somebody would be read
+  // as a question and handed to the model.
+  const owner = await ownerChatId();
+  if (owner && chatId === owner && message.reply_to_message && text) {
+    const conversationId = await relayedConversation(
+      message.reply_to_message.message_id,
+    );
+
+    // A reply to anything else in her chat is just a message to the bot, and
+    // falls through to the normal path below.
+    if (conversationId) {
+      if (text.toLowerCase() === RELEASE) {
+        await releaseFromTelegram(conversationId);
+        await sendMessage(chatId, OWNER.released);
+        return ACK;
+      }
+
+      // Claiming and answering in one act. She may never have opened the panel,
+      // and that is the point: the notification arrives on her phone and the
+      // reply is the whole interaction.
+      await claimFromTelegram(conversationId);
+      const sent = await deliverToPerson(conversationId, text);
+
+      await sendMessage(
+        chatId,
+        sent.ok
+          ? OWNER.delivered
+          : sent.reason === "not-telegram"
+            ? OWNER.notTelegram
+            : sent.reason === "refused"
+              ? OWNER.refused
+              : OWNER.lost,
+      );
+      return ACK;
+    }
+  }
+
   // `language_code` is the Telegram interface language, which is a guess about
   // a person and not a statement by them. It seeds the first turn and is
   // overridden by anything they actually do.
@@ -252,6 +332,24 @@ export async function POST(request: NextRequest): Promise<Response> {
     return ACK;
   }
 
-  await answer(chatId, text, lang, await openConversation(chatId));
+  const conversationId = await openConversation(chatId);
+
+  // While Shabnam holds this conversation the model does not run at all, and
+  // the message goes to her phone instead.
+  //
+  // Nothing is said back to the person here. They are mid-conversation with a
+  // human who has already answered them once; a bot interrupting to announce
+  // that a human is present is noise, and "she will reply shortly" is a promise
+  // about timing that nobody asked it to make.
+  if (conversationId && (await heldByHuman(conversationId))) {
+    await forwardToOwner(
+      conversationId,
+      text,
+      message.from?.first_name?.trim() || "Someone",
+    );
+    return ACK;
+  }
+
+  await answer(chatId, text, lang, conversationId);
   return ACK;
 }
