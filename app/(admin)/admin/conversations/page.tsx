@@ -31,6 +31,80 @@ type Msg = {
   created_at: string;
 };
 
+type Marked = {
+  id: string;
+  conversationId: string;
+  lang: string;
+  answer: string;
+  comment: string | null;
+};
+
+/** How much of a marked answer the list shows before you open it. */
+const EXCERPT = 220;
+
+/**
+ * Answers somebody said were wrong.
+ *
+ * Two queries rather than an embed, for the same reason as the passages on the
+ * transcript: PostgREST's shape depends on a relationship it infers, and a
+ * field that silently resolves to undefined is indistinguishable from an empty
+ * one.
+ */
+async function markedWrong(): Promise<Marked[]> {
+  const client = db();
+
+  const { data: rows } = await client
+    .from("feedback")
+    .select("id, message_id, comment, created_at")
+    .eq("rating", -1)
+    .order("created_at", { ascending: false })
+    .limit(30);
+
+  const feedback = (rows ?? []) as {
+    id: string;
+    message_id: string;
+    comment: string | null;
+  }[];
+  if (feedback.length === 0) return [];
+
+  const { data: answers } = await client
+    .from("messages")
+    .select("id, conversation_id, lang, content")
+    .in(
+      "id",
+      feedback.map((f) => f.message_id),
+    );
+
+  const byId = new Map(
+    ((answers ?? []) as {
+      id: string;
+      conversation_id: string;
+      lang: string;
+      content: string;
+    }[]).map((m) => [m.id, m]),
+  );
+
+  return feedback.flatMap((item) => {
+    const message = byId.get(item.message_id);
+    // The answer can be gone — clearing the conversations takes its messages
+    // with it and the feedback row cascades, but a read between the two would
+    // otherwise render a row with no text in it.
+    if (!message) return [];
+    return [
+      {
+        id: item.id,
+        conversationId: message.conversation_id,
+        lang: message.lang,
+        answer:
+          message.content.length > EXCERPT
+            ? `${message.content.slice(0, EXCERPT).trimEnd()}…`
+            : message.content,
+        comment: item.comment,
+      },
+    ];
+  });
+}
+
 /**
  * What people actually asked.
  *
@@ -83,6 +157,8 @@ export default async function ConversationsPage() {
     ((leadRows ?? []) as { conversation_id: string }[]).map((r) => r.conversation_id),
   );
 
+  const marked = await markedWrong();
+
   return (
     <main className="mx-auto max-w-3xl px-[15px] py-16">
       <header className="border-rule border-b pb-6">
@@ -100,6 +176,52 @@ export default async function ConversationsPage() {
           recent {RECENT}.
         </p>
       </header>
+
+      {marked.length > 0 ? (
+        <section className="mt-10">
+          <h2 className="text-muted-ink text-xs tracking-wide uppercase">
+            Marked wrong · {marked.length}
+          </h2>
+          <p className="text-muted-ink mt-2 text-sm">
+            Answers a reader said were not right. This is the only place a
+            confidently wrong answer shows up — an answer the bot found nothing
+            for is in the knowledge base as a gap, but one it got wrong while
+            sounding certain leaves no other trace.
+          </p>
+          <ul className="border-rule mt-4 border-t">
+            {marked.map((item) => {
+              const fa = item.lang === "fa";
+              return (
+                <li key={item.id} className="border-rule border-b py-3">
+                  <Link
+                    href={`/admin/conversations/${item.conversationId}`}
+                    className="hover:bg-white/60 -mx-2 block px-2 py-1 transition-colors"
+                  >
+                    <p
+                      dir={fa ? "rtl" : "ltr"}
+                      className={`text-[0.9375rem] ${fa ? "font-vazirmatn" : ""}`}
+                    >
+                      {item.answer}
+                    </p>
+                    {item.comment ? (
+                      <p
+                        dir={fa ? "rtl" : "ltr"}
+                        className={`text-muted-ink mt-1.5 text-sm ${
+                          fa ? "font-vazirmatn" : ""
+                        }`}
+                      >
+                        {/* Their words about it, when they wrote any. Most will
+                            not, which is why the mark is recorded first. */}
+                        “{item.comment}”
+                      </p>
+                    ) : null}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
 
       {rows.length === 0 ? (
         <p className="text-muted-ink mt-12 text-sm">

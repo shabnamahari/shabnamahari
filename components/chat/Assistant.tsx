@@ -6,6 +6,7 @@ import type { CSSProperties } from "react";
 import HighlightReveal from "@/components/HighlightReveal";
 import TelegramMark from "@/components/TelegramMark";
 import MessageText from "@/components/chat/MessageText";
+import NotRight from "@/components/chat/NotRight";
 import type { Lang } from "@/lib/chatbot/core/types";
 
 /**
@@ -30,6 +31,16 @@ type Message = {
   text: string;
   /** Per message, not per page: a Persian answer can follow an English question. */
   lang: Lang;
+  /**
+   * The row this answer was saved as, from the stream's `done` event.
+   *
+   * The id above is made up on the client so React has a key before the brain
+   * has said anything. This one is the database's, and it arrives only for an
+   * answer that was really written — the "that did not go through" placeholders
+   * have none, which is exactly the right condition for offering to report a
+   * bad answer. There is nothing to report about an answer that never existed.
+   */
+  dbId?: string;
 };
 
 /**
@@ -300,6 +311,15 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
               }
             }
 
+            if (event.type === "done") {
+              const dbId = event.messageId as string | undefined;
+              if (dbId) {
+                setMessages((prev) =>
+                  prev.map((m) => (m.id === answerId ? { ...m, dbId } : m)),
+                );
+              }
+            }
+
             if (event.type === "error") {
               answered = true;
               setMessages((prev) => [
@@ -471,17 +491,23 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
 
             <div className="mt-8 flex flex-col gap-6">
               {messages.map((m) => (
-                <p
-                  key={m.id}
-                  dir={m.lang === "fa" ? "rtl" : "ltr"}
-                  className={[
-                    fontFor(m.lang),
-                    "text-[1.0625rem] leading-[1.75] whitespace-pre-wrap",
-                    m.role === "user" ? "text-confirm-lit" : "text-white",
-                  ].join(" ")}
-                >
-                  <MessageText text={m.text} />
-                </p>
+                // A wrapper rather than a bare paragraph, because the report
+                // control sits under the answer and has to inherit its
+                // direction — a Persian answer's control belongs on the right.
+                <div key={m.id} dir={m.lang === "fa" ? "rtl" : "ltr"}>
+                  <p
+                    className={[
+                      fontFor(m.lang),
+                      "text-[1.0625rem] leading-[1.75] whitespace-pre-wrap",
+                      m.role === "user" ? "text-confirm-lit" : "text-white",
+                    ].join(" ")}
+                  >
+                    <MessageText text={m.text} />
+                  </p>
+                  {m.role === "bot" && m.dbId ? (
+                    <NotRight messageId={m.dbId} lang={m.lang} />
+                  ) : null}
+                </div>
               ))}
 
               {busy && (
