@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { requireAdmin } from "@/lib/admin/auth";
 import { db } from "@/lib/chatbot/db/client";
+import ConversationFilters from "@/components/admin/ConversationFilters";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +42,10 @@ type Marked = {
 
 /** How much of a marked answer the list shows before you open it. */
 const EXCERPT = 220;
+
+/** Values the filters accept, so a hand-edited URL cannot ask for anything else. */
+const CHANNELS = ["web", "telegram", "widget"];
+const LANGS = ["en", "fa"];
 
 /**
  * Answers somebody said were wrong.
@@ -113,17 +118,60 @@ async function markedWrong(): Promise<Marked[]> {
  * eye, so the wording is what gets the space and the rest is set small beside
  * it.
  */
-export default async function ConversationsPage() {
+export default async function ConversationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; channel?: string; lang?: string }>;
+}) {
   await requireAdmin();
   const client = db();
 
-  const { data } = await client
+  const params = await searchParams;
+  const q = (params.q ?? "").trim();
+  const channel = CHANNELS.includes(params.channel ?? "") ? params.channel! : "";
+  const lang = LANGS.includes(params.lang ?? "") ? params.lang! : "";
+
+  // What was said lives in `messages`, so a search runs there first and the
+  // conversation list is narrowed to what it found. Two queries rather than a
+  // join, and it is the right shape anyway: someone searching "refund" wants
+  // the conversations refunds were mentioned in, not the messages.
+  let matchedIds: string[] | null = null;
+  if (q) {
+    const { data: hits } = await client
+      .from("messages")
+      .select("conversation_id")
+      // `%` and `_` are wildcards to Postgres, so unescaped, "50%" also matched
+      // "5000" and "a_b" also matched "axb". Checked against the database
+      // rather than assumed, and escaped, because someone typing a percent sign
+      // means a percent sign.
+      //
+      // `*` is deliberately left alone. PostgREST turns it into `%` before
+      // Postgres sees it, so it cannot be escaped here — and it behaves the way
+      // a person would expect a star in a search box to behave, which makes it
+      // the one wildcard worth keeping.
+      .ilike("content", `%${q.replace(/[\\%_]/g, "\\$&")}%`)
+      .limit(2000);
+
+    matchedIds = [
+      ...new Set(((hits ?? []) as { conversation_id: string }[]).map((h) => h.conversation_id)),
+    ];
+  }
+
+  let query = client
     .from("conversations")
     .select(
       "id, channel, lang, status, started_at, last_message_at, placement_link_sent_at",
     )
     .order("last_message_at", { ascending: false })
     .limit(RECENT);
+
+  if (channel) query = query.eq("channel", channel);
+  if (lang) query = query.eq("lang", lang);
+  // An empty array is a search that found nothing, which must return nothing —
+  // not everything, which is what leaving the filter off would do.
+  if (matchedIds) query = query.in("id", matchedIds);
+
+  const { data } = await query;
 
   const rows = (data ?? []) as Row[];
   const ids = rows.map((row) => row.id);
@@ -173,9 +221,11 @@ export default async function ConversationsPage() {
         </h1>
         <p className="text-muted-ink mt-1 text-sm">
           What people actually asked, in the order they last said it. The most
-          recent {RECENT}.
+          recent {RECENT}, or whatever the search finds.
         </p>
       </header>
+
+      <ConversationFilters q={q} channel={channel} lang={lang} />
 
       {marked.length > 0 ? (
         <section className="mt-10">
@@ -225,8 +275,9 @@ export default async function ConversationsPage() {
 
       {rows.length === 0 ? (
         <p className="text-muted-ink mt-12 text-sm">
-          Nothing yet. Every message to the chat panel, the widget or the
-          Telegram bot lands here.
+          {q || channel || lang
+            ? "Nothing matches that."
+            : "Nothing yet. Every message to the chat panel, the widget or the Telegram bot lands here."}
         </p>
       ) : (
         <ul className="border-rule mt-10 border-t">
