@@ -17,6 +17,7 @@ import {
   releaseFromTelegram,
 } from "@/lib/chatbot/channels/relay";
 import { TG } from "@/lib/chatbot/channels/telegram-copy";
+import { allowTurn } from "@/lib/chatbot/core/rate-limit";
 import type { Lang } from "@/lib/chatbot/core/types";
 
 /**
@@ -380,6 +381,19 @@ export async function POST(request: NextRequest): Promise<Response> {
 
   if (text.length > MAX_TEXT) {
     await sendMessage(chatId, TG[lang].tooLong);
+    return ACK;
+  }
+
+  // Counted per chat, and not per address: every Telegram update arrives from
+  // Telegram's own servers, so an address limit here would be one bucket shared
+  // by everybody and the first busy conversation would lock out the rest.
+  //
+  // After the commands, so /reset and /lang still work for someone who has hit
+  // it — the way out of a rate limit should not itself be rate limited. And
+  // before the conversation lookup, so a refusal costs one write rather than a
+  // read, a turn and an embedding.
+  if (!(await allowTurn(`tg:${chatId}`))) {
+    await sendMessage(chatId, TG[lang].tooMany);
     return ACK;
   }
 

@@ -27,6 +27,7 @@ export const TG: Record<Lang, Record<string, string>> = {
     thinking: "…",
     failed: "That did not go through. Try again.",
     tooLong: "That is longer than I can read. Send the question on its own.",
+    tooMany: "That is a lot of questions at once. Give it a minute and ask again.",
     notText: "I can only read text.",
   },
   fa: {
@@ -42,6 +43,7 @@ export const TG: Record<Lang, Record<string, string>> = {
     thinking: "…",
     failed: "نرسید. یک بار دیگر بفرستید.",
     tooLong: "این طولانی‌تر از آن است که بتوانم بخوانم. سؤالتان را جدا بفرستید.",
+    tooMany: "سؤال‌ها پشت سر هم زیاد شد. یک دقیقه صبر کنید و دوباره بپرسید.",
     notText: "فقط متن می‌توانم بخوانم.",
   },
 };

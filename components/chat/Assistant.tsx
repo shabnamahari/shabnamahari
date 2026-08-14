@@ -261,6 +261,23 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
           body: JSON.stringify({ text: question, conversationId, forceLang: turnLang }),
         });
 
+        // A refusal carries a reason worth reading. Everything else falls
+        // through to the generic line, because "HTTP 500" is not something to
+        // put in front of somebody asking about a course.
+        if (res.status === 429) {
+          const body = (await res.json().catch(() => null)) as { error?: string } | null;
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: crypto.randomUUID(),
+              role: "bot",
+              text: body?.error ?? t.failed,
+              lang: turnLang,
+            },
+          ]);
+          return;
+        }
+
         if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
 
         const reader = res.body.getReader();
