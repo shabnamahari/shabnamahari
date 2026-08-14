@@ -799,45 +799,30 @@ body {
   }
 }
 
-/* ---- sign-up, opening ---- */
+/* ---- panels opening and closing ---- */
 
 /*
- * Two ways for the stack to arrive, built to be chosen between rather than
- * argued about. `?reveal=1` and `?reveal=2` on the home page switch them, the
- * way `?bar=` and `?r=` switch the assistant's numbers. Once one is picked the
- * other goes, and this comment with it.
+ * Unmask: the panel is uncovered from the edge nearest the bar you pressed, so
+ * it grows out of that bar rather than travelling to its place. Nothing moves —
+ * the type sits still under the mask, and at speed that is the whole difference
+ * between this and a slide: a slide is read as the words moving, this is read
+ * as the panel opening.
  *
- * Both run bottom-up — the panel nearest the bar you just pressed moves first,
- * so the stack unrolls away from your own hand rather than arriving at it. The
- * stagger is set per panel in the component, because only the component knows
- * how many there are.
+ * Shabnam picked it over the slide, and then asked for two things that make it
+ * a set of four rather than one. Closing runs the same mask backwards instead
+ * of the panel simply vanishing; and the assistant takes the same effect as
+ * sign-up.
+ *
+ * Hence `up` and `down`. Sign-up's panels stand above their bar and are
+ * uncovered from their bottom edge; the assistant's hang below theirs and are
+ * uncovered from their top. Both grow away from the bar, which is what makes it
+ * one effect in two places rather than one of them running backwards.
+ *
+ * The stagger is set per panel by the component, because only the component
+ * knows how many panels there are and which end is nearest the bar.
  */
 
-/* 1 — rise. The panel slides up into place under its own fade. */
-@keyframes auth-rise {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.auth-rise {
-  animation: auth-rise 0.55s cubic-bezier(0.82, 0, 0.18, 1) both;
-  animation-delay: var(--stagger, 0ms);
-}
-
-/*
- * 2 — unmask. Nothing moves: the panel is uncovered from its bottom edge
- * upward, so it grows out of the bar instead of travelling to its place. The
- * type stays still under the mask, which is the whole difference between this
- * and the one above — at speed, a slide is read as the words moving and this is
- * read as the panel opening.
- */
-@keyframes auth-unmask {
+@keyframes unmask-up-in {
   from {
     opacity: 0;
     clip-path: inset(100% 0 0 0);
@@ -848,16 +833,74 @@ body {
   }
 }
 
-.auth-unmask {
-  animation: auth-unmask 0.6s cubic-bezier(0.82, 0, 0.18, 1) both;
+@keyframes unmask-up-out {
+  from {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+  to {
+    opacity: 0;
+    clip-path: inset(100% 0 0 0);
+  }
+}
+
+@keyframes unmask-down-in {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes unmask-down-out {
+  from {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+  to {
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+.unmask-up-in,
+.unmask-up-out,
+.unmask-down-in,
+.unmask-down-out {
+  animation-duration: 0.6s;
+  animation-timing-function: cubic-bezier(0.82, 0, 0.18, 1);
+  animation-fill-mode: both;
   animation-delay: var(--stagger, 0ms);
 }
 
-/* The arrival is the motion; there is no gentler version of it, so it does not
-   play and the panels are simply there. */
+.unmask-up-in {
+  animation-name: unmask-up-in;
+}
+.unmask-up-out {
+  animation-name: unmask-up-out;
+}
+.unmask-down-in {
+  animation-name: unmask-down-in;
+}
+.unmask-down-out {
+  animation-name: unmask-down-out;
+}
+
+/*
+ * The arrival is the motion; there is no gentler version of it, so it does not
+ * play and the panels are simply there. Closing has to be told as well as
+ * shown: the component reads the same preference and drops the wait before it
+ * unmounts, so nothing sits on screen for the length of an animation that is
+ * not running.
+ */
 @media (prefers-reduced-motion: reduce) {
-  .auth-rise,
-  .auth-unmask {
+  .unmask-up-in,
+  .unmask-up-out,
+  .unmask-down-in,
+  .unmask-down-out {
     animation: none;
   }
 }

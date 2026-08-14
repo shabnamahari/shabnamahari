@@ -2,6 +2,7 @@
 
 import { useId, useRef, useState } from "react";
 import type { CSSProperties } from "react";
+import { revealClass, revealStep, revealTotalMs, type Phase } from "@/lib/reveal";
 
 /**
  * Sign-up, at the foot of the home page.
@@ -170,22 +171,8 @@ function Field({
   );
 }
 
-/**
- * How the stack arrives.
- *
- * `?reveal=1` and `?reveal=2` on the home page switch between them so the two
- * can be watched rather than described. Once Shabnam picks one this becomes a
- * constant and the loser's keyframes come out of globals.css.
- */
-type Reveal = 1 | 2 | null;
-
-const REVEAL_CLASS: Record<1 | 2, string> = {
-  1: "auth-rise",
-  2: "auth-unmask",
-};
-
-/** Between one panel starting and the next. */
-const STAGGER_MS = 90;
+/** The four things in the stack, which the stagger needs to count. */
+const PANELS = 4;
 
 /**
  * The stack itself: the form, the fork, Google, and the terms.
@@ -197,24 +184,17 @@ const STAGGER_MS = 90;
  */
 export function AuthPanels({
   tone = "dark",
-  reveal = null,
+  phase = null,
 }: {
   tone?: Tone;
-  reveal?: Reveal;
+  /** `null` on /auth: nothing was pressed there, so there is nothing to play. */
+  phase?: Phase | null;
 }) {
   const t = TONES[tone];
 
-  /*
-   * Bottom-up, so the panel nearest the bar you pressed moves first and the
-   * stack unrolls away from your hand. The children are written top-down, so
-   * the delay counts backwards: the terms line is last in the list and first to
-   * arrive. `null` means no animation at all, which is what /auth passes —
-   * nothing was pressed there, so there is nothing to reveal.
-   */
-  const COUNT = 4;
   const step = (index: number): CSSProperties =>
-    reveal ? ({ "--stagger": `${(COUNT - 1 - index) * STAGGER_MS}ms` } as CSSProperties) : {};
-  const anim = reveal ? REVEAL_CLASS[reveal] : "";
+    phase ? revealStep(index, PANELS, "up", phase) : {};
+  const anim = phase ? revealClass("up", phase) : "";
 
   return (
     <div className="flex flex-col gap-3">
@@ -293,9 +273,17 @@ export function AuthPanels({
 }
 
 export default function AuthSignUp() {
-  const [open, setOpen] = useState(false);
-  const [reveal, setReveal] = useState<1 | 2>(1);
-  const barRef = useRef<HTMLDivElement>(null);
+  /*
+   * Three states, not two, because closing is now something you watch rather
+   * than something that has already happened.
+   *
+   * `phase` is what the panels are doing; `null` is the closed page with
+   * nothing mounted. Going out, the panels stay mounted through their own
+   * animation and are dropped when the last of them has finished — which is
+   * what `revealTotalMs` knows and this does not.
+   */
+  const [phase, setPhase] = useState<Phase | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   return (
     /*
@@ -329,29 +317,35 @@ export default function AuthSignUp() {
           you are meant to see the site through them, and the site is what you
           are signing up to.
         */}
-        {open && <AuthPanels reveal={reveal} />}
+        {phase && <AuthPanels phase={phase} />}
 
         {/* The way in, and when closed the whole of it. */}
         <div
-          ref={barRef}
           className={`${WIDTH} ${PANEL_WHITE} pointer-events-auto flex items-center justify-center`}
           style={{ height: BAR }}
         >
           <button
             type="button"
-            aria-expanded={open}
+            aria-expanded={phase === "in"}
             onClick={() => {
               /*
-               * Read on the press rather than in an effect. The variant only
-               * matters at the moment the stack is built, and reading it here
-               * keeps it out of render — no second pass, no server and client
-               * disagreeing about a query string the server never saw.
+               * A press during the fold-away is ignored rather than queued.
+               * Reversing mid-animation would need every panel's delay
+               * recomputed from wherever it had got to, and the honest version
+               * of that is worth more than it buys on a control this size.
                */
-              if (!open) {
-                const v = new URLSearchParams(window.location.search).get("reveal");
-                setReveal(v === "2" ? 2 : 1);
+              if (phase === "out") return;
+
+              if (phase === null) {
+                setPhase("in");
+                return;
               }
-              setOpen((prev) => !prev);
+
+              // Mounted through the close, then dropped once the last panel has
+              // finished folding — the wait is the animation's, not a guess.
+              setPhase("out");
+              if (timer.current) clearTimeout(timer.current);
+              timer.current = setTimeout(() => setPhase(null), revealTotalMs(PANELS));
             }}
             className="block w-full text-center text-[0.9375rem] text-white"
           >
