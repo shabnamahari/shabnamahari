@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import RevealLine from "@/components/RevealLine";
+import { LEARN } from "@/lib/routes";
 import Asterisk from "@/components/Asterisk";
 import ParenMedia from "@/components/ParenMedia";
 import ShowReel from "@/components/ShowReel";
@@ -90,7 +91,7 @@ export default function AboutPage() {
             I&rsquo;ve focused that experience most recently — the same
             method, aimed at your exact band.
           </p>
-          <a href="/services" className="body-link">
+          <a href={LEARN} className="body-link">
             More about our Programs
           </a>
         </div>

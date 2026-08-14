@@ -1,11 +1,12 @@
 "use client";
 
 import RevealLine from "./RevealLine";
+import { LEARN } from "@/lib/routes";
 import FooterWordmark from "./FooterWordmark";
 
 const MENU_LINKS = [
   { label: "Index", href: "/" },
-  { label: "Learn", href: "/services" },
+  { label: "Learn", href: LEARN },
   { label: "About", href: "/about" },
 ];
 

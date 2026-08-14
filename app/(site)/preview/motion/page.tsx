@@ -4,7 +4,7 @@ import HoverExpand, { type HoverExpandImage } from "@/components/HoverExpand";
  * A bench for the animated category panels — not part of the site.
  *
  * The animated one is the real thing, on the real category it belongs to: it is
- * also live on /work/blogcasts. The stills either side of it are categories
+ * also live on /learn/blogcasts. The stills either side of it are categories
  * with no clip yet, so the two states can be compared in one stack.
  */
 

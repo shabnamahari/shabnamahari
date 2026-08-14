@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import RevealLine from "@/components/RevealLine";
+import { learnHref } from "@/lib/routes";
 import Asterisk from "@/components/Asterisk";
 import ParenMedia from "@/components/ParenMedia";
 import ShowReel from "@/components/ShowReel";
@@ -8,7 +9,11 @@ import WorkEntry from "@/components/WorkEntry";
 import { PROJECTS } from "@/lib/projects";
 
 export const metadata: Metadata = {
-  title: "Programs — Shabnam Ahari",
+  // "Learn", not "Programs". Programs are the six entries inside Ielts; this
+  // page holds all three sections, whose entries are Programs, Insights and
+  // Areas. It was the fourth name for one thing, and the menu, the heading, the
+  // Back control and the address all say Learn.
+  title: "Learn — Shabnam Ahari",
   description:
     "Everyone starts on the same foundation. Nobody finishes on the same plan.",
 };
@@ -111,7 +116,7 @@ export default function ServicesPage() {
             lines={project.tile.lines}
             tone={project.tile.tone}
             size={TILE_SIZES[project.slug]}
-            href={`/work/${project.slug}`}
+            href={learnHref(project.slug)}
           />
         ))}
       </div>
