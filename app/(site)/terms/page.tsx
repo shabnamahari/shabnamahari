@@ -17,9 +17,13 @@ export const metadata: Metadata = {
  * an IELTS studio is entitled to know exactly what is being offered before they
  * are told they agreed to it.
  *
- * Nothing here claims a right the site does not exercise. No payment is taken
- * on this site — lessons are arranged with Shabnam directly — so there is no
- * refund clause, because there is nothing here to refund.
+ * Nothing here claims a right the site does not exercise, and nothing promises
+ * a thing it cannot do. No payment is taken here yet — lessons are paid for
+ * with Shabnam directly — so there is no refund clause, because there is
+ * nothing to refund. She has said a payment page is coming, so the section
+ * says that rather than declaring the absence permanent: a terms page that
+ * tells people to be suspicious of any request to pay would turn into a
+ * liability on the day she adds a real one.
  */
 export default function TermsPage() {
   const contactLine = (
@@ -60,6 +64,10 @@ export default function TermsPage() {
           Give a real name if you give one. You can ask for your account to be
           deleted at any time, {contactLine}, and you do not have to say why.
         </P>
+        <P>
+          Accounts are for adults. Shabnam teaches people over eighteen, and
+          this site is not meant for anyone younger.
+        </P>
       </Section>
 
       <Section heading="The assistant can be wrong">
@@ -91,10 +99,15 @@ export default function TermsPage() {
 
       <Section heading="Payment">
         <P>
-          No payment is taken on this site. Nothing here asks for a card, and
-          nothing here should — if a page on this site ever asks you to pay,
-          stop and check with Shabnam {contactLine}. Fees for lessons are agreed
-          with her directly.
+          Fees are agreed with Shabnam directly, and paid to her directly. This
+          site does not take payment today — there is no card form anywhere on
+          it.
+        </P>
+        <P>
+          That is expected to change: a payment page is planned. When it
+          arrives, payment will go through a payment company rather than being
+          handled here, and this page will be updated to say who that is before
+          it takes anybody&rsquo;s money.
         </P>
       </Section>
 

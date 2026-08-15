@@ -150,11 +150,11 @@ export default function PrivacyPage() {
         </P>
       </Section>
 
-      <Section heading="Children">
+      <Section heading="Age">
         <P>
-          This site is meant for adults and for teenagers studying with Shabnam.
-          If you are under sixteen, please have a parent or guardian read this
-          with you before making an account.
+          Shabnam teaches adults. This site is not meant for anyone under
+          eighteen and accounts should not be made by them. If you believe a
+          child has made one, tell her and it will be deleted.
         </P>
       </Section>
 

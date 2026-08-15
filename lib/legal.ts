@@ -26,7 +26,17 @@ export const LEGAL_UPDATED = "15 August 2026";
 export const LEGAL_CONTACT = {
   telegram: "https://t.me/SHABNAMAHARI",
   linkedin: "https://www.linkedin.com/in/shabnam-ahari-372573101",
-  email: "aharishabnaam@gmail.com",
+  /*
+   * NOT LIVE YET. This mailbox exists once shabnamahari.com is bought and set
+   * up, and not before — Shabnam's instruction, so that a personal Gmail is not
+   * left on a public page for scrapers to find.
+   *
+   * Until then it bounces, which is why Telegram is named first everywhere this
+   * appears: someone asking to have their account deleted has to reach a route
+   * that is actually answered. When the domain is live this comment goes, and
+   * nothing else needs to change.
+   */
+  email: "hello@shabnamahari.com",
 } as const;
 
 /** Who receives data, and what for. Read off the code, not recalled. */
