@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { db } from "@/lib/chatbot/db/client";
 import { exchangeGoogleCode } from "@/lib/account/google";
+import { siteUrl } from "@/lib/site-url";
 import {
   OAUTH_STATE_COOKIE,
   SESSION_COOKIE,
@@ -17,9 +18,24 @@ import {
  * why it comes before the code is so much as looked at.
  */
 
+/**
+ * Where to send someone, on this deployment.
+ *
+ * `NextResponse.redirect` needs an absolute URL, so a base has to come from
+ * somewhere. It was `NEXT_PUBLIC_SITE_URL` with a hardcoded localhost fallback,
+ * which is a trap: that variable is optional, and unset on a deployment it
+ * would have sent every visitor who signed in with Google to a machine only the
+ * developer has. `siteUrl()` already knows to fall back to the deployment's own
+ * domain, and the incoming request is the last word — whatever host this was
+ * actually reached on is a host that works.
+ */
+function landing(path: string, request: Request): URL {
+  return new URL(path, siteUrl() || request.url);
+}
+
 /** Somewhere to land when this cannot be completed, saying so without detail. */
-function refuse(reason: string): NextResponse {
-  const url = new URL("/", process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000");
+function refuse(reason: string, request: Request): NextResponse {
+  const url = landing("/", request);
   url.searchParams.set("auth", reason);
   return NextResponse.redirect(url);
 }
@@ -29,7 +45,7 @@ export async function GET(request: Request) {
 
   // Someone who pressed "cancel" on Google's screen. Not an error, and not
   // worth a message: they are simply back where they started.
-  if (params.get("error")) return refuse("cancelled");
+  if (params.get("error")) return refuse("cancelled", request);
 
   const code = params.get("code");
   const state = params.get("state");
@@ -49,7 +65,7 @@ export async function GET(request: Request) {
     ?.slice(OAUTH_STATE_COOKIE.length + 1);
 
   if (!code || !state || !cookieState || state !== cookieState || !readState(state)) {
-    return refuse("failed");
+    return refuse("failed", request);
   }
 
   let identity;
@@ -57,7 +73,7 @@ export async function GET(request: Request) {
     identity = await exchangeGoogleCode(code);
   } catch (cause) {
     console.error("[auth] google exchange failed:", cause);
-    return refuse("failed");
+    return refuse("failed", request);
   }
 
   /*
@@ -68,7 +84,7 @@ export async function GET(request: Request) {
    * anyone able to claim an address on a Google Workspace domain could take
    * over the account belonging to it here.
    */
-  if (!identity.emailVerified) return refuse("unverified");
+  if (!identity.emailVerified) return refuse("unverified", request);
 
   /*
    * The subject first, then the address.
@@ -126,14 +142,13 @@ export async function GET(request: Request) {
 
       if (created.error || !created.data) {
         console.error("[auth] could not create an account:", created.error);
-        return refuse("failed");
+        return refuse("failed", request);
       }
       accountId = created.data.id;
     }
   }
 
-  const url = new URL("/account", process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000");
-  const response = NextResponse.redirect(url);
+  const response = NextResponse.redirect(landing("/account", request));
   response.cookies.set(SESSION_COOKIE, issueSession(accountId), {
     httpOnly: true,
     sameSite: "lax",
