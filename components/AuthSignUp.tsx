@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useId, useRef, useState, useSyncExternalStore } from "react";
 import type { CSSProperties } from "react";
 import { revealClass, revealStep, revealTotalMs, type Phase } from "@/lib/reveal";
 
@@ -134,13 +134,23 @@ const TONES: Record<
 function Field({
   label,
   tone,
+  value,
+  onChange,
   type = "text",
   autoComplete,
+  disabled = false,
+  inputMode,
+  maxLength,
 }: {
   label: string;
   tone: Tone;
+  value: string;
+  onChange: (value: string) => void;
   type?: string;
   autoComplete?: string;
+  disabled?: boolean;
+  inputMode?: "text" | "email" | "numeric";
+  maxLength?: number;
 }) {
   const id = useId();
   const t = TONES[tone];
@@ -164,8 +174,13 @@ function Field({
       <input
         id={id}
         type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
         autoComplete={autoComplete}
-        className={`${t.input} pointer-events-auto min-w-0 flex-1 bg-transparent pb-1 text-[0.875rem] outline-none transition-colors`}
+        inputMode={inputMode}
+        maxLength={maxLength}
+        disabled={disabled}
+        className={`${t.input} pointer-events-auto min-w-0 flex-1 bg-transparent pb-1 text-[0.875rem] outline-none transition-colors disabled:opacity-50`}
       />
     </div>
   );
@@ -173,6 +188,70 @@ function Field({
 
 /** The four things in the stack, which the stagger needs to count. */
 const PANELS = 4;
+
+/**
+ * What has been typed, and how far through the round trip we are.
+ *
+ * Held out here as a value rather than as four `useState` calls inside the
+ * panels, because it has to be able to outlive them: closing the stack unmounts
+ * `AuthPanels`, and with the state inside, a code already sitting in somebody's
+ * inbox became unusable — the address was forgotten, `sent` went back to false,
+ * and reopening offered to send a second one against a three-per-quarter-hour
+ * ceiling. The bar keeps this and hands it down; `/auth`, which never closes,
+ * keeps its own.
+ */
+export type SignUpForm = {
+  name: string;
+  email: string;
+  code: string;
+  /**
+   * Whether a code has been asked for, which is the only thing that makes this
+   * form two steps rather than one. Its own flag rather than inferred from the
+   * code field being non-empty, because someone who types there before asking
+   * for anything would otherwise appear to be halfway through a round trip that
+   * never started.
+   */
+  sent: boolean;
+  note: string | null;
+};
+
+const EMPTY_FORM: SignUpForm = {
+  name: "",
+  email: "",
+  code: "",
+  sent: false,
+  note: null,
+};
+
+/**
+ * What the Google round trip left in the URL on its way back, if anything.
+ *
+ * `?auth=` was being set by the callback on every failure and read by nothing,
+ * so a Google sign-in that did not work put people back on the home page with
+ * no explanation at all — the worst kind of failure, the silent one.
+ *
+ * `useSyncExternalStore` rather than an effect: the value cannot change while
+ * the page is open, the server has no URL to read, and this is the one hook
+ * that can say so without a second render or a hydration mismatch.
+ */
+const NOTICES: Record<string, string> = {
+  failed: "That did not work. Try again, or use your email instead.",
+  unverified:
+    "Google has not confirmed that address. Use your email instead.",
+  mismatch:
+    "That address is already in use by a different Google account. Use your email instead.",
+};
+
+function useGoogleNotice(): string | null {
+  const reason = useSyncExternalStore(
+    () => () => {},
+    () => new URLSearchParams(window.location.search).get("auth"),
+    () => null,
+  );
+  // "cancelled" is not a failure: they pressed cancel and are back where they
+  // started, which needs no announcement.
+  return reason ? (NOTICES[reason] ?? null) : null;
+}
 
 /**
  * The stack itself: the form, the fork, Google, and the terms.
@@ -185,10 +264,15 @@ const PANELS = 4;
 export function AuthPanels({
   tone = "dark",
   phase = null,
+  form: outerForm,
+  onForm: outerOnForm,
 }: {
   tone?: Tone;
   /** `null` on /auth: nothing was pressed there, so there is nothing to play. */
   phase?: Phase | null;
+  /** Supplied by the bar, which has to keep it across a close. */
+  form?: SignUpForm;
+  onForm?: (next: SignUpForm) => void;
 }) {
   const t = TONES[tone];
 
@@ -196,32 +280,158 @@ export function AuthPanels({
     phase ? revealStep(index, PANELS, "up", phase) : {};
   const anim = phase ? revealClass("up", phase) : "";
 
+  // Own state only when nobody upstream is holding it — /auth stands open and
+  // has nothing to survive.
+  const [innerForm, setInnerForm] = useState<SignUpForm>(EMPTY_FORM);
+  const form = outerForm ?? innerForm;
+  const setForm = outerOnForm ?? setInnerForm;
+  const patch = (next: Partial<SignUpForm>) => setForm({ ...form, ...next });
+
+  const { name, email, code, sent } = form;
+  // Transient, and deliberately not kept: a request cannot still be in flight
+  // after the panel has been closed and reopened.
+  const [busy, setBusy] = useState(false);
+
+  const googleNotice = useGoogleNotice();
+  const note = form.note ?? googleNotice;
+
+  /*
+   * The form does both, which was Shabnam's call: an address that has an account
+   * is signed into it and one that does not gets an account made. Nobody has to
+   * say in advance which they are doing, so nothing here asks.
+   */
+  async function requestCode() {
+    setBusy(true);
+    patch({ note: null });
+    try {
+      const res = await fetch("/api/auth/code", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, name }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        patch({ note: data.error ?? "Something went wrong. Try again." });
+        return;
+      }
+      // Neutral on purpose, and it matches what the endpoint will and will not
+      // confirm: whether this address has an account here is not something a
+      // stranger gets to find out by typing it in.
+      patch({ sent: true, note: "If that is a real mailbox, a code is on its way." });
+    } catch {
+      patch({ note: "Something went wrong. Try again." });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function submitCode() {
+    setBusy(true);
+    patch({ note: null });
+    try {
+      const res = await fetch("/api/auth/verify", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, code }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        patch({ note: data.error ?? "That code is not right." });
+        return;
+      }
+      // A full navigation rather than a client one: the session arrived as a
+      // Set-Cookie on that response, and every server component that has
+      // already rendered on this page believes nobody is signed in.
+      window.location.assign("/account");
+    } catch {
+      patch({ note: "Something went wrong. Try again." });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const ready = sent ? /^\d{6}$/.test(code) : email.trim() !== "";
+
   return (
     <div className="flex flex-col gap-3">
       {/* 1 — name, email, code, and the one control that is meant to be
           pressed first. */}
-      <div className={`${WIDTH} ${t.panel} ${anim} pointer-events-auto px-6 py-5`} style={step(0)}>
+      <form
+        className={`${WIDTH} ${t.panel} ${anim} pointer-events-auto px-6 py-5`}
+        style={step(0)}
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (busy || !ready) return;
+          void (sent ? submitCode() : requestCode());
+        }}
+      >
         <div className="flex flex-col gap-4">
           {/* Capitalised on Shabnam's instruction, and consistently with how the
               site already treats Areas, Insights and Programs: these are the
               names of the things asked for, not sentences about them. */}
-          <Field label="Name:" tone={tone} autoComplete="name" />
-          <Field label="Email:" tone={tone} type="email" autoComplete="email" />
-          <Field label="Enter code :" tone={tone} autoComplete="one-time-code" />
+          <Field
+            label="Name:"
+            tone={tone}
+            value={name}
+            onChange={(v) => patch({ name: v })}
+            autoComplete="name"
+            disabled={busy}
+          />
+          <Field
+            label="Email:"
+            tone={tone}
+            value={email}
+            onChange={(v) => patch({ email: v })}
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            // Locked once a code is out, because it is the address the code was
+            // sent to that is being proven. Editing it here would leave the
+            // form asking the server to check a number against a mailbox it was
+            // never sent to.
+            disabled={busy || sent}
+          />
+          <Field
+            label="Enter code :"
+            tone={tone}
+            value={code}
+            onChange={(v) => patch({ code: v.replace(/\D/g, "").slice(0, 6) })}
+            autoComplete="one-time-code"
+            inputMode="numeric"
+            maxLength={6}
+            disabled={busy}
+          />
         </div>
 
         {/* Centred under the three rows, not beside the code field: it acts on
             the email above it, and putting it on the row would have made it
             look like it acts on the code. */}
-        <div className="mt-5 flex justify-center">
+        <div className="mt-5 flex flex-col items-center gap-3">
           <button
-            type="button"
-            className={`${t.button} rounded-full border px-5 py-1.5 text-[0.875rem] transition-colors`}
+            type="submit"
+            disabled={busy || !ready}
+            className={`${t.button} rounded-full border px-5 py-1.5 text-[0.875rem] transition-colors disabled:opacity-40`}
           >
-            send code
+            {busy ? "…" : sent ? "sign in" : "send code"}
           </button>
+
+          {note && (
+            <p className={`${t.label} text-center text-[0.8125rem]`} aria-live="polite">
+              {note}
+            </p>
+          )}
+
+          {sent && !busy && (
+            <button
+              type="button"
+              onClick={() => patch({ sent: false, code: "", note: null })}
+              className={`${t.label} text-[0.75rem] underline underline-offset-4 opacity-70`}
+            >
+              use a different address
+            </button>
+          )}
         </div>
-      </div>
+      </form>
 
       {/*
         2 — the fork between the two ways in.
@@ -248,16 +458,20 @@ export function AuthPanels({
       </div>
 
       {/* 3 — the one-press way in. */}
-      <button
-        type="button"
-        /* The edge brightens on hover rather than the fill. Lightening the fill
+      <a
+        href="/api/auth/google/start"
+        /* A link, not a button with a handler: this leaves the site. Google's
+           own screen is the next page, so it should behave like any other
+           navigation — openable in a new tab, and one entry in the history.
+
+           The edge brightens on hover rather than the fill. Lightening the fill
            undoes the very thing the alpha was set for: over the cream page a
            lighter panel takes the type back under contrast. */
         className={`${WIDTH} ${t.panel} ${anim} ${t.or} pointer-events-auto flex items-center justify-center text-[0.9375rem] transition-colors hover:border-confirm-lit`}
         style={{ height: GOOGLE_BAR, ...step(2) }}
       >
         continue with google
-      </button>
+      </a>
 
       {/* 4 — the terms. On the ground itself with no panel around it, because it
           is not a control: it is the sentence the bar below it commits you to,
@@ -284,6 +498,27 @@ export default function AuthSignUp() {
    */
   const [phase, setPhase] = useState<Phase | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /*
+   * Held here rather than in the panels, because the panels are unmounted when
+   * the stack closes and this has to survive that. See `SignUpForm`: without it,
+   * closing the stack threw away an address that had already been sent a code.
+   */
+  const [form, setForm] = useState<SignUpForm>(EMPTY_FORM);
+
+  /*
+   * Coming back from a Google attempt that did not work opens the stack.
+   *
+   * The message explaining what happened lives inside the panels, and the
+   * panels are not mounted while the bar is shut — so putting it there and
+   * stopping was no better than the silence it replaced. Someone returned here
+   * by a failure needs the form, not a closed bar, so the notice opens it.
+   *
+   * Derived rather than pushed into state: `useSyncExternalStore` reports
+   * nothing on the server and the real query on the client, which is the one
+   * way to differ across hydration without either a mismatch or an effect.
+   */
+  const notice = useGoogleNotice();
+  const shown: Phase | null = phase ?? (notice ? "in" : null);
 
   return (
     /*
@@ -317,7 +552,7 @@ export default function AuthSignUp() {
           you are meant to see the site through them, and the site is what you
           are signing up to.
         */}
-        {phase && <AuthPanels phase={phase} />}
+        {shown && <AuthPanels phase={shown} form={form} onForm={setForm} />}
 
         {/* The way in, and when closed the whole of it. */}
         <div
@@ -326,7 +561,7 @@ export default function AuthSignUp() {
         >
           <button
             type="button"
-            aria-expanded={phase === "in"}
+            aria-expanded={shown === "in"}
             onClick={() => {
               /*
                * A press during the fold-away is ignored rather than queued.
@@ -336,7 +571,7 @@ export default function AuthSignUp() {
                */
               if (phase === "out") return;
 
-              if (phase === null) {
+              if (shown === null) {
                 setPhase("in");
                 return;
               }
@@ -349,7 +584,11 @@ export default function AuthSignUp() {
             }}
             className="block w-full text-center text-[0.9375rem] text-white"
           >
-            Sign up if you don&rsquo;t have an account
+            {/* One form does both now, so the bar cannot go on addressing only
+                the half that has never been here. It leads with signing in
+                because that is the repeat visit — the one that happens over and
+                over — and still names the other in the same breath. */}
+            Sign in, or create an account
           </button>
         </div>
       </div>
