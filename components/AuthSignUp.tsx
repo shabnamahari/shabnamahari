@@ -147,7 +147,11 @@ const TONES: Record<
     button: "text-ink border-ink/30 hover:border-ink hover:bg-ink/5",
     or: "text-ink",
     terms: "text-ink",
-    rule: "bg-ink/25",
+    // The same rule as the dark tone, so /auth and the foot of the home page
+    // are one design rather than two that resemble each other. It reads on
+    // cream as well as it reads on a photograph, which is what it was picked
+    // for.
+    rule: "bg-auth-rule",
     // /auth is one flat cream page: nothing to survive, so nothing to sit on.
     orRow: "",
     // /auth is one flat cream page at every width, so nothing has to survive a
@@ -391,6 +395,7 @@ export function AuthPanels({
       */}
       <a
         href="/api/auth/google/start"
+        aria-label="Continue with Google"
         /* A link, not a button with a handler: this leaves the site. Google's
            own screen is the next page, so it should behave like any other
            navigation — openable in a new tab, and one entry in the history.
@@ -411,13 +416,17 @@ export function AuthPanels({
           reading three evenly spaced things.
         */}
         <span>continue with</span>
-        {/* The parent's own `gap` already spaces all three; these push the
-            slack to the left of the mark and take it off the right, so the
-            mark and the word it names sit closer to each other than either
-            does to "with". `mr-1.5` did the opposite — it added to a gap that
-            was already there. */}
-        <GoogleMark className="ml-1.5 -mr-1 h-[1.15em] w-[1.15em] shrink-0" />
-        <span>google</span>
+        {/*
+          The mark is the word now — Shabnam took "google" out and left the G to
+          say it, which is what the G is for: it is the one part of that button
+          nobody has to read.
+
+          A little larger than it was, because it is carrying the sentence
+          rather than decorating it. The link's `aria-label` does the saying for
+          anyone who cannot see it, since "continue with" on its own is a
+          sentence with the object missing.
+        */}
+        <GoogleMark className="h-[1.35em] w-[1.35em] shrink-0" />
       </a>
 
       {/*
