@@ -60,110 +60,67 @@ const PANEL_WHITE = `${RADIUS} border border-white/25 bg-white/[0.08] backdrop-b
  * black and a pale sage on cream. What has to change is the type — light on the
  * dark ground, and the site's own ink on the light one.
  */
-type Tone = "dark" | "light";
+/**
+ * Which of the three panels is being looked at.
+ *
+ * `?panel=b` / `?panel=c` switch, `a` is the default and the one that shipped.
+ * See globals.css for what separates them and why there are three rather than
+ * one number: Shabnam asked for "something between" the home page's dark glass
+ * and /auth's pale one, and between them is a trade rather than a midpoint —
+ * the more of the page shows through, the more the ground varies, and one type
+ * colour cannot follow it.
+ */
+type Panel = "a" | "b" | "c";
 
-/** Every colour that differs between the two grounds, in one place. */
-const TONES: Record<
-  Tone,
-  {
-    panel: string;
-    label: string;
-    input: string;
-    button: string;
-    or: string;
-    terms: string;
-    /** The two rules that run out from "or" to either edge of the measure. */
-    rule: string;
-    /**
-     * The fork's own ground.
-     *
-     * Separate from `bare` since the swap put Google on top: the fork used to
-     * sit on the footer's black at every width, and now it opens level with the
-     * photographs. Bare over that, the rule came out light green across a
-     * photograph and a muddy mauve across the cream between two of them — one
-     * line in two colours, which reads as a fault rather than a choice. It
-     * takes the panels' glass at every width now. The terms line below it is
-     * still on the black on a wide screen, so it keeps the responsive
-     * treatment.
-     */
-    orRow: string;
-    /** For the two rows with no panel of their own — see where it is used. */
-    bare: string;
-  }
-> = {
-  dark: {
-    // `auth-panel` rather than a tint of `confirm`, because these panels grow up
-    // off the footer and over the cream page behind it — see the token.
-    panel: `${RADIUS} border border-confirm-lit/35 bg-auth-panel backdrop-blur-[5px]`,
-    label: "text-confirm-lit",
-    input:
-      "border-b border-confirm-lit/25 text-white focus:border-confirm-lit/70",
-    button:
-      "text-confirm-lit border-confirm-lit/45 hover:border-confirm-lit hover:bg-confirm-lit/10",
-    or: "text-confirm-lit",
-    terms: "text-white",
-    rule: "bg-auth-rule",
-    /*
-     * Bare, on Shabnam's instruction, having seen it boxed.
-     *
-     * It carried the panels' glass for one release because the swap put it
-     * level with the photographs, where a hairline under `mix-blend-difference`
-     * comes out light green across a photograph and a muddy mauve across the
-     * cream between two of them. That is still true and is the cost of this:
-     * she wants the line, not a box, and a line it is.
-     */
-    orRow: "",
-    /*
-     * Bare on the black, and on its own glass below it.
-     *
-     * These two rows have no panel by Shabnam's design — type straight onto the
-     * footer. That holds on a wide screen, where the black reaches high enough
-     * to be behind them. On a phone it does not: measured at 390px, "or" opens
-     * 108px above the footer's edge and the terms line straddles it, so both
-     * were sitting on cream and photographs, and both were invisible.
-     *
-     * `mix-blend-difference` — the site's own answer, and how ( Menu ) and
-     * ( Back ) survive either ground — rescues them over flat cream but not over
-     * a mid-grey photograph, which is the worst case a difference blend has.
-     * So below `md` they take the same glass the panels have, which is dark
-     * enough to hold its type over anything the page can put behind it (5:1 on
-     * the lightest part of a photograph, 8:1 on a mid-tone). From `md` up the
-     * glass goes away and they are bare again, exactly as specified.
-     */
-    bare:
-      "bg-auth-panel backdrop-blur-[5px] rounded-[14px] py-2 " +
-      "md:rounded-none md:bg-transparent md:py-0 md:backdrop-blur-none md:mix-blend-difference",
-  },
-  /*
-   * Ink rather than the dark green, on Shabnam's instruction — she wanted to see
-   * the form on its own page in black type before any colour is settled there.
-   * The green stays in the tint and the edges, so the panels are still the same
-   * panels; only the reading matter is the site's ordinary ink.
-   */
-  light: {
-    panel: `${RADIUS} border border-confirm/40 bg-confirm/15 backdrop-blur-[5px]`,
-    label: "text-ink",
-    input: "border-b border-confirm/40 text-ink focus:border-confirm",
-    button: "text-ink border-ink/30 hover:border-ink hover:bg-ink/5",
-    or: "text-ink",
-    terms: "text-ink",
-    // The same rule as the dark tone, so /auth and the foot of the home page
-    // are one design rather than two that resemble each other. It reads on
-    // cream as well as it reads on a photograph, which is what it was picked
-    // for.
-    rule: "bg-auth-rule",
-    // /auth is one flat cream page: nothing to survive, so nothing to sit on.
-    orRow: "",
-    // /auth is one flat cream page at every width, so nothing has to survive a
-    // change of ground: no glass, and no blend to muddy the ink.
-    bare: "",
-  },
-};
+function usePanel(): Panel {
+  const raw = useSyncExternalStore(
+    () => () => {},
+    () => new URLSearchParams(window.location.search).get("panel"),
+    () => null,
+  );
+  return raw === "b" || raw === "c" ? raw : "a";
+}
+
+/**
+ * One set of classes for both places, which is the other half of Shabnam's
+ * note.
+ *
+ * There were two — a dark tone for the foot of the home page and a light one
+ * for /auth — and they had already drifted: the fork's rule was changed on one
+ * and not the other, so two pages meant to be the same form were quietly
+ * becoming two forms. The colours now come from custom properties that the
+ * `data-auth-panel` attribute sets, so both pages are the same panel by
+ * construction and there is nothing left to keep in step by hand.
+ */
+const PANEL_BASE = `${RADIUS} border border-[var(--auth-edge)] bg-[var(--auth-fill)] backdrop-blur-[5px]`;
+const TYPE = "text-[var(--auth-type)]";
+const FIELD =
+  "border-b border-[var(--auth-field)] text-[var(--auth-type)] focus:border-[var(--auth-field-lit)]";
+const BUTTON =
+  "text-[var(--auth-type)] border-[var(--auth-field-lit)] hover:border-[var(--auth-type)]";
+
+/**
+ * The two rows with no panel of their own.
+ *
+ * White under `mix-blend-difference`, everywhere, at every width — which also
+ * settles Shabnam's first question. "or" was black on /auth and green on the
+ * home page because each ground had its colour written out by hand; blended, it
+ * is derived instead. It comes out dark on the cream page and light on the
+ * black, and the two pages stop disagreeing about it.
+ *
+ * On a phone the home page's stack rises off the black onto photographs, where
+ * a difference blend has its worst case, so below `md` the terms line takes the
+ * panels' own fill. The fork does not: Shabnam asked for a line rather than a
+ * box, and its rule carries a fixed mid tone that needs no help.
+ */
+const BARE = "text-white mix-blend-difference";
+const BARE_TERMS =
+  "text-white bg-[var(--auth-fill)] backdrop-blur-[5px] rounded-[14px] py-2 " +
+  "md:bg-transparent md:py-0 md:backdrop-blur-none md:mix-blend-difference";
 
 /** One row of the form: its label, and the field it names. */
 function Field({
   label,
-  tone,
   value,
   onChange,
   type = "text",
@@ -173,7 +130,6 @@ function Field({
   maxLength,
 }: {
   label: string;
-  tone: Tone;
   value: string;
   onChange: (value: string) => void;
   type?: string;
@@ -183,7 +139,6 @@ function Field({
   maxLength?: number;
 }) {
   const id = useId();
-  const t = TONES[tone];
   return (
     <div className="flex items-baseline gap-3">
       {/*
@@ -193,7 +148,7 @@ function Field({
         other — the panel read as three unrelated rows instead of one form.
         Wide enough for the longest of the three, which is the code.
       */}
-      <label htmlFor={id} className={`${t.label} w-[7.5rem] shrink-0 text-[0.875rem]`}>
+      <label htmlFor={id} className={`${TYPE} w-[7.5rem] shrink-0 text-[0.875rem]`}>
         {label}
       </label>
       {/*
@@ -210,7 +165,7 @@ function Field({
         inputMode={inputMode}
         maxLength={maxLength}
         disabled={disabled}
-        className={`${t.input} pointer-events-auto min-w-0 flex-1 bg-transparent pb-1 text-[0.875rem] outline-none transition-colors disabled:opacity-50`}
+        className={`${FIELD} pointer-events-auto min-w-0 flex-1 bg-transparent pb-1 text-[0.875rem] outline-none transition-colors disabled:opacity-50`}
       />
     </div>
   );
@@ -292,19 +247,17 @@ function useGoogleNotice(): string | null {
  * the two can never drift into two forms.
  */
 export function AuthPanels({
-  tone = "dark",
   phase = null,
   form: outerForm,
   onForm: outerOnForm,
 }: {
-  tone?: Tone;
   /** `null` on /auth: nothing was pressed there, so there is nothing to play. */
   phase?: Phase | null;
   /** Supplied by the bar, which has to keep it across a close. */
   form?: SignUpForm;
   onForm?: (next: SignUpForm) => void;
 }) {
-  const t = TONES[tone];
+  const panel = usePanel();
 
   const step = (index: number): CSSProperties =>
     phase ? revealStep(index, PANELS, "up", phase) : {};
@@ -383,7 +336,8 @@ export function AuthPanels({
   const ready = sent ? /^\d{6}$/.test(code) : email.trim() !== "";
 
   return (
-    <div className="flex flex-col gap-3">
+    // Every colour below reads from this — see globals.css.
+    <div data-auth-panel={panel} className="flex flex-col gap-3">
       {/*
         1 — the one-press way in, and now the top of the stack.
 
@@ -403,7 +357,7 @@ export function AuthPanels({
            The edge brightens on hover rather than the fill. Lightening the fill
            undoes the very thing the alpha was set for: over the cream page a
            lighter panel takes the type back under contrast. */
-        className={`${WIDTH} ${t.panel} ${anim} ${t.or} pointer-events-auto flex items-center justify-center gap-2 text-[0.9375rem] transition-colors hover:border-confirm-lit`}
+        className={`${WIDTH} ${PANEL_BASE} ${anim} ${TYPE} pointer-events-auto flex items-center justify-center gap-2 text-[0.9375rem] transition-colors hover:border-confirm-lit`}
         style={{ height: GOOGLE_BAR, ...step(0) }}
       >
         {/*
@@ -462,20 +416,20 @@ export function AuthPanels({
         together and it looks no different from animating the row.
       */}
       <div className={`${WIDTH} flex items-center gap-3`}>
-        <span className={`${t.rule} ${anim} h-px flex-1`} style={step(1)} />
+        <span className={`bg-auth-rule ${anim} h-px flex-1`} style={step(1)} />
         {/* The word blends and the rules do not — see `--color-auth-rule`. */}
         <span
-          className={`${t.or} ${t.bare} ${anim} text-[0.875rem] font-bold`}
+          className={`${TYPE} ${BARE} ${anim} text-[0.875rem] font-bold`}
           style={step(1)}
         >
           or
         </span>
-        <span className={`${t.rule} ${anim} h-px flex-1`} style={step(1)} />
+        <span className={`bg-auth-rule ${anim} h-px flex-1`} style={step(1)} />
       </div>
 
       {/* 3 — name, email, code, and the slower way in. */}
       <form
-        className={`${WIDTH} ${t.panel} ${anim} pointer-events-auto px-6 py-5`}
+        className={`${WIDTH} ${PANEL_BASE} ${anim} pointer-events-auto px-6 py-5`}
         style={step(2)}
         onSubmit={(e) => {
           e.preventDefault();
@@ -489,7 +443,7 @@ export function AuthPanels({
               names of the things asked for, not sentences about them. */}
           <Field
             label="Name:"
-            tone={tone}
+           
             value={name}
             onChange={(v) => patch({ name: v })}
             autoComplete="name"
@@ -497,7 +451,7 @@ export function AuthPanels({
           />
           <Field
             label="Email:"
-            tone={tone}
+           
             value={email}
             onChange={(v) => patch({ email: v })}
             type="email"
@@ -511,7 +465,7 @@ export function AuthPanels({
           />
           <Field
             label="Enter code :"
-            tone={tone}
+           
             value={code}
             onChange={(v) => patch({ code: v.replace(/\D/g, "").slice(0, 6) })}
             autoComplete="one-time-code"
@@ -528,13 +482,13 @@ export function AuthPanels({
           <button
             type="submit"
             disabled={busy || !ready}
-            className={`${t.button} rounded-full border px-5 py-1.5 text-[0.875rem] transition-colors disabled:opacity-40`}
+            className={`${BUTTON} rounded-full border px-5 py-1.5 text-[0.875rem] transition-colors disabled:opacity-40`}
           >
             {busy ? "…" : sent ? "sign in" : "send code"}
           </button>
 
           {note && (
-            <p className={`${t.label} text-center text-[0.8125rem]`} aria-live="polite">
+            <p className={`${TYPE} text-center text-[0.8125rem]`} aria-live="polite">
               {note}
             </p>
           )}
@@ -543,7 +497,7 @@ export function AuthPanels({
             <button
               type="button"
               onClick={() => patch({ sent: false, code: "", note: null })}
-              className={`${t.label} text-[0.75rem] underline underline-offset-4 opacity-70`}
+              className={`${TYPE} text-[0.75rem] underline underline-offset-4 opacity-70`}
             >
               use a different address
             </button>
@@ -555,7 +509,7 @@ export function AuthPanels({
           is not a control: it is the sentence the bar below it commits you to,
           and boxing it would have made it look like a fourth thing to press. */}
       <p
-        className={`${WIDTH} ${t.terms} ${t.bare} ${anim} px-4 text-center text-[0.8125rem] md:px-0`}
+        className={`${WIDTH} ${BARE_TERMS} ${anim} px-4 text-center text-[0.8125rem] md:px-0`}
         style={step(3)}
       >
         By signing up, you agree to our Terms and Privacy Policy.

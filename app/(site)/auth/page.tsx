@@ -15,8 +15,11 @@ export const metadata: Metadata = {
  * On the site's own cream. It was briefly black, on the reasoning that the
  * panels are glass with light type and glass needs a dark ground; Shabnam's
  * answer was that the page is not the footer and should not borrow its colour.
- * So the panels take a `light` tone instead — the green tint stays and reads as
- * pale sage over cream, and the type is the site's ink.
+ *
+ * The panels carried a separate `light` tone for that, and the two sets drifted:
+ * a change made to one was not made to the other, so two pages meant to be the
+ * same form were quietly becoming two. There is one set now, and this page takes
+ * it unmodified — which is the point.
  */
 export default function AuthPage() {
   return (
@@ -25,7 +28,7 @@ export default function AuthPage() {
       className="flex min-h-[100svh] w-full items-center justify-center px-[15px] py-[120px]"
     >
       <div className="w-full">
-        <AuthPanels tone="light" />
+        <AuthPanels />
       </div>
     </section>
   );
