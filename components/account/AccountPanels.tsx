@@ -8,6 +8,7 @@ import { PANEL_BASE, TYPE, WIDTH } from "@/lib/panel";
 import { revealClass, revealStep } from "@/lib/reveal";
 import { LEARN } from "@/lib/routes";
 import type { Enrolment } from "@/lib/account/enrolments";
+import SignOut from "@/components/account/SignOut";
 
 /**
  * The three panels on the account page.
@@ -24,8 +25,8 @@ import type { Enrolment } from "@/lib/account/enrolments";
  * than a number written here.
  */
 
-/** Three, and the stagger has to count them. */
-const PANELS = 3;
+/** Four, and the stagger has to count them. */
+const PANELS = 4;
 
 /**
  * Panel three is taller than the other two, on Shabnam's instruction: it holds
@@ -35,6 +36,13 @@ const PANELS = 3;
  */
 const SHORT = 132;
 const TALL = 260;
+
+/**
+ * The fourth is a bar rather than a panel with a heading, because it holds one
+ * control and nothing else — which is what sign-up's own bar is, at the same
+ * height, so the two read as the same object doing the opposite job.
+ */
+const BAR = 52;
 
 function Panel({
   title,
@@ -175,6 +183,26 @@ export default function AccountPanels({
           </p>
         )}
       </Panel>
+
+      {/*
+        The way out, in a panel of its own on Shabnam's instruction.
+        --------------------------------------------------------------------
+        Not a `Panel`: that component is a heading and a body, and this has
+        neither — it is one control, centred, at sign-up's bar height. Its
+        reveal is the same though, and it is the last of the four, so the stack
+        finishes on it.
+      */}
+      <div
+        className={`${WIDTH} ${PANEL_BASE} ${TYPE} flex items-center justify-center ${
+          active ? revealClass("down", "in") : "opacity-0"
+        }`}
+        style={{
+          height: BAR,
+          ...(active ? revealStep(3, PANELS, "down", "in", "slow") : {}),
+        }}
+      >
+        <SignOut />
+      </div>
     </div>
   );
 }
