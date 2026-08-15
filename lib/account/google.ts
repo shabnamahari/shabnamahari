@@ -13,6 +13,24 @@ import { siteUrl } from "@/lib/site-url";
  * one copy, here.
  */
 export function googleRedirectUri(): string {
+  /*
+   * Stated outright when it is stated, derived when it is not.
+   *
+   * Deriving it alone was a hidden dependency on `NEXT_PUBLIC_SITE_URL` being
+   * right, and that variable exists for a different job — it is the site's
+   * address for links, and on a laptop it is correctly `http://localhost:3000`.
+   * Copy that value into a deployment, as is easy to do, and Google sign-in
+   * breaks in production while everything else carries on working: the callback
+   * is built pointing at a machine only the developer has.
+   *
+   * So an explicit `GOOGLE_REDIRECT_URI` wins. It is the same string that has to
+   * be typed into the Google Cloud console anyway, which makes the two copies
+   * that must match into two copies that are read side by side rather than one
+   * value and one inference.
+   */
+  const explicit = process.env.GOOGLE_REDIRECT_URI?.trim();
+  if (explicit) return explicit.replace(/\/$/, "");
+
   // `siteUrl` rather than `reachableSiteUrl`: localhost is exactly right here.
   // Google permits http://localhost redirect URIs precisely so this flow can be
   // developed, and the "is this reachable from someone else's phone" question
