@@ -33,11 +33,21 @@ function landing(path: string, request: Request): URL {
   return new URL(path, siteUrl() || request.url);
 }
 
-/** Somewhere to land when this cannot be completed, saying so without detail. */
+/**
+ * Somewhere to land when this cannot be completed, saying so without detail.
+ *
+ * The state cookie is cleared here as well as on success. It was cleared only
+ * on the happy path, which left it valid for its full ten minutes after every
+ * failure — a spent-but-still-good state is exactly what the pairing exists to
+ * prevent, so leaving one behind on the error path contradicted the whole
+ * mechanism.
+ */
 function refuse(reason: string, request: Request): NextResponse {
   const url = landing("/", request);
   url.searchParams.set("auth", reason);
-  return NextResponse.redirect(url);
+  const response = NextResponse.redirect(url);
+  response.cookies.delete(OAUTH_STATE_COOKIE);
+  return response;
 }
 
 export async function GET(request: Request) {
@@ -111,20 +121,52 @@ export async function GET(request: Request) {
       .update({ last_seen_at: new Date().toISOString() })
       .eq("id", accountId);
   } else {
+    /*
+     * `eq`, never `ilike`.
+     *
+     * PostgREST passes `ilike` to SQL as a LIKE pattern, where `_` matches any
+     * character — so a Workspace address like `john_smith@corp.com` would have
+     * matched, and claimed, the account belonging to `john.smith@corp.com`.
+     * Both sides are lowercased already; an exact match is all this needed.
+     */
     const byEmail = await db()
       .from("accounts")
       .select("id, name, google_sub")
-      .ilike("email", identity.email)
+      .eq("email", identity.email)
       .maybeSingle();
 
+    if (byEmail.error) {
+      console.error("[auth] could not read the account:", byEmail.error);
+      return refuse("failed", request);
+    }
+
     if (byEmail.data) {
+      /*
+       * An account that already belongs to a *different* Google subject is not
+       * this person's, whatever the address says.
+       *
+       * The old code kept the stored subject and signed the caller in anyway,
+       * which is the takeover the comment above warns about, written out in
+       * full: a Workspace address released and reissued to somebody else
+       * arrives here with a new `sub`, matches on address, and is handed the
+       * previous holder's account. Refusing is the only safe answer, and it is
+       * a case that cannot happen by accident — one address, two Google
+       * identities, means the address changed hands.
+       */
+      if (byEmail.data.google_sub && byEmail.data.google_sub !== identity.sub) {
+        console.warn(
+          "[auth] refused a Google sign-in: the address is already held by another subject",
+        );
+        return refuse("mismatch", request);
+      }
+
       // An account under this address that Google has never been linked to.
       // Claim it — the address is proven on both sides.
       accountId = byEmail.data.id;
       await db()
         .from("accounts")
         .update({
-          google_sub: byEmail.data.google_sub ?? identity.sub,
+          google_sub: identity.sub,
           last_seen_at: new Date().toISOString(),
           ...(byEmail.data.name ? {} : identity.name ? { name: identity.name } : {}),
         })

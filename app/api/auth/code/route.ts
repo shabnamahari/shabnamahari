@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { db } from "@/lib/chatbot/db/client";
+import { fromOurOwnPage } from "@/lib/account/request";
 import { sendCodeEmail } from "@/lib/account/mail";
 import { CODE_TTL_SECONDS, hashCode, newCode } from "@/lib/account/session";
 
@@ -41,6 +42,12 @@ function looksLikeEmail(email: string): boolean {
 }
 
 export async function POST(request: Request) {
+  // No session comes back from this one, but it spends Shabnam's sending quota
+  // on demand, which is reason enough to want it to be our own page asking.
+  if (!fromOurOwnPage(request)) {
+    return NextResponse.json({ error: "Bad request." }, { status: 403 });
+  }
+
   let body: { email?: unknown; name?: unknown };
   try {
     body = (await request.json()) as typeof body;
@@ -67,22 +74,35 @@ export async function POST(request: Request) {
    * Three in fifteen minutes to one mailbox covers a code that went to spam and
    * a second try; twenty an hour from one address covers a household or an
    * office on one NAT without covering a list being walked.
+   *
+   * Both fail *closed*. Testing `data === false` alone let an RPC error through
+   * as "not limited", so a database blip turned the one thing standing between
+   * a script and Shabnam's sending quota into nothing at all — silently, since
+   * nothing logged it either. A limiter that cannot answer is a no.
    */
-  const perAddress = await db().rpc("check_rate_limit", {
-    p_bucket: `authcode:email:${email}`,
-    p_window_seconds: 15 * 60,
-    p_limit: 3,
-  });
-  if (perAddress.data === false) return NextResponse.json(SENT);
-
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  const perCaller = await db().rpc("check_rate_limit", {
-    p_bucket: `authcode:ip:${ip}`,
-    p_window_seconds: 60 * 60,
-    p_limit: 20,
-  });
-  if (perCaller.data === false) return NextResponse.json(SENT);
+
+  for (const [bucket, windowSeconds, limit] of [
+    [`authcode:email:${email}`, 15 * 60, 3],
+    [`authcode:ip:${ip}`, 60 * 60, 20],
+  ] as const) {
+    const gate = await db().rpc("check_rate_limit", {
+      p_bucket: bucket,
+      p_window_seconds: windowSeconds,
+      p_limit: limit,
+    });
+    if (gate.error) {
+      console.error("[auth] the rate limiter did not answer:", gate.error);
+      return NextResponse.json(
+        { error: "Something went wrong. Try again." },
+        { status: 503 },
+      );
+    }
+    // The neutral reply, not a refusal: whether this address is being limited
+    // is itself something a stranger does not get to learn by asking.
+    if (gate.data === false) return NextResponse.json(SENT);
+  }
 
   const code = newCode();
 

@@ -35,7 +35,15 @@ const scryptAsync = promisify(scrypt);
  * panel is Shabnam's whole business behind one password on a laptop that gets
  * left places; this is someone's own learning page, and making them fetch a
  * code from their email every day is how a sign-in becomes a reason not to come
- * back. Thirty days, refreshed on use.
+ * back.
+ *
+ * Thirty days from the moment it is issued, and *not* refreshed on use — this
+ * said "refreshed on use" and nothing refreshed it, which is worse than either
+ * behaviour because it describes one and does the other. Sliding it would mean
+ * re-issuing the cookie on requests that render pages, and a Server Component
+ * cannot set one; it would have to move into the proxy and run a signature
+ * check on every request in the site. Thirty flat is the honest version, and
+ * the cost of being wrong is one email.
  */
 export const SESSION_MAX_AGE = 60 * 60 * 24 * 30;
 
