@@ -56,6 +56,52 @@
    * point, exactly as it is for the assistant above.
    */
   --color-auth-panel: rgb(18 38 28 / 0.68);
+  /*
+   * The hairline either side of "or", and the reason it is its own value.
+   *
+   * The word beside it needs `mix-blend-difference` to stay readable — it lands
+   * on cream or on a photograph depending on the window, and no single colour
+   * clears both. A rule does not have that problem and must not take that cure:
+   * blended, it came out light green where it crossed a photograph and a muddy
+   * mauve where it crossed the cream between two of them, so a single line
+   * arrived in three colours and read as a fault.
+   *
+   * A mid tone instead, dark enough to show on the cream page and light enough
+   * to show on a near-black photograph, and the same on both. Roughly 2.7:1
+   * against the cream and 4:1 against the darkest of the photographs — more
+   * than a hairline needs to be seen, and it never changes.
+   */
+  --color-auth-rule: #7d9488;
+  /*
+   * The panel itself, and the type that has to stay readable on it.
+   *
+   * The green is `--color-confirm` exactly — #3f6b54, the one the "ielts."
+   * wordmark is set in — because Shabnam asked to see the panels in the site's
+   * own green rather than a darker relative of it.
+   *
+   * Two things had to move with it, and neither was a choice.
+   *
+   * The type is white. Over the cream page this fill leaves `confirm-lit` at
+   * 3.6:1 and over a photograph it leaves ink at 2.4:1 — neither clears 4.5:1
+   * on both grounds, and white is the only value that does.
+   *
+   * The alpha is 0.85 rather than the 0.68 it replaces, which is the real cost.
+   * #3f6b54 is a good deal lighter than the fill it replaces, so more of the
+   * page showing through drags the panel toward whatever is behind it: at 0.68
+   * white falls to 3.27:1 over the cream. 0.85 is the thinnest this green can
+   * be and still hold its type on both grounds — so the glass goes from
+   * letting 32% of the page through to 15% of it. That is the trade for using
+   * the wordmark's green, and it is Shabnam's to weigh, not mine to hide.
+   *
+   * One set for both places. There were two — a dark one for the foot of the
+   * home page, a pale one for /auth — and they had already drifted apart by a
+   * change made to one and not the other.
+   */
+  --auth-fill: rgb(63 107 84 / 0.85);
+  --auth-edge: rgb(255 255 255 / 0.3);
+  --auth-type: #ffffff;
+  --auth-field: rgb(255 255 255 / 0.3);
+  --auth-field-lit: rgb(255 255 255 / 0.75);
   --font-kumbh: var(--font-kumbh);
   --font-vazirmatn: var(--font-vazirmatn);
   --font-psl: var(--font-psl);
