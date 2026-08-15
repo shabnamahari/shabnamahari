@@ -61,36 +61,15 @@ const PANEL_WHITE = `${RADIUS} border border-white/25 bg-white/[0.08] backdrop-b
  * dark ground, and the site's own ink on the light one.
  */
 /**
- * Which of the three panels is being looked at.
- *
- * `?panel=b` / `?panel=c` switch, `a` is the default and the one that shipped.
- * See globals.css for what separates them and why there are three rather than
- * one number: Shabnam asked for "something between" the home page's dark glass
- * and /auth's pale one, and between them is a trade rather than a midpoint —
- * the more of the page shows through, the more the ground varies, and one type
- * colour cannot follow it.
- */
-type Panel = "a" | "b" | "c";
-
-function usePanel(): Panel {
-  const raw = useSyncExternalStore(
-    () => () => {},
-    () => new URLSearchParams(window.location.search).get("panel"),
-    () => null,
-  );
-  return raw === "b" || raw === "c" ? raw : "a";
-}
-
-/**
  * One set of classes for both places, which is the other half of Shabnam's
  * note.
  *
  * There were two — a dark tone for the foot of the home page and a light one
  * for /auth — and they had already drifted: the fork's rule was changed on one
  * and not the other, so two pages meant to be the same form were quietly
- * becoming two forms. The colours now come from custom properties that the
- * `data-auth-panel` attribute sets, so both pages are the same panel by
- * construction and there is nothing left to keep in step by hand.
+ * becoming two forms. The colours are custom properties in globals.css now, and
+ * both pages take these same constants, so they are one panel by construction
+ * rather than by my remembering to change both.
  */
 const PANEL_BASE = `${RADIUS} border border-[var(--auth-edge)] bg-[var(--auth-fill)] backdrop-blur-[5px]`;
 const TYPE = "text-[var(--auth-type)]";
@@ -257,8 +236,6 @@ export function AuthPanels({
   form?: SignUpForm;
   onForm?: (next: SignUpForm) => void;
 }) {
-  const panel = usePanel();
-
   const step = (index: number): CSSProperties =>
     phase ? revealStep(index, PANELS, "up", phase) : {};
   const anim = phase ? revealClass("up", phase) : "";
@@ -336,8 +313,7 @@ export function AuthPanels({
   const ready = sent ? /^\d{6}$/.test(code) : email.trim() !== "";
 
   return (
-    // Every colour below reads from this — see globals.css.
-    <div data-auth-panel={panel} className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3">
       {/*
         1 — the one-press way in, and now the top of the stack.
 

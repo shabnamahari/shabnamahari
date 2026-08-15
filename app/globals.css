@@ -72,52 +72,26 @@
    * than a hairline needs to be seen, and it never changes.
    */
   --color-auth-rule: #7d9488;
-}
-
-/*
- * ---- sign-up: three panels to choose between ----
- *
- * `?panel=b` and `?panel=c` on either page switch them, the way `?bar=` and
- * `?r=` switch the assistant's numbers. Once Shabnam picks, the winner becomes
- * the only set and the other two come out with this comment.
- *
- * They exist because "something between these two" turned out to be a decision
- * rather than a number. The panels on the home page open across cream *and*
- * near-black photographs, so the more of the page shows through, the more the
- * ground under them varies — and one colour of type cannot stay readable across
- * that range. Transparency and a single readable type colour trade against each
- * other directly. Each set below is a different point on that trade, and all
- * three clear 4.5:1 for their own type on both grounds.
- */
-
-/* a — as the home page is now. The most see-through, and the type is green. */
-[data-auth-panel="a"] {
+  /*
+   * The panel itself, and the type that has to stay readable on it.
+   *
+   * Shabnam chose this over two lighter sets after seeing all three: it is the
+   * most see-through of them, which is the property she has cared about since
+   * the first panel — the site showing through is the point. The cost is that
+   * the fill has to stay dark, because the panels open across cream *and*
+   * near-black photographs and the type has to clear both. Lighter, and the
+   * green falls under 4.5:1 over the cream; that is what ruled the other two
+   * out rather than taste.
+   *
+   * One set for both places. There were two — a dark one for the foot of the
+   * home page, a pale one for /auth — and they had already drifted apart by a
+   * change made to one and not the other.
+   */
   --auth-fill: rgb(18 38 28 / 0.68);
   --auth-edge: rgb(194 239 212 / 0.35);
   --auth-type: #c2efd4;
   --auth-field: rgb(194 239 212 / 0.25);
   --auth-field-lit: rgb(194 239 212 / 0.7);
-}
-
-/* b — the middle. Lighter and greener than a, still glass; the type goes white
-   because at this lightness the green would fall to 3.6:1 over the cream. */
-[data-auth-panel="b"] {
-  --auth-fill: rgb(30 50 40 / 0.62);
-  --auth-edge: rgb(255 255 255 / 0.32);
-  --auth-type: #ffffff;
-  --auth-field: rgb(255 255 255 / 0.28);
-  --auth-field-lit: rgb(255 255 255 / 0.7);
-}
-
-/* c — nearest what /auth looks like today: a pale sage with the site's own ink.
-   It has to be nearly solid to hold ink over a dark photograph, so this is the
-   one that gives up most of the transparency. */
-[data-auth-panel="c"] {
-  --auth-fill: rgb(126 148 136 / 0.85);
-  --auth-edge: rgb(25 35 29 / 0.3);
-  --auth-type: #19231d;
-  --auth-field: rgb(25 35 29 / 0.28);
-  --auth-field-lit: rgb(25 35 29 / 0.65);
   --font-kumbh: var(--font-kumbh);
   --font-vazirmatn: var(--font-vazirmatn);
   --font-psl: var(--font-psl);
