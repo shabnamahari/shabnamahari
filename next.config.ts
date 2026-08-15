@@ -18,6 +18,18 @@ const nextConfig: NextConfig = {
       { source: "/services", destination: LEARN, permanent: true },
       { source: "/work", destination: LEARN, permanent: true },
       { source: "/work/:path*", destination: `${LEARN}/:path*`, permanent: true },
+      /*
+       * The account page was at /account for as long as it took Shabnam to name
+       * it. Nobody outside the two of us has ever had a session, so this is not
+       * rescuing anyone's bookmark — it is here because sending someone who
+       * signed in last week to a 404 on their own page is the one error on this
+       * site that would look like their account had been deleted.
+       *
+       * Temporary rather than permanent, unlike the three above: a 308 is
+       * cached by the browser forever and /account is a name that may yet be
+       * wanted for something. The addresses above were retired for good.
+       */
+      { source: "/account", destination: "/myaccount", permanent: false },
     ];
   },
   /**

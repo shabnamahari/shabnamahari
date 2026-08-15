@@ -223,18 +223,38 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  /* A page whose lines are whole clauses rather than single words wants more
+     air here: where a clause wraps, the wrapped halves sit at line-height 0.78
+     and only this gap tells the reader where one line of the sentence ends and
+     the next begins. Set by the page, since only the page knows. */
+  gap: var(--hero-gap, 0.5rem);
   overflow: hidden;
   padding-top: var(--hero-top);
   padding-bottom: 15px;
 }
 
+/*
+ * `--hero-measure` is the third cap, and it is inert unless a page sets it.
+ *
+ * The home page's lines are single words, so width has never bound: at
+ * 12vw a word is a fraction of the window whatever the window is. The account
+ * page sets a whole clause on one line — "Your learning path" — and a clause
+ * does not have that property. Sized by the other two caps it came out well
+ * over the window and `.text-h1`'s own `overflow: hidden` sliced the ends off
+ * it, which is the same failure the entry titles solved by dividing the
+ * available width by the longest thing that has to fit in it.
+ *
+ * So the budget is passed in rather than guessed at here: only the page knows
+ * what its longest line says. The fallback is 100vw, which the 12vw term is
+ * always smaller than — so a page that says nothing is exactly as it was.
+ */
 .hero-stack .text-h1 {
   font-size: min(
     calc(0.75em + 12vw),
+    var(--hero-measure, 100vw),
     calc(
-      (100svh - var(--hero-top) - 2rem - (var(--hero-lines, 5) - 1) * 0.5rem) /
-        (0.78 * var(--hero-lines, 5))
+      (100svh - var(--hero-top) - 2rem - (var(--hero-lines, 5) - 1) *
+            var(--hero-gap, 0.5rem)) / (0.78 * var(--hero-lines, 5))
     )
   );
 }
@@ -916,7 +936,11 @@ body {
 .unmask-up-out,
 .unmask-down-in,
 .unmask-down-out {
-  animation-duration: 0.6s;
+  /* The pace is the component's, from lib/reveal.ts — sign-up and the
+     assistant open at 600ms, the account page's panels unroll slower. The
+     fallback here is that same 600ms, for anything that sets a stagger and
+     nothing else. */
+  animation-duration: var(--unmask-duration, 0.6s);
   animation-timing-function: cubic-bezier(0.82, 0, 0.18, 1);
   animation-fill-mode: both;
   animation-delay: var(--stagger, 0ms);
