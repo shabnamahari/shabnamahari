@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useRef, useState, useSyncExternalStore } from "react";
+import Link from "next/link";
 import type { CSSProperties } from "react";
 import { revealClass, revealStep, revealTotalMs, type Phase } from "@/lib/reveal";
 import GoogleMark from "@/components/GoogleMark";
@@ -485,10 +486,25 @@ export function AuthPanels({
           is not a control: it is the sentence the bar below it commits you to,
           and boxing it would have made it look like a fourth thing to press. */}
       <p
-        className={`${WIDTH} ${BARE_TERMS} ${anim} px-4 text-center text-[0.8125rem] md:px-0`}
+        className={`${WIDTH} ${BARE_TERMS} ${anim} pointer-events-auto px-4 text-center text-[0.8125rem] md:px-0`}
         style={step(3)}
       >
-        By signing up, you agree to our Terms and Privacy Policy.
+        {/*
+          Links at last. This sentence has been asking people to agree to two
+          documents that did not exist since the form was first built; now it
+          points at them. Underlined rather than coloured, because the line has
+          to stay readable on the footer's black, over a photograph and over the
+          cream, and `currentColor` is the only thing that survives all three.
+        */}
+        By signing up, you agree to our{" "}
+        <Link href="/terms" className="underline underline-offset-2">
+          Terms
+        </Link>{" "}
+        and{" "}
+        <Link href="/privacy" className="underline underline-offset-2">
+          Privacy Policy
+        </Link>
+        .
       </p>
     </div>
   );
