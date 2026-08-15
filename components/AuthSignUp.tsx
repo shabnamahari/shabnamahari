@@ -102,8 +102,17 @@ const TONES: Record<
       "text-confirm-lit border-confirm-lit/45 hover:border-confirm-lit hover:bg-confirm-lit/10",
     or: "text-confirm-lit",
     terms: "text-white",
-    rule: "bg-confirm-lit/45",
-    orRow: "bg-auth-panel backdrop-blur-[5px] rounded-[14px] py-2",
+    rule: "bg-auth-rule",
+    /*
+     * Bare, on Shabnam's instruction, having seen it boxed.
+     *
+     * It carried the panels' glass for one release because the swap put it
+     * level with the photographs, where a hairline under `mix-blend-difference`
+     * comes out light green across a photograph and a muddy mauve across the
+     * cream between two of them. That is still true and is the cost of this:
+     * she wants the line, not a box, and a line it is.
+     */
+    orRow: "",
     /*
      * Bare on the black, and on its own glass below it.
      *
@@ -389,11 +398,26 @@ export function AuthPanels({
            The edge brightens on hover rather than the fill. Lightening the fill
            undoes the very thing the alpha was set for: over the cream page a
            lighter panel takes the type back under contrast. */
-        className={`${WIDTH} ${t.panel} ${anim} ${t.or} pointer-events-auto flex items-center justify-center gap-3 text-[0.9375rem] transition-colors hover:border-confirm-lit`}
+        className={`${WIDTH} ${t.panel} ${anim} ${t.or} pointer-events-auto flex items-center justify-center gap-2 text-[0.9375rem] transition-colors hover:border-confirm-lit`}
         style={{ height: GOOGLE_BAR, ...step(0) }}
       >
-        <GoogleMark className="h-[1.15em] w-[1.15em] shrink-0" />
-        continue with google
+        {/*
+          Against the word, not at the head of the phrase.
+
+          A sign-in button conventionally opens with the mark, and that is where
+          it was. Shabnam's note is that it should sit beside "google", which is
+          the word it actually names — so it does, with a tighter gap on its
+          right than its left so the eye binds the two together rather than
+          reading three evenly spaced things.
+        */}
+        <span>continue with</span>
+        {/* The parent's own `gap` already spaces all three; these push the
+            slack to the left of the mark and take it off the right, so the
+            mark and the word it names sit closer to each other than either
+            does to "with". `mr-1.5` did the opposite — it added to a gap that
+            was already there. */}
+        <GoogleMark className="ml-1.5 -mr-1 h-[1.15em] w-[1.15em] shrink-0" />
+        <span>google</span>
       </a>
 
       {/*
@@ -414,10 +438,30 @@ export function AuthPanels({
         against cream it is no longer green, which is Shabnam's to accept or
         refuse.
       */}
-      <div className={`${WIDTH} ${t.orRow} ${anim} flex items-center gap-3 px-4`} style={step(1)}>
-        <span className={`${t.rule} h-px flex-1`} />
-        <span className={`${t.or} text-[0.875rem] font-bold`}>or</span>
-        <span className={`${t.rule} h-px flex-1`} />
+      {/*
+        The reveal is on each of the three, not on the row.
+
+        It belongs on the row, and could not stay there. `unmask-*` animates
+        `clip-path`, and a clip-path other than `none` makes an element a
+        stacking context — which seals its children off from the page behind
+        them. `mix-blend-difference` on the word then had nothing to blend
+        against and rendered as flat light green on cream, unreadable, which is
+        exactly the failure the blend is there to prevent.
+
+        On the children themselves, each blends into this row's own backdrop
+        while still being clipped. They share one delay, so the three arrive
+        together and it looks no different from animating the row.
+      */}
+      <div className={`${WIDTH} flex items-center gap-3`}>
+        <span className={`${t.rule} ${anim} h-px flex-1`} style={step(1)} />
+        {/* The word blends and the rules do not — see `--color-auth-rule`. */}
+        <span
+          className={`${t.or} ${t.bare} ${anim} text-[0.875rem] font-bold`}
+          style={step(1)}
+        >
+          or
+        </span>
+        <span className={`${t.rule} ${anim} h-px flex-1`} style={step(1)} />
       </div>
 
       {/* 3 — name, email, code, and the slower way in. */}

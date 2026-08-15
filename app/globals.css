@@ -56,6 +56,22 @@
    * point, exactly as it is for the assistant above.
    */
   --color-auth-panel: rgb(18 38 28 / 0.68);
+  /*
+   * The hairline either side of "or", and the reason it is its own value.
+   *
+   * The word beside it needs `mix-blend-difference` to stay readable — it lands
+   * on cream or on a photograph depending on the window, and no single colour
+   * clears both. A rule does not have that problem and must not take that cure:
+   * blended, it came out light green where it crossed a photograph and a muddy
+   * mauve where it crossed the cream between two of them, so a single line
+   * arrived in three colours and read as a fault.
+   *
+   * A mid tone instead, dark enough to show on the cream page and light enough
+   * to show on a near-black photograph, and the same on both. Roughly 2.7:1
+   * against the cream and 4:1 against the darkest of the photographs — more
+   * than a hairline needs to be seen, and it never changes.
+   */
+  --color-auth-rule: #7d9488;
   --font-kumbh: var(--font-kumbh);
   --font-vazirmatn: var(--font-vazirmatn);
   --font-psl: var(--font-psl);
