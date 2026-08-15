@@ -183,8 +183,13 @@ function readNumber(
  * as a second bar in the same measure asking a competing question — two panels
  * at the top of a short page, only one of which is the reason you came. It is
  * kept out rather than restyled: Shabnam's call, and the right one.
+ *
+ * The account page is the same objection twice over. Its own panels are the
+ * assistant's panels — same corner, same measure, same glass — so the bar
+ * across the top read as a fifth one that had come adrift from the stack, and
+ * it sat directly over the line welcoming the reader by name.
  */
-const NOT_HERE = new Set(["/auth"]);
+const NOT_HERE = new Set(["/auth", "/myaccount"]);
 
 /** The conversation, the composer and the language switch. */
 const PANELS = 3;

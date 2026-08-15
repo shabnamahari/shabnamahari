@@ -39,13 +39,13 @@ export default async function AccountPage() {
      * middle. Neither is in the flow, which is what lets the sentence be
      * centred in the window as though it were alone there.
      *
-     * `--hero-lines` is three above md, where each of Shabnam's lines sets on
-     * one line, and five below it, where they wrap; `--hero-measure` is the
-     * width one line may take, which the stack cannot work out for itself
-     * because only the page knows its own longest line. Above md that is "path
-     * will live" — fourteen characters, about 8.6 capitals wide once Kumbh's
-     * tight tracking is counted. Below md the longest thing that must fit is
-     * the word "learning". The 80px is the page margin either side plus
+     * `--hero-lines` is five above md, where each of Shabnam's lines sets on
+     * one line, and six below it, where the long one wraps; `--hero-measure`
+     * is the width one line may take, which the stack cannot work out for
+     * itself because only the page knows its own longest line. Above md that
+     * is "Learning path" — thirteen characters, about 8.4 capitals wide once
+     * Kumbh's tight tracking is counted. Below md the longest thing that must
+     * fit is the word "Learning". The 80px is the page margin either side plus
      * `.text-h1`'s own horizontal padding, which sits inside its border box.
      *
      * `--hero-gap` is the air between the lines, and it is bigger below md for
@@ -53,7 +53,7 @@ export default async function AccountPage() {
      * line-height 0.78, and at the stack's usual 0.5rem Shabnam's three lines
      * read as one wall of six.
      */
-    <section className="hero-stack relative max-md:[--hero-gap:1.5rem] [--hero-lines:5] [--hero-measure:calc((100vw-80px)/5.4)] md:[--hero-lines:3] md:[--hero-measure:calc((100vw-80px)/8.6)]">
+    <section className="hero-stack relative max-md:[--hero-gap:1.5rem] [--hero-lines:6] [--hero-measure:calc((100vw-80px)/5.4)] md:[--hero-lines:5] md:[--hero-measure:calc((100vw-80px)/8.4)]">
       {/*
         The welcome, up under the assistant's bar.
         --------------------------------------------------------------------
@@ -73,11 +73,14 @@ export default async function AccountPage() {
           : "Welcome to your account"}
       </h1>
 
-      {/* Three lines, broken where Shabnam breaks them. The break is the
-          typography, not the wrapping. */}
-      <p className="text-h1 text-center md:whitespace-nowrap">This is where</p>
-      <p className="text-h1 text-center md:whitespace-nowrap">your learning</p>
-      <p className="text-h1 text-center md:whitespace-nowrap">path will live</p>
+      {/* Five lines, broken where Shabnam breaks them. The break is the
+          typography, not the wrapping — and it is what sets the size, since the
+          longest line is what every line has to be small enough to be. */}
+      <p className="text-h1 text-center md:whitespace-nowrap">This is</p>
+      <p className="text-h1 text-center md:whitespace-nowrap">Where</p>
+      <p className="text-h1 text-center md:whitespace-nowrap">Your</p>
+      <p className="text-h1 text-center md:whitespace-nowrap">Learning path</p>
+      <p className="text-h1 text-center md:whitespace-nowrap">Will live</p>
 
       {/*
         And the panels over the top of it.

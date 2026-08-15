@@ -70,11 +70,14 @@ function Panel({
       style={{ minHeight, ...step }}
     >
       {/*
-        Serif, like the line at the top of the page. These are headings — the
-        names of three things — not the small sans labels sign-up puts on the
-        controls inside its panel.
+        Kumbh at label size, on Shabnam's instruction and matching the welcome
+        at the top of the page — so the two headings on this page are one voice
+        and the serif that was here is gone. Small deliberately: a panel holding
+        one line of text does not need a heading that outweighs it.
       */}
-      <h2 className="text-h3">{title}</h2>
+      <h2 className="font-kumbh text-[0.9375rem] font-bold tracking-[-0.02em] uppercase">
+        {title}
+      </h2>
       <div className="mt-4 text-[0.875rem]">{children}</div>
     </section>
   );

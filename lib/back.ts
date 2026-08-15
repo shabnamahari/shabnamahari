@@ -32,6 +32,15 @@ export function backTarget(pathname: string): BackTarget | null {
 
   if (parts[0] === "auth") return { href: LEARN, label: LEARN_LABEL };
 
+  /*
+   * The account page, which is reached by signing in rather than by browsing
+   * into anything — so there is no page "above" it in the way there is above a
+   * lesson. Home, because that is where signing in starts and what the menu
+   * calls Index, and because a page whose only exit is Sign out is a room with
+   * the door locked behind you.
+   */
+  if (parts[0] === "myaccount") return { href: "/", label: "Index" };
+
   // `LEARN` is "/learn", so its first segment is what a nested page begins
   // with. Compared against the constant rather than a literal, so renaming the
   // section again cannot leave this test looking for the old name.

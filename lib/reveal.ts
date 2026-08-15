@@ -30,10 +30,18 @@ export type Pace = "normal" | "slow";
 
 const PACES: Record<Pace, { duration: number; stagger: number }> = {
   normal: { duration: 600, stagger: 90 },
-  // Half again as long on each panel, and a fuller beat between them: at 90ms
-  // the three arrive almost together, which at this duration would read as one
-  // slow panel rather than three unrolling.
-  slow: { duration: 900, stagger: 220 },
+  /*
+   * Two and a half times the press, and a beat between panels long enough that
+   * each is most of the way open before the next starts.
+   *
+   * It was 900/220 and Shabnam asked for slower again — she wants to watch it,
+   * which is a different thing from wanting it acknowledged. Four panels at
+   * these numbers take 2.85 seconds end to end. That is a long time for an
+   * interface and the right time for this one: nobody is waiting on it, since
+   * the page behind is already legible and the panels are the last thing to
+   * arrive rather than the thing being asked for.
+   */
+  slow: { duration: 1500, stagger: 450 },
 };
 
 /**
