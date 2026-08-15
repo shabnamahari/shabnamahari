@@ -3,6 +3,7 @@
 import { useId, useRef, useState, useSyncExternalStore } from "react";
 import type { CSSProperties } from "react";
 import { revealClass, revealStep, revealTotalMs, type Phase } from "@/lib/reveal";
+import GoogleMark from "@/components/GoogleMark";
 
 /**
  * Sign-up, at the foot of the home page.
@@ -73,6 +74,19 @@ const TONES: Record<
     terms: string;
     /** The two rules that run out from "or" to either edge of the measure. */
     rule: string;
+    /**
+     * The fork's own ground.
+     *
+     * Separate from `bare` since the swap put Google on top: the fork used to
+     * sit on the footer's black at every width, and now it opens level with the
+     * photographs. Bare over that, the rule came out light green across a
+     * photograph and a muddy mauve across the cream between two of them — one
+     * line in two colours, which reads as a fault rather than a choice. It
+     * takes the panels' glass at every width now. The terms line below it is
+     * still on the black on a wide screen, so it keeps the responsive
+     * treatment.
+     */
+    orRow: string;
     /** For the two rows with no panel of their own — see where it is used. */
     bare: string;
   }
@@ -89,6 +103,7 @@ const TONES: Record<
     or: "text-confirm-lit",
     terms: "text-white",
     rule: "bg-confirm-lit/45",
+    orRow: "bg-auth-panel backdrop-blur-[5px] rounded-[14px] py-2",
     /*
      * Bare on the black, and on its own glass below it.
      *
@@ -124,6 +139,8 @@ const TONES: Record<
     or: "text-ink",
     terms: "text-ink",
     rule: "bg-ink/25",
+    // /auth is one flat cream page: nothing to survive, so nothing to sit on.
+    orRow: "",
     // /auth is one flat cream page at every width, so nothing has to survive a
     // change of ground: no glass, and no blend to muddy the ink.
     bare: "",
@@ -354,11 +371,59 @@ export function AuthPanels({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* 1 — name, email, code, and the one control that is meant to be
-          pressed first. */}
+      {/*
+        1 — the one-press way in, and now the top of the stack.
+
+        Above the form on Shabnam's instruction, and it earns the position: it
+        is the shorter path, so the longer one should not be the first thing
+        read. Neither panel changed size, so the form below it is the tall one
+        and now straddles the footer's edge — half on the black, half over the
+        page above. That is what the glass was made dark enough for.
+      */}
+      <a
+        href="/api/auth/google/start"
+        /* A link, not a button with a handler: this leaves the site. Google's
+           own screen is the next page, so it should behave like any other
+           navigation — openable in a new tab, and one entry in the history.
+
+           The edge brightens on hover rather than the fill. Lightening the fill
+           undoes the very thing the alpha was set for: over the cream page a
+           lighter panel takes the type back under contrast. */
+        className={`${WIDTH} ${t.panel} ${anim} ${t.or} pointer-events-auto flex items-center justify-center gap-3 text-[0.9375rem] transition-colors hover:border-confirm-lit`}
+        style={{ height: GOOGLE_BAR, ...step(0) }}
+      >
+        <GoogleMark className="h-[1.15em] w-[1.15em] shrink-0" />
+        continue with google
+      </a>
+
+      {/*
+        2 — the fork between the two ways in.
+
+        `BARE` on the dark tone, and this is the one place the stack's freedom to
+        climb costs something. The panels carry their own ground so they are
+        legible wherever they end up; these two lines have none by Shabnam's
+        design — white type straight onto the footer's black — and on a phone the
+        stack rises far enough that both land on the cream page instead, where
+        white on cream is nothing at all. Measured: on a 390px screen "or" sits
+        108px above the footer's edge and the terms line straddles it.
+
+        `mix-blend-difference` is the site's own answer to type that crosses both
+        grounds — it is how ( Menu ) and ( Back ) stay readable over cream and
+        black alike. On the black they render exactly as specified; over the
+        cream they invert and stay readable. The cost is the green: inverted
+        against cream it is no longer green, which is Shabnam's to accept or
+        refuse.
+      */}
+      <div className={`${WIDTH} ${t.orRow} ${anim} flex items-center gap-3 px-4`} style={step(1)}>
+        <span className={`${t.rule} h-px flex-1`} />
+        <span className={`${t.or} text-[0.875rem] font-bold`}>or</span>
+        <span className={`${t.rule} h-px flex-1`} />
+      </div>
+
+      {/* 3 — name, email, code, and the slower way in. */}
       <form
         className={`${WIDTH} ${t.panel} ${anim} pointer-events-auto px-6 py-5`}
-        style={step(0)}
+        style={step(2)}
         onSubmit={(e) => {
           e.preventDefault();
           if (busy || !ready) return;
@@ -432,46 +497,6 @@ export function AuthPanels({
           )}
         </div>
       </form>
-
-      {/*
-        2 — the fork between the two ways in.
-
-        `BARE` on the dark tone, and this is the one place the stack's freedom to
-        climb costs something. The panels carry their own ground so they are
-        legible wherever they end up; these two lines have none by Shabnam's
-        design — white type straight onto the footer's black — and on a phone the
-        stack rises far enough that both land on the cream page instead, where
-        white on cream is nothing at all. Measured: on a 390px screen "or" sits
-        108px above the footer's edge and the terms line straddles it.
-
-        `mix-blend-difference` is the site's own answer to type that crosses both
-        grounds — it is how ( Menu ) and ( Back ) stay readable over cream and
-        black alike. On the black they render exactly as specified; over the
-        cream they invert and stay readable. The cost is the green: inverted
-        against cream it is no longer green, which is Shabnam's to accept or
-        refuse.
-      */}
-      <div className={`${WIDTH} ${t.bare} ${anim} flex items-center gap-3`} style={step(1)}>
-        <span className={`${t.rule} h-px flex-1`} />
-        <span className={`${t.or} text-[0.875rem] font-bold`}>or</span>
-        <span className={`${t.rule} h-px flex-1`} />
-      </div>
-
-      {/* 3 — the one-press way in. */}
-      <a
-        href="/api/auth/google/start"
-        /* A link, not a button with a handler: this leaves the site. Google's
-           own screen is the next page, so it should behave like any other
-           navigation — openable in a new tab, and one entry in the history.
-
-           The edge brightens on hover rather than the fill. Lightening the fill
-           undoes the very thing the alpha was set for: over the cream page a
-           lighter panel takes the type back under contrast. */
-        className={`${WIDTH} ${t.panel} ${anim} ${t.or} pointer-events-auto flex items-center justify-center text-[0.9375rem] transition-colors hover:border-confirm-lit`}
-        style={{ height: GOOGLE_BAR, ...step(2) }}
-      >
-        continue with google
-      </a>
 
       {/* 4 — the terms. On the ground itself with no panel around it, because it
           is not a control: it is the sentence the bar below it commits you to,
