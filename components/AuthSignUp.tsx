@@ -4,6 +4,7 @@ import { useId, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { revealClass, revealStep, revealTotalMs, type Phase } from "@/lib/reveal";
+import { PANEL_BASE, RADIUS, TYPE, WIDTH } from "@/lib/panel";
 import GoogleMark from "@/components/GoogleMark";
 
 /**
@@ -27,11 +28,14 @@ import GoogleMark from "@/components/GoogleMark";
  * Supabase session, the Google client and the one-time codes are wired to it.
  */
 
-/** The assistant's corner. */
-const RADIUS = "rounded-[14px]";
-
-/** The assistant's measure — a shade narrower than YOUR in the headline. */
-const WIDTH = "mx-auto w-[clamp(20rem,34vw,40rem)]";
+/*
+ * The corner, the measure, the glass and the type are in `lib/panel.ts` now.
+ *
+ * They were written here, and the notes explaining each of them are kept below
+ * where they were. What moved them is the account page: it wants this same
+ * panel, and three files each holding their own copy of one number is how the
+ * three stop being one panel. Only what is peculiar to sign-up is still here.
+ */
 
 /** The assistant's bar. The sign-up bar is this exactly, so they rhyme. */
 const BAR = 42;
@@ -48,32 +52,8 @@ const GOOGLE_BAR = 52;
 /** White glass, on the footer's black. */
 const PANEL_WHITE = `${RADIUS} border border-white/25 bg-white/[0.08] backdrop-blur-[5px]`;
 
-/**
- * The ground the panels are standing on, which decides everything else.
- *
- * They began as one set of colours because they began in one place. Then the
- * same form was wanted on `/auth`, and `/auth` is the site's cream — where
- * light type on transparent glass is a white box on a white page. So the panels
- * take the ground as an argument instead of assuming it.
- *
- * The green tint is the one thing that survives both: `--color-confirm` at a
- * low alpha reads as a tint of whatever is behind it, which is a dark green on
- * black and a pale sage on cream. What has to change is the type — light on the
- * dark ground, and the site's own ink on the light one.
- */
-/**
- * One set of classes for both places, which is the other half of Shabnam's
- * note.
- *
- * There were two — a dark tone for the foot of the home page and a light one
- * for /auth — and they had already drifted: the fork's rule was changed on one
- * and not the other, so two pages meant to be the same form were quietly
- * becoming two forms. The colours are custom properties in globals.css now, and
- * both pages take these same constants, so they are one panel by construction
- * rather than by my remembering to change both.
- */
-const PANEL_BASE = `${RADIUS} border border-[var(--auth-edge)] bg-[var(--auth-fill)] backdrop-blur-[5px]`;
-const TYPE = "text-[var(--auth-type)]";
+/** The rule under a field, and the button under the three of them. Sign-up's
+    own — nothing else on the site takes a typed answer. */
 const FIELD =
   "border-b border-[var(--auth-field)] text-[var(--auth-type)] focus:border-[var(--auth-field-lit)]";
 const BUTTON =
@@ -303,7 +283,7 @@ export function AuthPanels({
       // A full navigation rather than a client one: the session arrived as a
       // Set-Cookie on that response, and every server component that has
       // already rendered on this page believes nobody is signed in.
-      window.location.assign("/account");
+      window.location.assign("/myaccount");
     } catch {
       patch({ note: "Something went wrong. Try again." });
     } finally {

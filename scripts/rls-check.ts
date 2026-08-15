@@ -43,6 +43,9 @@ const TABLES = [
   // their live sign-in codes.
   "accounts",
   "email_codes",
+  // And this one says which courses a named person has, which is a fact about
+  // them they have not agreed to publish.
+  "enrolments",
 ] as const;
 
 function required(name: string): string {

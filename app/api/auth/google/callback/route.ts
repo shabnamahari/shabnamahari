@@ -190,7 +190,7 @@ export async function GET(request: Request) {
     }
   }
 
-  const response = NextResponse.redirect(landing("/account", request));
+  const response = NextResponse.redirect(landing("/myaccount", request));
   response.cookies.set(SESSION_COOKIE, issueSession(accountId), {
     httpOnly: true,
     sameSite: "lax",

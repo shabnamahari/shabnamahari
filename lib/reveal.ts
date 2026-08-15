@@ -12,11 +12,37 @@ import type { CSSProperties } from "react";
  * The CSS is in globals.css under "panels opening and closing".
  */
 
-/** One panel's own animation, in ms. Must match the duration in globals.css. */
-const DURATION_MS = 600;
+/**
+ * How fast, which is now two answers rather than one.
+ *
+ * Sign-up and the assistant open at `normal`: they are answering a press, and a
+ * panel that dawdles after a press reads as a page that is thinking. The
+ * account page's panels are not answering anything — nobody pressed them, they
+ * arrive as you scroll to them — and Shabnam asked for them slower. So the pace
+ * is named here rather than each caller writing its own milliseconds, which is
+ * how "slower" would otherwise become three different speeds.
+ *
+ * The duration is handed to the CSS as `--unmask-duration`; only the fallback
+ * in globals.css states 0.6s, and it is `normal` written twice on purpose — one
+ * of the two is what runs when no pace is given at all.
+ */
+export type Pace = "normal" | "slow";
 
-/** Between one panel starting and the next. */
-const STAGGER_MS = 90;
+const PACES: Record<Pace, { duration: number; stagger: number }> = {
+  normal: { duration: 600, stagger: 90 },
+  /*
+   * Two and a half times the press, and a beat between panels long enough that
+   * each is most of the way open before the next starts.
+   *
+   * It was 900/220 and Shabnam asked for slower again — she wants to watch it,
+   * which is a different thing from wanting it acknowledged. Four panels at
+   * these numbers take 2.85 seconds end to end. That is a long time for an
+   * interface and the right time for this one: nobody is waiting on it, since
+   * the page behind is already legible and the panels are the last thing to
+   * arrive rather than the thing being asked for.
+   */
+  slow: { duration: 1500, stagger: 450 },
+};
 
 /**
  * Which way the stack grows away from its bar.
@@ -40,12 +66,13 @@ export function revealClass(grow: Grow, phase: Phase): string {
  * there is nothing to wait for, and waiting anyway would leave the panels sat
  * on screen for the length of an animation that never ran.
  */
-export function revealTotalMs(count: number): number {
+export function revealTotalMs(count: number, pace: Pace = "normal"): number {
   const reduced =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduced) return 0;
-  return DURATION_MS + Math.max(0, count - 1) * STAGGER_MS;
+  const { duration, stagger } = PACES[pace];
+  return duration + Math.max(0, count - 1) * stagger;
 }
 
 /**
@@ -66,8 +93,13 @@ export function revealStep(
   count: number,
   grow: Grow,
   phase: Phase,
+  pace: Pace = "normal",
 ): CSSProperties {
+  const { duration, stagger } = PACES[pace];
   const fromEnd = (grow === "up") === (phase === "in");
   const order = fromEnd ? count - 1 - index : index;
-  return { "--stagger": `${order * STAGGER_MS}ms` } as CSSProperties;
+  return {
+    "--stagger": `${order * stagger}ms`,
+    "--unmask-duration": `${duration}ms`,
+  } as CSSProperties;
 }

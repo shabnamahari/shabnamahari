@@ -103,12 +103,12 @@ async function main() {
 
   // The page behind the session renders for the holder and not for a stranger.
   const cookie = ok.cookie.split(";")[0];
-  const mine = await fetch(`${BASE}/account`, { headers: { cookie } });
+  const mine = await fetch(`${BASE}/myaccount`, { headers: { cookie } });
   const body = await mine.text();
   check("the account page renders for the session", mine.status === 200);
   check("and it names the account", body.includes("Smoke Test"), "greeting");
 
-  const stranger = await fetch(`${BASE}/account`, { redirect: "manual" });
+  const stranger = await fetch(`${BASE}/myaccount`, { redirect: "manual" });
   check(
     "a stranger is turned away from the account page",
     stranger.status === 307 || stranger.status === 302,
@@ -147,7 +147,7 @@ async function main() {
     body: JSON.stringify({ email: PATTERN, code: "555555" }),
   });
   const attackCookie = attack.headers.get("set-cookie") ?? "";
-  const landed = await fetch(`${BASE}/account`, {
+  const landed = await fetch(`${BASE}/myaccount`, {
     headers: { cookie: attackCookie.split(";")[0] },
   });
   const landedBody = await landed.text();
@@ -225,7 +225,7 @@ async function main() {
   check("the caller is eventually rate limited", sawLimit);
 
   // A forged cookie is not a session.
-  const forged = await fetch(`${BASE}/account`, {
+  const forged = await fetch(`${BASE}/myaccount`, {
     headers: { cookie: "sc_user=not.a.real.token" },
     redirect: "manual",
   });
