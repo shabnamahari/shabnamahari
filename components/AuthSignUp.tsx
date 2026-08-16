@@ -337,7 +337,19 @@ export function AuthPanels({
           anyone who cannot see it, since "continue with" on its own is a
           sentence with the object missing.
         */}
-        <GoogleMark className="h-[1.35em] w-[1.35em] shrink-0" />
+        {/*
+          On a white disc, which the red made necessary rather than pretty.
+          Google's G is four colours and one of them is #EA4335 — on the green
+          panel the mark read cleanly, on Signal Red its own red segment
+          vanished into the fill and the rest went muddy, which is the one
+          thing this mark cannot afford: nobody reads "continue with", they
+          recognise the G. Google's brand terms for sign-in buttons ask for the
+          full-colour mark on white or their supplied white mark on dark, so
+          the disc is also the sanctioned way round it.
+        */}
+        <span className="grid h-[1.9em] w-[1.9em] shrink-0 place-items-center rounded-full bg-white">
+          <GoogleMark className="h-[1.15em] w-[1.15em]" />
+        </span>
       </a>
 
       {/*

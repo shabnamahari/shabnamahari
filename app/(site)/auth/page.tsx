@@ -25,7 +25,17 @@ export default function AuthPage() {
   return (
     <section
       data-surface="auth"
-      className="flex min-h-[100svh] w-full items-center justify-center px-[15px] py-[120px]"
+      /*
+       * A darker cream, on Shabnam's instruction, and it is the guide's own
+       * rather than one I mixed: Media Gray #E3E1DE, which the brand guide
+       * describes as "one step darker, same warm undertone". The site has a
+       * value for this; inventing a second one would be how a palette becomes
+       * a habit of picking colours.
+       *
+       * Only this page. `--background` is the whole site's ground and every
+       * other page was left alone.
+       */
+      className="bg-media-gray flex min-h-[100svh] w-full items-center justify-center px-[15px] py-[120px]"
     >
       <div className="w-full">
         <AuthPanels />
