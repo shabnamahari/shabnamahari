@@ -11,13 +11,16 @@ export const metadata: Metadata = {
 /**
  * Where signing in lands, at /myaccount on Shabnam's instruction.
  *
- * One screen, and three things stacked in depth rather than in a column: the
- * welcome up against the assistant's bar, the sentence set in the hero's own
- * face filling the window behind, and the panels standing over the middle of
- * it. The panels are glass, so the capitals go on showing through them — which
- * is the whole reason Shabnam asked for them to come over the type rather than
- * to sit underneath it, and it is what the assistant's panel does on every
- * other page of this site.
+ * One screen, and two things stacked in depth rather than in a column: the
+ * sentence set in the hero's own face filling the window, and a bar at the top
+ * that opens three panels over it. The panels are glass, so the capitals go on
+ * showing through them — which is the whole reason Shabnam asked for them to
+ * come over the type rather than to sit underneath it, and it is what the
+ * assistant's panel does on every other page of this site.
+ *
+ * The welcome line that used to sit at the top is gone on her instruction, and
+ * the reader's name moved onto the bar — which is the one control here, so it
+ * is now both the label for the page and the thing you press to open it.
  *
  * What the panels hold is mostly not built yet, and they say so rather than
  * showing a plausible figure. The exception is the third: it reads the
@@ -55,49 +58,37 @@ export default async function AccountPage() {
      */
     <section className="hero-stack relative max-md:[--hero-gap:1.5rem] [--hero-lines:6] [--hero-measure:calc((100vw-80px)/5.4)] md:[--hero-lines:5] md:[--hero-measure:calc((100vw-80px)/8.4)]">
       {/*
-        The welcome, up under the assistant's bar.
-        --------------------------------------------------------------------
-        68px because the bar is fixed 15px from the top of every page and 42px
-        tall, so it ends at 57 wherever it is read — this is the first line
-        that clears it. Out of the flow, so the sentence below is centred in
-        the whole window rather than in what is left over.
+        Five lines, broken where Shabnam breaks them. The break is the
+        typography, not the wrapping — and it is what sets the size, since the
+        longest line is what every line has to be small enough to be.
 
-        Kumbh, small, on Shabnam's instruction: the same face as the capitals
-        below it, at label size. Uppercased by the stylesheet rather than in
-        the string, so the name stays cased the way its owner typed it
-        everywhere it is copied, read aloud or searched for.
+        `display: contents` on the heading, which is the whole trick here: the
+        page's welcome line is gone on her instruction, so the sentence is the
+        heading now and has to be marked as one — but `.hero-stack` sizes and
+        spaces its own flex children, and an `h1` wrapped around the five lines
+        would be one child holding five. With `contents` the spans are the flex
+        children and the h1 is only the label around them. Spans rather than
+        paragraphs because an `h1` may hold phrasing content and nothing else.
       */}
-      <h1 className="font-kumbh absolute inset-x-0 top-[68px] px-[15px] text-center text-[clamp(1rem,1.4vw,1.375rem)] font-bold tracking-[-0.02em] uppercase">
-        {account.name
-          ? `${account.name}, welcome to your account`
-          : "Welcome to your account"}
+      <h1 className="contents">
+        <span className="text-h1 block text-center md:whitespace-nowrap">This is</span>
+        <span className="text-h1 block text-center md:whitespace-nowrap">Where</span>
+        <span className="text-h1 block text-center md:whitespace-nowrap">Your</span>
+        <span className="text-h1 block text-center md:whitespace-nowrap">
+          Learning path
+        </span>
+        <span className="text-h1 block text-center md:whitespace-nowrap">
+          Will live
+        </span>
       </h1>
 
-      {/* Five lines, broken where Shabnam breaks them. The break is the
-          typography, not the wrapping — and it is what sets the size, since the
-          longest line is what every line has to be small enough to be. */}
-      <p className="text-h1 text-center md:whitespace-nowrap">This is</p>
-      <p className="text-h1 text-center md:whitespace-nowrap">Where</p>
-      <p className="text-h1 text-center md:whitespace-nowrap">Your</p>
-      <p className="text-h1 text-center md:whitespace-nowrap">Learning path</p>
-      <p className="text-h1 text-center md:whitespace-nowrap">Will live</p>
-
-      {/*
-        And the panels over the top of it.
-
-        Pinned to the stack's content box — from under the top clearance to the
-        floor — rather than to the section, so they centre on the sentence
-        rather than a clearance-worth above it.
-      */}
-      <div className="absolute inset-x-0 top-[var(--hero-top)] bottom-[15px] flex items-center justify-center px-[15px]">
-        <div className="w-full">
-          <AccountPanels
-            name={account.name}
-            email={account.email}
-            courses={courses}
-          />
-        </div>
-      </div>
+      {/* The bar, at the top of the page, and the three it opens over the type.
+          It places itself — see AccountPanels. */}
+      <AccountPanels
+        name={account.name}
+        email={account.email}
+        courses={courses}
+      />
     </section>
   );
 }
