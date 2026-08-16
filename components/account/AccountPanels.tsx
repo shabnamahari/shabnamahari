@@ -1,79 +1,100 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 
 import { PANEL_BASE, TYPE, WIDTH } from "@/lib/panel";
-import { revealClass, revealStep } from "@/lib/reveal";
+import { revealClass, revealStep, revealTotalMs, type Phase } from "@/lib/reveal";
 import { LEARN } from "@/lib/routes";
 import type { Enrolment } from "@/lib/account/enrolments";
 import SignOut from "@/components/account/SignOut";
 
 /**
- * The three panels on the account page.
+ * The account page's panels: a bar you press, and three that unroll under it.
  *
- * Sign-up's panels exactly — same corner, same measure, same green glass, taken
- * from `lib/panel.ts` rather than matched by eye, because Shabnam asked for
- * these to be that panel rather than a panel like it.
+ * This is the assistant's shape, which is what Shabnam asked for — one bar at
+ * the top of the page and the rest of the stack hanging off it, growing down
+ * and away from the thing that was pressed. The panels themselves are sign-up's
+ * exactly, from `lib/panel.ts` rather than a third copy of the same numbers.
  *
- * Two things differ, and both are hers. They unroll downward, top panel first,
- * so the stack reads the way the page does rather than climbing off a bar there
- * is no bar here to climb off. And they take it slower: sign-up's panels are
- * answering a press and should not dawdle, while these are answering a scroll.
- * The pace is named `slow` in `lib/reveal.ts` so "slower" is one speed rather
- * than a number written here.
+ * They came in a column with no bar at all and revealed themselves on scroll.
+ * That was fine while the top panel held only a name; once the page lost its
+ * welcome line, the name became the only thing identifying whose page this is,
+ * and a name is the natural label for the control that opens the rest.
+ *
+ * The pace is `slow` in `lib/reveal.ts` — 1.5s a panel, 450ms apart, near three
+ * seconds for the three. Deliberate: nothing is waiting on it, and Shabnam
+ * asked twice for slower so it can be watched.
  */
 
-/** Four, and the stagger has to count them. */
-const PANELS = 4;
+/** The three that unroll. The bar is not one of them — it never moves. */
+const PANELS = 3;
 
 /**
- * Panel three is taller than the other two, on Shabnam's instruction: it holds
- * a list that grows and the two above it hold a line each. Stated as a floor
- * rather than a height, so a long list pushes it further and a short one still
- * leaves the panel looking like the place a list goes.
+ * The heights, and which of them Shabnam has fixed.
+ *
+ * `MESSAGES` she asked not to touch. `COURSES` grew when the first panel left
+ * the column: that room went somewhere, and the panel holding a list that grows
+ * is where it should go. Floors rather than heights, so a long list pushes
+ * further and a short one still looks like the place a list goes.
  */
-const SHORT = 132;
-const TALL = 260;
+const MESSAGES = 132;
+const COURSES = 340;
 
-/**
- * The fourth is a bar rather than a panel with a heading, because it holds one
- * control and nothing else — which is what sign-up's own bar is, at the same
- * height, so the two read as the same object doing the opposite job.
- */
-const BAR = 52;
+/** The way out, at sign-up's own bar height plus the line above it. */
+const SIGN_OUT = 92;
+
+/** The mark under the bar's label: press me, and this opens downward. */
+function Chevron({ open }: { open: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 16 8"
+      aria-hidden="true"
+      className={`h-2 w-4 transition-transform duration-500 ease-[cubic-bezier(0.82,0,0.18,1)] ${
+        open ? "rotate-180" : ""
+      }`}
+    >
+      {/* Two strokes rather than a glyph: the site sets its own marks — the
+          asterisk, the G — and a text arrow would arrive in whatever the
+          system happened to have. `currentColor`, so it takes the panel's
+          type colour wherever the panel ends up. */}
+      <path
+        d="M1 1L8 7L15 1"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 function Panel({
   title,
   index,
-  active,
+  phase,
   minHeight,
   children,
 }: {
   title: string;
   index: number;
-  /** Whether the stack has been scrolled to yet. Before that, nothing shows. */
-  active: boolean;
+  phase: Phase;
   minHeight: number;
   children: ReactNode;
 }) {
-  const step: CSSProperties = active
-    ? revealStep(index, PANELS, "down", "in", "slow")
-    : {};
+  const step: CSSProperties = revealStep(index, PANELS, "down", phase, "slow");
 
   return (
     <section
-      className={`${WIDTH} ${PANEL_BASE} ${TYPE} px-6 py-5 ${
-        active ? revealClass("down", "in") : "opacity-0"
-      }`}
+      className={`${WIDTH} ${PANEL_BASE} ${TYPE} ${revealClass("down", phase)} pointer-events-auto px-6 py-5`}
       style={{ minHeight, ...step }}
     >
       {/*
-        Kumbh at label size, on Shabnam's instruction and matching the welcome
-        at the top of the page — so the two headings on this page are one voice
-        and the serif that was here is gone. Small deliberately: a panel holding
-        one line of text does not need a heading that outweighs it.
+        Kumbh at label size, on Shabnam's instruction — the serif that was here
+        is gone. Small on purpose: a panel holding one line of text does not
+        need a heading that outweighs it.
       */}
       <h2 className="font-kumbh text-[0.9375rem] font-bold tracking-[-0.02em] uppercase">
         {title}
@@ -93,119 +114,154 @@ export default function AccountPanels({
   email: string;
   courses: Enrolment[];
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(false);
-
   /*
-   * Armed by the scroll, like every other entrance on this site.
-   *
-   * The panels are below the fold — the page opens with a full screen of type
-   * above them — so playing on mount would spend the whole animation off
-   * screen and leave three panels that appear to have always been there. Once,
-   * and then the observer is dropped: a stack that re-unrolled every time it
-   * passed the fold would read as a fault.
+   * Three states, not two, because closing is watched rather than instant —
+   * sign-up's own arrangement and for the same reason. `null` is the shut page
+   * with nothing mounted; going out, the panels stay mounted through their own
+   * animation and are dropped when the last has finished, which is what
+   * `revealTotalMs` knows and this does not.
    */
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setActive(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+  const [phase, setPhase] = useState<Phase | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const open = phase === "in";
 
   return (
     /*
-     * `data-surface` for the cursor, not for the colours: the site hides the
-     * system pointer and draws its own, and anything with links inside it has
-     * to say so or the reader cannot see what they are about to press. The
-     * panels' own colours come from the same custom properties everywhere.
+     * Out of the flow, over the type. The sentence behind is centred in the
+     * window as though nothing else were there, and the stack hangs from the
+     * top of the page rather than taking a row in it — so opening the panels
+     * cannot move a single line of it.
+     *
+     * 24px above md and 76 below, which is not an inconsistency but the two
+     * different answers to the same question. The header's Menu, with Back
+     * under it, comes down to about 65 in the top right corner. On a wide
+     * window the bar is 40rem in the middle and nowhere near it, so it goes as
+     * high as it can; on a phone it is 20rem of a 390px screen and passes
+     * directly under that corner, so it starts below it instead.
+     *
+     * Pinned with `top-0` and pushed down by padding, rather than carried on
+     * `top` itself. The difference only shows when something goes wrong, and it
+     * showed: a stale dev stylesheet had the markup's new class names and not
+     * their rules, so `top` fell back to `auto` — and an absolutely positioned
+     * child of a centred flex container with no `top` is centred, which put the
+     * whole stack in the middle of the page and moved it every time it grew.
+     * `top-0` is old enough to be in any stylesheet this page has ever had, so
+     * the same failure now costs 76px of position instead of the layout.
+     *
+     * `data-surface` for the cursor rather than for the colours — the site
+     * hides the system pointer and draws its own, and anything with controls
+     * inside it has to say so or the reader cannot see what they are pressing.
      */
     <div
-      ref={ref}
       data-surface="auth"
-      className="flex flex-col gap-3"
+      className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-3 px-[15px] pt-[76px] md:pt-[24px]"
     >
-      <Panel
-        title={name ? `${name}'s account` : "Your account"}
-        index={0}
-        active={active}
-        minHeight={SHORT}
-      >
-        {/* The one thing this page has always known for certain. */}
-        <p>Signed in as {email}.</p>
-      </Panel>
-
-      <Panel
-        title="Messages from instructor"
-        index={1}
-        active={active}
-        minHeight={SHORT}
-      >
-        {/*
-          Said plainly. There is no messaging yet, and an empty panel that
-          implies a message might arrive tomorrow would be a promise made by a
-          page rather than by Shabnam.
-        */}
-        <p className="opacity-70">Nothing here yet.</p>
-      </Panel>
-
-      <Panel title="My courses" index={2} active={active} minHeight={TALL}>
-        {courses.length ? (
-          <ul className="flex flex-col gap-3">
-            {courses.map((course) => (
-              <li key={course.href}>
-                <Link
-                  href={course.href}
-                  className="underline underline-offset-4 opacity-90 transition-opacity hover:opacity-100"
-                >
-                  {course.title}
-                </Link>
-                {/* The Program a single entry sits inside, so two entries with
-                    similar names are not two lines that look alike. */}
-                {course.program ? (
-                  <span className="opacity-60"> — {course.program}</span>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="opacity-70">
-            No courses on your account yet.{" "}
-            <Link href={LEARN} className="underline underline-offset-4">
-              See what there is
-            </Link>
-            .
-          </p>
-        )}
-      </Panel>
-
       {/*
-        The way out, in a panel of its own on Shabnam's instruction.
-        --------------------------------------------------------------------
-        Not a `Panel`: that component is a heading and a body, and this has
-        neither — it is one control, centred, at sign-up's bar height. Its
-        reveal is the same though, and it is the last of the four, so the stack
-        finishes on it.
+        The bar, and when shut the whole of it.
+
+        It carries the reader's name because the welcome line above it is gone
+        on Shabnam's instruction — so this is now the one thing on the page that
+        says whose page it is.
       */}
-      <div
-        className={`${WIDTH} ${PANEL_BASE} ${TYPE} flex items-center justify-center ${
-          active ? revealClass("down", "in") : "opacity-0"
-        }`}
-        style={{
-          height: BAR,
-          ...(active ? revealStep(3, PANELS, "down", "in", "slow") : {}),
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => {
+          /*
+           * A press during the fold-away is ignored rather than queued.
+           * Reversing mid-animation would need every panel's delay recomputed
+           * from wherever it had got to, and at this pace that is nearly three
+           * seconds of arithmetic to get right for a control this size.
+           */
+          if (phase === "out") return;
+
+          if (phase === null) {
+            setPhase("in");
+            return;
+          }
+
+          setPhase("out");
+          if (timer.current) clearTimeout(timer.current);
+          timer.current = setTimeout(
+            () => setPhase(null),
+            revealTotalMs(PANELS, "slow"),
+          );
         }}
+        className={`${WIDTH} ${PANEL_BASE} ${TYPE} pointer-events-auto flex flex-col items-center gap-2 px-6 py-4`}
       >
-        <SignOut />
-      </div>
+        <span className="font-kumbh text-[0.9375rem] font-bold tracking-[-0.02em] uppercase">
+          {name ? `${name}'s account` : "Your account"}
+        </span>
+        <Chevron open={open} />
+      </button>
+
+      {phase && (
+        <>
+          <Panel
+            title="Messages from instructor"
+            index={0}
+            phase={phase}
+            minHeight={MESSAGES}
+          >
+            {/*
+              Said plainly. There is no messaging yet, and an empty panel that
+              implies a message might arrive tomorrow would be a promise made
+              by a page rather than by Shabnam.
+            */}
+            <p className="opacity-70">Nothing here yet.</p>
+          </Panel>
+
+          <Panel title="My courses" index={1} phase={phase} minHeight={COURSES}>
+            {courses.length ? (
+              <ul className="flex flex-col gap-3">
+                {courses.map((course) => (
+                  <li key={course.href}>
+                    <Link
+                      href={course.href}
+                      className="underline underline-offset-4 opacity-90 transition-opacity hover:opacity-100"
+                    >
+                      {course.title}
+                    </Link>
+                    {/* The Program a single entry sits inside, so two entries
+                        with similar names are not two lines that look alike. */}
+                    {course.program ? (
+                      <span className="opacity-60"> — {course.program}</span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="opacity-70">
+                No courses on your account yet.{" "}
+                <Link href={LEARN} className="underline underline-offset-4">
+                  See what there is
+                </Link>
+                .
+              </p>
+            )}
+          </Panel>
+
+          {/*
+            The address that proves who this is, and the way out, in the last
+            panel rather than the first.
+
+            The email was in the top panel while that panel was a panel. It is a
+            bar now and holds a name and a chevron, so the address moved to the
+            one place it still belongs: beside the control that ends the session
+            it identifies.
+          */}
+          <div
+            className={`${WIDTH} ${PANEL_BASE} ${TYPE} ${revealClass("down", phase)} pointer-events-auto flex flex-col items-center justify-center gap-2`}
+            style={{
+              height: SIGN_OUT,
+              ...revealStep(2, PANELS, "down", phase, "slow"),
+            }}
+          >
+            <p className="text-[0.8125rem] opacity-70">Signed in as {email}.</p>
+            <SignOut />
+          </div>
+        </>
+      )}
     </div>
   );
 }
