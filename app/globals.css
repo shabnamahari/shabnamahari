@@ -172,6 +172,39 @@ body {
   --hl-bar: #ffffff;
 }
 
+/*
+ * The account page's panels are red, and only the account page's.
+ * ---------------------------------------------------------------------------
+ * Shabnam asked what the brand guide has "like orange". It has no orange; this
+ * is the nearest thing in it and the only saturated colour it allows — Signal
+ * Red, the same #FF3B30 as the cursor. She saw it beside the green, a deeper
+ * brick red and the guide's gold, on the real page, and chose this.
+ *
+ * Two things about it are hers to own rather than mine to hide.
+ *
+ * White type lands at 3.4:1 here, where 4.5 is the floor for text this size —
+ * and no alpha fixes it, because white on #FF3B30 is 3.55:1 even fully opaque.
+ * Ink type would clear it, at the cost of taking the panel to 0.95 opacity
+ * *and* going dark on a page whose panels are read against black capitals. She
+ * looked at both and kept white. So the headings are fine and the small grey
+ * lines inside the panels are the ones that will suffer, on a phone outdoors
+ * most of all.
+ *
+ * And 0.95 is nearly solid, which is why the capitals barely show through here
+ * where they show clearly through the green. The most saturated colour is also
+ * the least transparent one; that is a property of the red, not a choice.
+ *
+ * Scoped to this surface deliberately. `--auth-fill` and `--auth-type` are one
+ * set for sign-up and /auth as well, and that green was Shabnam's own pick from
+ * three rendered options — changing it here would have repainted two pages
+ * nobody asked about. If she does want the site's panels all red, this block
+ * moves up into `:root` and the site is red in one edit.
+ */
+[data-surface="account"] {
+  --auth-fill: rgb(255 59 48 / 0.95);
+  --auth-type: #ffffff;
+}
+
 /* ---- adcker-derived typography utilities ---- */
 
 .text-h1,
