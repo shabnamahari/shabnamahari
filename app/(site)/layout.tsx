@@ -1,5 +1,6 @@
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import CustomCursor from "@/components/CustomCursor";
+import CursorTrail from "@/components/CursorTrail";
 import LightboxProvider from "@/components/Lightbox";
 import SiteChrome from "@/components/SiteChrome";
 import AssistantMount from "@/components/chat/mount";
@@ -38,6 +39,8 @@ export default function SiteLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <>
+      {/* The line the pointer leaves, under the pointer itself. */}
+      <CursorTrail />
       <CustomCursor />
       <SmoothScrollProvider>
         <LightboxProvider>
