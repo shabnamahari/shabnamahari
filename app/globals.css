@@ -75,29 +75,29 @@
   /*
    * The panel itself, and the type that has to stay readable on it.
    *
-   * The green is `--color-confirm` exactly — #3f6b54, the one the "ielts."
-   * wordmark is set in — because Shabnam asked to see the panels in the site's
-   * own green rather than a darker relative of it.
+   * Signal Red — #FF3B30, the cursor's own red and the only saturated colour
+   * the brand guide allows. It was the wordmark's green until 16 Aug 2026;
+   * Shabnam asked what the guide had "like orange", saw all four candidates
+   * rendered on the account page, chose this, and then asked for it on /auth
+   * too. Which is why it is here rather than scoped to one page: /auth and the
+   * foot of the home page are the same form in two places, and a red one and a
+   * green one would be the exact drift these values were consolidated to stop.
    *
-   * Two things had to move with it, and neither was a choice.
+   * Two costs, hers and knowingly taken.
    *
-   * The type is white. Over the cream page this fill leaves `confirm-lit` at
-   * 3.6:1 and over a photograph it leaves ink at 2.4:1 — neither clears 4.5:1
-   * on both grounds, and white is the only value that does.
+   * White type lands at 3.4:1 over the cream page, where 4.5 is the floor for
+   * text this size, and no alpha fixes it: white on this red is 3.55:1 even
+   * fully opaque. Ink would clear it and she looked at ink and asked for white
+   * back. Headings carry; the small lines inside the panels are what suffer.
    *
-   * The alpha is 0.85 rather than the 0.68 it replaces, which is the real cost.
-   * #3f6b54 is a good deal lighter than the fill it replaces, so more of the
-   * page showing through drags the panel toward whatever is behind it: at 0.68
-   * white falls to 3.27:1 over the cream. 0.85 is the thinnest this green can
-   * be and still hold its type on both grounds — so the glass goes from
-   * letting 32% of the page through to 15% of it. That is the trade for using
-   * the wordmark's green, and it is Shabnam's to weigh, not mine to hide.
+   * And 0.95 is nearly solid where the green was 0.85, so far less of the page
+   * shows through than it did. That is a property of the red — the most
+   * saturated option is also the least transparent one — and it costs some of
+   * the see-through the panels were designed around.
    *
-   * One set for both places. There were two — a dark one for the foot of the
-   * home page, a pale one for /auth — and they had already drifted apart by a
-   * change made to one and not the other.
+   * The cursor is this same red and goes invisible over these panels.
    */
-  --auth-fill: rgb(63 107 84 / 0.85);
+  --auth-fill: rgb(255 59 48 / 0.95);
   --auth-edge: rgb(255 255 255 / 0.3);
   --auth-type: #ffffff;
   --auth-field: rgb(255 255 255 / 0.3);
@@ -173,37 +173,10 @@ body {
 }
 
 /*
- * The account page's panels are red, and only the account page's.
- * ---------------------------------------------------------------------------
- * Shabnam asked what the brand guide has "like orange". It has no orange; this
- * is the nearest thing in it and the only saturated colour it allows — Signal
- * Red, the same #FF3B30 as the cursor. She saw it beside the green, a deeper
- * brick red and the guide's gold, on the real page, and chose this.
- *
- * Two things about it are hers to own rather than mine to hide.
- *
- * White type lands at 3.4:1 here, where 4.5 is the floor for text this size —
- * and no alpha fixes it, because white on #FF3B30 is 3.55:1 even fully opaque.
- * Ink type would clear it, at the cost of taking the panel to 0.95 opacity
- * *and* going dark on a page whose panels are read against black capitals. She
- * looked at both and kept white. So the headings are fine and the small grey
- * lines inside the panels are the ones that will suffer, on a phone outdoors
- * most of all.
- *
- * And 0.95 is nearly solid, which is why the capitals barely show through here
- * where they show clearly through the green. The most saturated colour is also
- * the least transparent one; that is a property of the red, not a choice.
- *
- * Scoped to this surface deliberately. `--auth-fill` and `--auth-type` are one
- * set for sign-up and /auth as well, and that green was Shabnam's own pick from
- * three rendered options — changing it here would have repainted two pages
- * nobody asked about. If she does want the site's panels all red, this block
- * moves up into `:root` and the site is red in one edit.
+ * The account page's red used to be scoped here, for one page. It is every
+ * panel's red now — see `--auth-fill` in the theme block above, which is where
+ * it went when Shabnam asked for /auth as well.
  */
-[data-surface="account"] {
-  --auth-fill: rgb(255 59 48 / 0.95);
-  --auth-type: #ffffff;
-}
 
 /* ---- adcker-derived typography utilities ---- */
 
