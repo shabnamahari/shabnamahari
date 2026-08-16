@@ -44,6 +44,29 @@ export async function GET() {
   // No refresh token wanted: this is a sign-in, not an integration. Nothing
   // here ever calls Google again on someone's behalf.
   url.searchParams.set("access_type", "online");
+  /*
+   * Always ask which account, and this is a fix rather than a preference.
+   *
+   * Without it Google does what it does by default for somebody with one signed
+   * in account who has consented before: it authenticates silently and sends
+   * them straight back with a code. Shabnam signed out, pressed "continue with
+   * Google" to see what a stranger would see, and was standing in her own
+   * account again before the page had finished painting — so the report was
+   * that signing out does not sign you out.
+   *
+   * It does; the cookie is cleared and the server refuses the old one. What
+   * happened is that Google signed her back in without asking, which is
+   * indistinguishable from the outside and is worse than merely confusing on a
+   * shared computer: the next person at that keyboard is one press from an
+   * account that is not theirs.
+   *
+   * `select_account` rather than `consent`: the chooser is what is wanted, not
+   * a re-run of the permissions screen somebody has already agreed to.
+   *
+   * What this cannot do is sign anyone out of Google itself, and it must not
+   * try — that is their Gmail, not our session.
+   */
+  url.searchParams.set("prompt", "select_account");
 
   const response = NextResponse.redirect(url.toString());
   response.cookies.set(OAUTH_STATE_COOKIE, state, {
