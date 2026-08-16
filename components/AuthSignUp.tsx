@@ -199,6 +199,35 @@ function useGoogleNotice(): string | null {
 }
 
 /**
+ * The green this stack used to be, for as long as it takes to choose.
+ * ---------------------------------------------------------------------------
+ * TEMPORARY, and it comes out with the decision. `/?panel=green` puts the old
+ * `--color-confirm` fill back on the home page's sign-up stack so Shabnam can
+ * see it against the red on the page it actually lives on — the same way
+ * `?panel=` served the account page's four candidates, and `?bg=dark` served
+ * /auth's ground before that.
+ *
+ * The stack alone, not the site: /auth she has already approved in red.
+ *
+ * `useSyncExternalStore` rather than an effect, like the notice below it: the
+ * value cannot change while the page is open, the server has no URL to read,
+ * and this is the one hook that can say so without a second render or a
+ * hydration mismatch.
+ */
+const TRIAL_GREEN = "rgb(63 107 84 / 0.85)";
+
+function useTrialFill(): CSSProperties | undefined {
+  const trial = useSyncExternalStore(
+    () => () => {},
+    () => new URLSearchParams(window.location.search).get("panel"),
+    () => null,
+  );
+  return trial === "green"
+    ? ({ "--auth-fill": TRIAL_GREEN } as CSSProperties)
+    : undefined;
+}
+
+/**
  * The stack itself: the form, the fork, Google, and the terms.
  *
  * Split out from the bar below because it is wanted in two places — under the
@@ -534,6 +563,8 @@ export default function AuthSignUp() {
    * way to differ across hydration without either a mismatch or an effect.
    */
   const notice = useGoogleNotice();
+  // Temporary — the green, for comparison. See useTrialFill.
+  const trialFill = useTrialFill();
   const shown: Phase | null = phase ?? (notice ? "in" : null);
 
   return (
@@ -560,6 +591,8 @@ export default function AuthSignUp() {
        * two blended lines off from the page they have to blend with.
        */
       className="pointer-events-none absolute inset-x-0 top-[100px] md:top-[200px]"
+      /* Temporary, and inert without `/?panel=green` — see useTrialFill. */
+      style={trialFill}
     >
       <div className="absolute inset-x-0 bottom-[30px] flex flex-col gap-3 px-[15px]">
         {/*
