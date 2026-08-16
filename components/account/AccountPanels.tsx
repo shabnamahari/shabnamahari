@@ -148,12 +148,15 @@ export default function AccountPanels({
      * `top-0` is old enough to be in any stylesheet this page has ever had, so
      * the same failure now costs 76px of position instead of the layout.
      *
-     * `data-surface` for the cursor rather than for the colours — the site
+     * `data-surface` does two jobs here. The cursor is the first — the site
      * hides the system pointer and draws its own, and anything with controls
-     * inside it has to say so or the reader cannot see what they are pressing.
+     * inside it has to say so or the reader cannot see what they are pressing;
+     * the rule tests for the attribute, not for a particular value. The second
+     * is the colour: `account` is where these panels stop being sign-up's green
+     * and become the site's red, in globals.css, for this page alone.
      */
     <div
-      data-surface="auth"
+      data-surface="account"
       className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-3 px-[15px] pt-[76px] md:pt-[24px]"
     >
       {/*
