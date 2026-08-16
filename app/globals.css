@@ -96,6 +96,27 @@
    * the see-through the panels were designed around.
    *
    * The cursor is this same red and goes invisible over these panels.
+   *
+   * ---------------------------------------------------------------------
+   * If she goes back to the green, it is this line and nothing else:
+   *
+   *   --auth-fill: rgb(63 107 84 / 0.85);
+   *
+   * #3f6b54 is `--color-confirm`, the green the "ielts." wordmark is set in,
+   * and it is the one she chose in August from three candidates — not a
+   * darker relative of it, which was the version before that. `--auth-type`
+   * stays #ffffff and `--auth-edge` stays white at 0.3: the green carries
+   * white type as this red does, so nothing else moves.
+   *
+   * 0.85 is not a preference either. It is the floor — white lands at 4.52:1
+   * over the cream page there, and at 0.8 it drops to 4.33 and fails. So do
+   * not thin it to get the type behind showing through; that trade was
+   * already made and the answer was no.
+   *
+   * The one thing to undo with it: `components/AuthSignUp.tsx` puts Google's
+   * G on a white disc, which the red forced. On the green the mark read
+   * cleanly on its own and the disc can go.
+   * ---------------------------------------------------------------------
    */
   --auth-fill: rgb(255 59 48 / 0.95);
   --auth-edge: rgb(255 255 255 / 0.3);
