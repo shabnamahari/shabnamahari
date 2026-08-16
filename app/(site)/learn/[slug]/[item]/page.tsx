@@ -37,6 +37,9 @@ const TITLE_FONT_SIZE = "min(12vw, calc((100vw - 80px) / 8.64))";
  */
 const ROLL = "translate 900ms cubic-bezier(0.65, 0, 0.35, 1)";
 
+/** "Set Up Your Account", a step down from .text-h2 at Shabnam's request. */
+const CTA_FONT_SIZE = "calc(2em + 1.6vw)";
+
 export function generateStaticParams() {
   return PROJECTS.flatMap((project) =>
     galleryItems(project.slug).map((entry) => ({
@@ -259,15 +262,21 @@ export default async function GalleryItemPage({
            * holds again — so it reads as a snap however long it is given, and
            * lengthening it only lengthens the pause. This curve spends its time
            * travelling instead, which is what makes a roll legible as rolling.
+           *
+           * `fontSize` is inline for the third time and the same reason: it is
+           * a step below .text-h2's calc(2.5em + 2vw) on Shabnam's instruction —
+           * about four fifths of it — and .text-h2 is unlayered, so a Tailwind
+           * size utility would lose to it silently. Both copies take it, or the
+           * roll would change size halfway through.
            */}
           <span
-            style={{ lineHeight: 1.4, transition: ROLL }}
+            style={{ lineHeight: 1.4, transition: ROLL, fontSize: CTA_FONT_SIZE }}
             className="text-h2 text-confirm block group-hover:-translate-y-full"
           >
             Set Up Your Account
           </span>
           <span
-            style={{ lineHeight: 1.4, transition: ROLL }}
+            style={{ lineHeight: 1.4, transition: ROLL, fontSize: CTA_FONT_SIZE }}
             className="text-h2 text-confirm absolute top-0 left-0 block w-full translate-y-full group-hover:translate-y-0"
           >
             Set Up Your Account
