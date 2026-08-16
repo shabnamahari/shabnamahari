@@ -7,6 +7,7 @@ import {
   Inter,
   Vazirmatn,
 } from "next/font/google";
+import { reachableSiteUrl, siteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const kumbhSans = Kumbh_Sans({
@@ -64,11 +65,59 @@ const vazirmatn = Vazirmatn({
   display: "swap",
 });
 
+// Shabnam's words. "Coaching" undersold it and left out the business English
+// side entirely, which is a third of what she teaches.
+const TITLE = "Shabnam Ahari — Ielts and business English studio";
+const DESCRIPTION = "Your goal speaks English.";
+
+/**
+ * The picture that goes with the link, and why there is one at all.
+ *
+ * Shabnam bookmarked her own site twice and got two different pictures: her
+ * portrait one day, a misty forest the next. Nothing had changed — the second
+ * was the home page, whose photographs are still the placeholders fetched from
+ * picsum.photos, and with no image declared anywhere the browser had fallen
+ * back to snapshotting whatever happened to be on screen. Every share of this
+ * link — Telegram, LinkedIn, a bookmark — was a lottery over stock photography
+ * that is not hers.
+ *
+ * So `public/og.jpg` is declared instead: her own portrait from the About page
+ * beside the tagline, set in the site's own Kumbh on the site's own cream.
+ * 1200×630, which is what every platform crops from.
+ *
+ * `metadataBase` is what turns "/og.jpg" into an absolute URL, and every
+ * scraper needs it absolute. `reachableSiteUrl` first, because that is the one
+ * helper that refuses to hand back a loopback address — `NEXT_PUBLIC_SITE_URL`
+ * is correctly `localhost:3000` on a laptop, and a production build that
+ * inherited it would advertise an image nobody outside this machine can fetch.
+ */
+const base = reachableSiteUrl() || siteUrl() || "http://localhost:3000";
+
 export const metadata: Metadata = {
-  // Shabnam's words. "Coaching" undersold it and left out the business English
-  // side entirely, which is a third of what she teaches.
-  title: "Shabnam Ahari — Ielts and business English studio",
-  description: "Your goal speaks English.",
+  metadataBase: new URL(base),
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: "Shabnam Ahari",
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "/",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Shabnam Ahari — your goal speaks English",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/og.jpg"],
+  },
 };
 
 /**
