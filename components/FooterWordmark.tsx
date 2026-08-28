@@ -47,7 +47,7 @@ export default function FooterWordmark() {
       aria-label="Back to top"
       /* Negative inline margin cancels the footer's 15px padding so the
          wordmark reaches both edges, like the original. */
-      className="-mx-[15px] block w-[calc(100%+30px)] overflow-hidden text-center text-confirm"
+      className="-mx-gutter block w-[calc(100%+30px)] overflow-hidden text-center text-confirm"
     >
       {/* Glyph size + inter-letter gap are tuned together so "ielts." sums
           to a safe margin under the viewport width — recalculate both if

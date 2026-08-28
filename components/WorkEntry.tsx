@@ -25,7 +25,7 @@ export default function WorkEntry({
         /* The tile is decorative to a screen reader, and the caption under it
            is gone, so the link carries the name itself. */
         aria-label={name}
-        className="group col-span-8 col-start-3 flex flex-col justify-center gap-y-[30px] lg:col-span-6 lg:col-start-4"
+        className="group col-span-8 col-start-3 flex flex-col justify-center gap-y-step-1 lg:col-span-6 lg:col-start-4"
       >
         <div className="relative">
           <span className="absolute top-1/2 -left-[16vw] w-[calc((0.9em+2.7vw)*1)] -translate-y-1/2 text-ink sm:-left-[14vw] lg:w-[calc((0.9em+2.7vw)*1.5)] xl:-left-[13vw]">

@@ -131,6 +131,46 @@
   --font-grotesk: var(--font-grotesk);
 }
 
+
+/*
+ * Not `@theme inline`: these need to exist as real custom properties so the
+ * hand-written rules below (.page-margin, .page-grid) can read them too.
+ * `inline` would resolve them into the utilities and emit nothing to :root.
+ */
+@theme {
+  /*
+   * ---------------------------------------------------------------------
+   * SPACING
+   *
+   * Not a new scale — these are the six values the site already used, in
+   * 63 places, written as arbitrary Tailwind values. Registering them
+   * changes nothing on screen; it means the page gutter can be changed in
+   * one place instead of nineteen, and it makes the odd value out visible
+   * as an odd value rather than as another number.
+   *
+   * The names dodge two collisions on purpose. `--spacing-100` would generate
+   * `p-100`, and Tailwind's numeric scale already means 400px by that. And a
+   * t-shirt name is worse: defining `--spacing-sm` silently redefines
+   * `max-w-sm` from 24rem to 50px, because spacing shadows the container
+   * scale. That one was caught by the admin login panel, which uses it.
+   *
+   * Six values that are deliberately NOT in here, because they are on no
+   * sequence and rounding them would move the page: 120px, 140px, 76px,
+   * 24px, 18px. They are one-offs and should stay visible as one-offs.
+   *
+   * Also excluded: every `vw` and `em` measure. Those track type size
+   * rather than page rhythm, and the `em` values in FooterWordmark are
+   * hand-tuned against glyph widths.
+   * ---------------------------------------------------------------------
+   */
+  --spacing-gutter: 15px;
+  --spacing-step-1: 30px;
+  --spacing-step-2: 50px;
+  --spacing-step-3: 60px;
+  --spacing-step-4: 100px;
+  --spacing-step-5: 200px;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -351,8 +391,8 @@ body {
 /* ---- layout primitives ---- */
 
 .page-margin {
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: var(--spacing-gutter);
+  padding-right: var(--spacing-gutter);
 }
 
 .page-grid {
@@ -362,7 +402,7 @@ body {
 
 @media (min-width: 768px) {
   .page-grid {
-    column-gap: 15px;
+    column-gap: var(--spacing-gutter);
   }
 }
 

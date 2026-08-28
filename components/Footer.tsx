@@ -48,9 +48,9 @@ export default function Footer() {
   return (
     // `relative` for the sign-up stack alone, which hangs off the top padding
     // rather than taking a row in the grid — see AuthSignUp for why.
-    <footer className="bg-ink relative px-[15px] text-white">
+    <footer className="bg-ink relative px-gutter text-white">
       {isHome ? <AuthSignUp /> : null}
-      <div className="page-grid gap-y-[30px] py-[100px] md:py-[200px]">
+      <div className="page-grid gap-y-step-1 py-step-4 md:py-step-5">
         <RevealLine
           as="h2"
           className="col-span-12 md:col-span-10 md:col-start-2 text-h2 text-center"
@@ -87,7 +87,7 @@ export default function Footer() {
           viewport with the wordmark filling the rest, matching the original. */}
       <div
         id="contact"
-        className="grid grid-cols-12 gap-y-[60px] pb-[100px] md:gap-x-[15px] md:pb-[200px]"
+        className="grid grid-cols-12 gap-y-step-3 pb-step-4 md:gap-x-gutter md:pb-step-5"
       >
         <div className="col-span-12 grid grid-cols-5 md:col-span-6 md:grid-cols-4">
           <div className="col-span-2 whitespace-nowrap md:col-span-1">

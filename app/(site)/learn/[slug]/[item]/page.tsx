@@ -133,9 +133,9 @@ export default async function GalleryItemPage({
   // underestimating costs a word with its end sliced off.
 
   return (
-    <div className="flex flex-col gap-y-[100px] pb-[100px] md:gap-y-[200px] md:pb-[200px]">
+    <div className="flex flex-col gap-y-step-4 pb-step-4 md:gap-y-step-5 md:pb-step-5">
       {/* hero: ✳ ( photograph ) + the entry's own title */}
-      <section className="flex min-h-[100svh] w-full flex-col items-center justify-center gap-y-6 overflow-hidden py-[15px]">
+      <section className="flex min-h-[100svh] w-full flex-col items-center justify-center gap-y-6 overflow-hidden py-gutter">
         <div className="relative flex shrink-0 items-center px-16 md:px-28">
           <span className="absolute left-16 md:left-24 w-[calc((0.9em+2.7vw)*1.5)] max-md:w-10 -translate-x-full pt-1 text-confirm">
             <Asterisk />
@@ -208,7 +208,7 @@ export default async function GalleryItemPage({
         {entry.roles ? (
           <RevealLine
             delay={0.13}
-            className="text-note text-muted-ink max-w-[40ch] px-[15px] text-center md:max-w-none md:whitespace-nowrap"
+            className="text-note text-muted-ink max-w-[40ch] px-gutter text-center md:max-w-none md:whitespace-nowrap"
           >
             {entry.roles}
           </RevealLine>
@@ -232,7 +232,7 @@ export default async function GalleryItemPage({
        * six full-size links would be a carousel of this same page; at note size
        * the row says "there is more here" without pretending to be the point.
        */}
-      <div className="page-margin flex flex-col items-center gap-y-[60px]">
+      <div className="page-margin flex flex-col items-center gap-y-step-3">
         <AuthLink
           from={{ href: learnHref(slug, entry.slug), label: entry.title }}
           className="group relative block overflow-hidden text-center"

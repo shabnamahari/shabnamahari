@@ -71,7 +71,7 @@ export default async function LeadsPage() {
   const waiting = leads.filter((lead) => lead.notifyOnLaunch);
 
   return (
-    <main className="mx-auto max-w-3xl px-[15px] py-16">
+    <main className="mx-auto max-w-3xl px-gutter py-16">
       <header className="border-rule border-b pb-6">
         <Link
           href="/admin"

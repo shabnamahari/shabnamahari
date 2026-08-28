@@ -54,7 +54,7 @@ export default async function KnowledgePage() {
   const crawled = rows.filter((d) => d.source_type !== "text");
 
   return (
-    <main className="mx-auto max-w-3xl px-[15px] py-16">
+    <main className="mx-auto max-w-3xl px-gutter py-16">
       <header className="border-rule border-b pb-6">
         <Link
           href="/admin"

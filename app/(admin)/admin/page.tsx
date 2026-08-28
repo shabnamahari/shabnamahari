@@ -65,7 +65,7 @@ export default async function AdminHome() {
   const stats = await counts();
 
   return (
-    <main className="mx-auto max-w-3xl px-[15px] py-16">
+    <main className="mx-auto max-w-3xl px-gutter py-16">
       <header className="border-rule flex items-baseline justify-between border-b pb-6">
         <div>
           <h1 className="font-nhm text-2xl font-bold tracking-tight">Panel</h1>

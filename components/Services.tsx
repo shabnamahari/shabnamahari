@@ -7,7 +7,7 @@ const [IELTS, BLOGCASTS, BUSINESS_ENGLISH] = PROJECTS;
 
 export default function Services() {
   return (
-    <section className="page-margin flex flex-col items-center gap-y-2 py-[100px] md:py-[200px]">
+    <section className="page-margin flex flex-col items-center gap-y-2 py-step-4 md:py-step-5">
       <div className="relative flex w-full justify-center overflow-hidden">
         <RevealLine className="text-h1-2 text-center whitespace-nowrap">
           For

@@ -24,7 +24,7 @@ export function LegalPage({
   children: ReactNode;
 }) {
   return (
-    <section className="px-[15px] py-[140px]">
+    <section className="px-gutter py-[140px]">
       <div className="mx-auto w-full max-w-[46rem]">
         <h1 className="text-h2">{title}</h1>
         <p className="text-note text-muted-ink mt-4">Last updated {updated}</p>
