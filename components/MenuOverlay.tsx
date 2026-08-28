@@ -81,8 +81,8 @@ export default function MenuOverlay({
   const pathname = usePathname();
 
   const items: Item[] = [
-    { label: "Index", href: "/", note: "Home" },
-    { label: "Learn", href: LEARN, note: "What you do" },
+    { label: "Home", href: "/", note: "Overview" },
+    { label: "Learn", href: LEARN, note: "What you learn" },
     { label: "About", href: "/about", note: "Who I am" },
     {
       label: "Contact",

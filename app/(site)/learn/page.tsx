@@ -9,7 +9,7 @@ import WorkEntry from "@/components/WorkEntry";
 import { PROJECTS } from "@/lib/projects";
 
 export const metadata: Metadata = {
-  // "Learn", not "Programs". Programs are the six entries inside Ielts; this
+  // "Learn", not "Programs". Programs are the six entries inside IELTS; this
   // page holds all three sections, whose entries are Programs, Insights and
   // Areas. It was the fourth name for one thing, and the menu, the heading, the
   // Back control and the address all say Learn.
@@ -40,7 +40,7 @@ const TILE_SIZES: Record<string, string> = {
 
 export default function ServicesPage() {
   return (
-    <div className="flex flex-col gap-y-[100px] pb-[100px] md:gap-y-[200px] md:pb-[200px]">
+    <div className="flex flex-col gap-y-step-4 pb-step-4 md:gap-y-step-5 md:pb-step-5">
       {/* Five lines — "This is" was starting underneath the assistant's bar. */}
       <h1 className="hero-stack">
         <div className="flex w-full justify-center overflow-hidden">
@@ -100,7 +100,7 @@ export default function ServicesPage() {
       </h1>
 
       <div className="page-margin page-grid">
-        <div className="col-span-10 col-start-2 flex flex-col items-center justify-center gap-y-[50px]">
+        <div className="col-span-10 col-start-2 flex flex-col items-center justify-center gap-y-step-2">
           <RevealLine as="h2" className="text-h2 pt-2 text-center">
             Everyone starts on the same foundation. Nobody finishes on the
             same plan.
@@ -108,7 +108,7 @@ export default function ServicesPage() {
         </div>
       </div>
 
-      <div className="page-margin flex flex-col gap-y-[100px] md:gap-y-[200px]">
+      <div className="page-margin flex flex-col gap-y-step-4 md:gap-y-step-5">
         {PROJECTS.map((project) => (
           <WorkEntry
             key={project.slug}

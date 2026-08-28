@@ -125,10 +125,50 @@
   --auth-field-lit: rgb(255 255 255 / 0.75);
   --font-kumbh: var(--font-kumbh);
   --font-vazirmatn: var(--font-vazirmatn);
-  --font-psl: var(--font-psl);
-  --font-psr: var(--font-psr);
-  --font-nhm: var(--font-nhm);
-  --font-grotesk: var(--font-grotesk);
+  --font-instrument-serif: var(--font-instrument-serif);
+  --font-newsreader: var(--font-newsreader);
+  --font-instrument-sans: var(--font-instrument-sans);
+  --font-inter: var(--font-inter);
+}
+
+
+/*
+ * Not `@theme inline`: these need to exist as real custom properties so the
+ * hand-written rules below (.page-margin, .page-grid) can read them too.
+ * `inline` would resolve them into the utilities and emit nothing to :root.
+ */
+@theme {
+  /*
+   * ---------------------------------------------------------------------
+   * SPACING
+   *
+   * Not a new scale — these are the six values the site already used, in
+   * 63 places, written as arbitrary Tailwind values. Registering them
+   * changes nothing on screen; it means the page gutter can be changed in
+   * one place instead of nineteen, and it makes the odd value out visible
+   * as an odd value rather than as another number.
+   *
+   * The names dodge two collisions on purpose. `--spacing-100` would generate
+   * `p-100`, and Tailwind's numeric scale already means 400px by that. And a
+   * t-shirt name is worse: defining `--spacing-sm` silently redefines
+   * `max-w-sm` from 24rem to 50px, because spacing shadows the container
+   * scale. That one was caught by the admin login panel, which uses it.
+   *
+   * Six values that are deliberately NOT in here, because they are on no
+   * sequence and rounding them would move the page: 120px, 140px, 76px,
+   * 24px, 18px. They are one-offs and should stay visible as one-offs.
+   *
+   * Also excluded: every `vw` and `em` measure. Those track type size
+   * rather than page rhythm, and the `em` values in FooterWordmark are
+   * hand-tuned against glyph widths.
+   * ---------------------------------------------------------------------
+   */
+  --spacing-gutter: 15px;
+  --spacing-step-1: 30px;
+  --spacing-step-2: 50px;
+  --spacing-step-3: 60px;
+  --spacing-step-4: 100px;
+  --spacing-step-5: 200px;
 }
 
 * {
@@ -142,7 +182,7 @@ body {
 }
 
 body {
-  font-family: var(--font-nhm), sans-serif;
+  font-family: var(--font-instrument-sans), sans-serif;
   font-size: 16px;
   line-height: 1.2;
 }
@@ -304,7 +344,7 @@ body {
 
 .text-h2,
 .text-h3 {
-  font-family: var(--font-psl), serif;
+  font-family: var(--font-instrument-serif), serif;
   letter-spacing: -0.015em;
 }
 
@@ -319,7 +359,7 @@ body {
 }
 
 .text-note {
-  font-family: var(--font-psr), serif;
+  font-family: var(--font-newsreader), serif;
   font-size: 16px;
   line-height: 1;
 }
@@ -330,20 +370,8 @@ body {
   }
 }
 
-.text-body-h2 {
-  font-family: var(--font-psr), serif;
-  font-size: calc(1.75em + 1.4vw);
-}
-
-@media (min-width: 1024px) {
-  .text-body-h2 {
-    font-family: var(--font-nhm), sans-serif;
-    font-size: 21px;
-  }
-}
-
 .text-body {
-  font-family: var(--font-nhm), sans-serif;
+  font-family: var(--font-instrument-sans), sans-serif;
   font-size: 16px;
   line-height: 1.2;
 }
@@ -351,8 +379,8 @@ body {
 /* ---- layout primitives ---- */
 
 .page-margin {
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: var(--spacing-gutter);
+  padding-right: var(--spacing-gutter);
 }
 
 .page-grid {
@@ -362,7 +390,7 @@ body {
 
 @media (min-width: 768px) {
   .page-grid {
-    column-gap: 15px;
+    column-gap: var(--spacing-gutter);
   }
 }
 
@@ -404,10 +432,6 @@ body {
   transition-timing-function: cubic-bezier(0.82, 0, 0.18, 1);
 }
 
-.ease-custom-less-2 {
-  transition-timing-function: cubic-bezier(0.75, 0, 0.25, 1);
-}
-
 .ease-custom-text-links {
   transition-timing-function: cubic-bezier(0.98, 0, 0.02, 1);
 }
@@ -435,6 +459,46 @@ body {
 
 .media-grayscale:hover {
   filter: grayscale(0);
+}
+
+/*
+ * The same reveal, re-hung on scroll position for touch.
+ *
+ * :hover never fires on a phone, so every photograph sat permanently in the
+ * drained half of a system whose whole argument is that both halves get seen
+ * (brand guide p.11). Colour now resolves as the image enters the viewport.
+ *
+ * Desktop is untouched: the whole rule lives inside `hover: none`. The
+ * @supports guard matters — without it, a browser that ignores
+ * `animation-timeline` would still apply the animation with no duration and
+ * snap straight to colour, which is a different behaviour rather than the
+ * existing one. Unsupported browsers keep today's greyscale instead.
+ */
+@supports (animation-timeline: view()) {
+  @media (hover: none) {
+    .media-grayscale {
+      animation: media-color-in linear both;
+      animation-timeline: view();
+      animation-range: entry 20% entry 80%;
+    }
+  }
+}
+
+@keyframes media-color-in {
+  from {
+    filter: grayscale(1);
+  }
+  to {
+    filter: grayscale(0);
+  }
+}
+
+/* Colour still arrives, it just does not track the scroll. */
+@media (hover: none) and (prefers-reduced-motion: reduce) {
+  .media-grayscale {
+    animation: none;
+    filter: grayscale(0);
+  }
 }
 
 /* ---- kinetic type tiles (homepage category media) ---- */
@@ -476,7 +540,7 @@ body {
   /* Centred by transform rather than grid/flex so the layers stay centred once
      they outgrow the tile and start being clipped. */
   transform: translate(-50%, -50%) scale(1);
-  font-family: var(--font-grotesk), sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-weight: 800;
   font-size: var(--kt-size);
   text-transform: uppercase;
@@ -877,13 +941,57 @@ body {
   display: block;
   opacity: 0;
   animation: var(--reel-dur) linear infinite;
-  filter: grayscale(1);
+  /* Resolves to grayscale(1) until something animates the property; see the
+     touch block below for why the value is indirected at all. */
+  filter: grayscale(var(--reel-gray, 1));
   transition: filter 0.7s cubic-bezier(0.82, 0, 0.18, 1);
   will-change: transform, opacity;
 }
 
 .reel:hover .reel-frame {
   filter: grayscale(0);
+}
+
+/*
+ * The reel needs the scroll reveal too, but it cannot be done the way
+ * `.media-grayscale` does it: `ShowReel` sets `animation-name` inline on every
+ * frame to drive the cross-fade, so a second animation on `.reel-frame` would
+ * fight it. The animation therefore runs on the parent and carries a
+ * registered custom property down instead — registration is what makes a
+ * custom property interpolate rather than flip at 50%.
+ */
+@property --reel-gray {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+@supports (animation-timeline: view()) {
+  @media (hover: none) {
+    .reel {
+      animation: reel-color-in linear both;
+      animation-timeline: view();
+      animation-range: entry 20% entry 80%;
+    }
+  }
+}
+
+@keyframes reel-color-in {
+  from {
+    --reel-gray: 1;
+  }
+  to {
+    --reel-gray: 0;
+  }
+}
+
+@media (hover: none) and (prefers-reduced-motion: reduce) {
+  .reel {
+    animation: none;
+  }
+  .reel-frame {
+    filter: grayscale(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

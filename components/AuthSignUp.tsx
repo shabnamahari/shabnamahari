@@ -561,7 +561,7 @@ export default function AuthSignUp() {
        */
       className="pointer-events-none absolute inset-x-0 top-[100px] md:top-[200px]"
     >
-      <div className="absolute inset-x-0 bottom-[30px] flex flex-col gap-3 px-[15px]">
+      <div className="absolute inset-x-0 bottom-[30px] flex flex-col gap-3 px-gutter">
         {/*
           Growing up over the photographs above is not a defect to be contained.
           The panels are transparent for the same reason the assistant's are:

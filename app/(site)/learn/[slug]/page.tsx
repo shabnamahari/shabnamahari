@@ -64,7 +64,7 @@ export default async function ProjectPage({
   ).toFixed(2)}))`;
 
   return (
-    <div className="flex flex-col gap-y-[100px] pb-[100px] md:gap-y-[200px] md:pb-[200px]">
+    <div className="flex flex-col gap-y-step-4 pb-step-4 md:gap-y-step-5 md:pb-step-5">
       {/* hero: ✳ ( video ) + name */}
       <h1 className="hero-stack [--hero-lines:2]">
         <div className="relative flex shrink-0 items-center px-16 md:px-28">
@@ -105,7 +105,7 @@ export default async function ProjectPage({
       </div>
 
       {/* gallery */}
-      <div className="page-margin flex flex-col gap-y-[50px]">
+      <div className="page-margin flex flex-col gap-y-step-2">
         <RevealLine as="h2" className="text-h2 text-center">
           {galleryTitle(project)}
         </RevealLine>
@@ -113,11 +113,11 @@ export default async function ProjectPage({
       </div>
 
       {/* other Programs */}
-      <div className="page-margin flex flex-col gap-y-[50px]">
+      <div className="page-margin flex flex-col gap-y-step-2">
         <RevealLine as="h2" className="text-h2 text-center">
           Other Programs you might be interested in
         </RevealLine>
-        <div className="flex flex-col items-center gap-y-[30px]">
+        <div className="flex flex-col items-center gap-y-step-1">
           {others.map((other) => (
             <Link
               key={other.slug}

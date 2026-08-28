@@ -35,7 +35,7 @@ export default function AuthPage() {
        * Only this page. `--background` is the whole site's ground and every
        * other page was left alone.
        */
-      className="bg-media-gray flex min-h-[100svh] w-full items-center justify-center px-[15px] py-[120px]"
+      className="bg-media-gray flex min-h-[100svh] w-full items-center justify-center px-gutter py-[120px]"
     >
       <div className="w-full">
         <AuthPanels />

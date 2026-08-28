@@ -63,7 +63,7 @@ export default function PromptEditor({
   return (
     <section className="mt-12">
       <div className="flex items-baseline justify-between">
-        <h2 className="font-nhm text-lg font-bold">{heading}</h2>
+        <h2 className="font-instrument-sans text-lg font-bold">{heading}</h2>
         <span className="text-muted-ink text-xs tabular-nums">
           live: v{active.version}
           {active.note ? ` · ${active.note}` : ""}

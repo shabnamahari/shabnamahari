@@ -37,7 +37,7 @@ export default async function PromptPage() {
   const forLang = (lang: Lang) => all.filter((v) => v.lang === lang);
 
   return (
-    <main className="mx-auto max-w-3xl px-[15px] py-16">
+    <main className="mx-auto max-w-3xl px-gutter py-16">
       <header className="border-rule border-b pb-6">
         <Link
           href="/admin"
@@ -45,7 +45,7 @@ export default async function PromptPage() {
         >
           ← Panel
         </Link>
-        <h1 className="font-nhm mt-3 text-2xl font-bold tracking-tight">Prompt</h1>
+        <h1 className="font-instrument-sans mt-3 text-2xl font-bold tracking-tight">Prompt</h1>
         <p className="text-muted-ink mt-1 text-sm">
           What Sir Cue is told to be, before it is told anything else. Saving
           writes a new version and makes it live — nothing is overwritten, and

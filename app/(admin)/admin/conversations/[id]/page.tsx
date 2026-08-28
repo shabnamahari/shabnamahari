@@ -138,7 +138,7 @@ export default async function ConversationPage({
   );
 
   return (
-    <main className="mx-auto max-w-3xl px-[15px] py-16">
+    <main className="mx-auto max-w-3xl px-gutter py-16">
       <header className="border-rule border-b pb-6">
         <Link
           href="/admin/conversations"
@@ -146,7 +146,7 @@ export default async function ConversationPage({
         >
           ← Conversations
         </Link>
-        <h1 className="font-nhm mt-3 text-2xl font-bold tracking-tight">
+        <h1 className="font-instrument-sans mt-3 text-2xl font-bold tracking-tight">
           {new Date(conversation.started_at as string).toLocaleDateString("en-GB", {
             day: "numeric",
             month: "long",

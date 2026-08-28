@@ -47,7 +47,7 @@ export default function FooterWordmark() {
       aria-label="Back to top"
       /* Negative inline margin cancels the footer's 15px padding so the
          wordmark reaches both edges, like the original. */
-      className="-mx-[15px] block w-[calc(100%+30px)] overflow-hidden text-center text-confirm"
+      className="-mx-gutter block w-[calc(100%+30px)] overflow-hidden text-center text-confirm"
     >
       {/* Glyph size + inter-letter gap are tuned together so "ielts." sums
           to a safe margin under the viewport width — recalculate both if
@@ -62,7 +62,7 @@ export default function FooterWordmark() {
           negative bottom margin trims the empty space under them —
           0.165em is the most that can come off before it starts cutting
           into the baseline. */}
-      <span className="-mb-[0.165em] flex w-full justify-center gap-x-[3vw] font-psl text-[48vw] leading-[1] lowercase italic">
+      <span className="-mb-[0.165em] flex w-full justify-center gap-x-[3vw] font-instrument-serif text-[48vw] leading-[1] lowercase italic">
         {LETTERS.map((letter, i) => (
           <span key={i} className="block overflow-hidden pb-[0.04em]">
             <span

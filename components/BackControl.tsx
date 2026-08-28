@@ -171,7 +171,7 @@ export default function BackControl({
     // `pointer-events-none` on the bar, `auto` on the button: this is a
     // full-width fixed strip, and without it everything it crosses — the
     // assistant's bar sits at exactly this height — stops taking clicks.
-    <div className="pointer-events-none fixed top-[38px] right-0 z-[999999999] flex w-full items-center justify-end px-[15px] text-white mix-blend-difference">
+    <div className="pointer-events-none fixed top-[38px] right-0 z-[999999999] flex w-full items-center justify-end px-gutter text-white mix-blend-difference">
       <div
         className="pointer-events-auto relative flex items-center"
         onPointerEnter={() => setIsOpen(true)}

@@ -27,7 +27,7 @@ export default function Header({
     // in it — an invisible bar the width of the window. Nothing noticed while
     // there was only ever empty space up there; the assistant put a control in
     // that strip and it could not be pressed.
-    <div className="pointer-events-none fixed top-0 left-0 z-[999999999] flex w-full items-center justify-end p-[15px] text-white mix-blend-difference">
+    <div className="pointer-events-none fixed top-0 left-0 z-[999999999] flex w-full items-center justify-end p-gutter text-white mix-blend-difference">
       <button
         type="button"
         onClick={onToggleMenu}

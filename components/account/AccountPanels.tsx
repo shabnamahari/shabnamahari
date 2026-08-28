@@ -157,7 +157,7 @@ export default function AccountPanels({
      */
     <div
       data-surface="account"
-      className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-3 px-[15px] pt-[76px] md:pt-[24px]"
+      className="pointer-events-none absolute inset-x-0 top-0 flex flex-col gap-3 px-gutter pt-[76px] md:pt-[24px]"
     >
       {/*
         The bar, and when shut the whole of it.

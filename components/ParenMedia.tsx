@@ -17,7 +17,7 @@ export default function ParenMedia({
   const mediaClassName = `relative inline-block aspect-square ${sizeClassName} overflow-hidden bg-media-gray align-middle`;
 
   return (
-    <span className="relative inline-flex items-center gap-x-[calc(0.1em+1vw)] font-nhm">
+    <span className="relative inline-flex items-center gap-x-[calc(0.1em+1vw)] font-instrument-sans">
       <span className="inline-block -scale-x-100">)</span>
       {href ? (
         <Link href={href} aria-label={label} className={mediaClassName}>

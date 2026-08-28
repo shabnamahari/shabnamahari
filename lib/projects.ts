@@ -37,7 +37,7 @@ export type Project = {
   /**
    * The noun this project calls its gallery entries — "Programs", "Insights",
    * "Areas". Kept bare because the entry pages set it mid-sentence ("Other
-   * Programs in Ielts"), where the heading's "All" would not fit. Use
+   * Programs in IELTS"), where the heading's "All" would not fit. Use
    * `galleryTitle` for the heading itself. Defaults to "Gallery".
    *
    * These three are names, not descriptions, so they keep their capital mid
@@ -59,7 +59,7 @@ export const GALLERY_COUNT = 6;
 export const PROJECTS: Project[] = [
   {
     slug: "ielts",
-    name: "Ielts",
+    name: "IELTS",
     tile: { lines: ["IELTS"], tone: 146 },
     cover: "https://picsum.photos/seed/adcker-toty/1454/816",
     description:
@@ -85,7 +85,7 @@ export const PROJECTS: Project[] = [
         image: "/images/categories/ielts-04-grammar-vocab.jpg",
       },
       {
-        title: "AI & Ielts",
+        title: "AI & IELTS",
         image: "/images/categories/ielts-05-ai-ielts.jpg",
       },
       {
@@ -177,7 +177,7 @@ export const PROJECTS: Project[] = [
 
 /**
  * Which project each homepage service card links to, in page order:
- * Ielts → first, Blogcasts → second, Business English → third.
+ * IELTS → first, Blogcasts → second, Business English → third.
  */
 export const HOMEPAGE_LINKS = {
   ielts: learnHref(PROJECTS[0].slug),
@@ -218,7 +218,7 @@ export function squareImage(image: string) {
 /**
  * The URL segment a gallery title reduces to: lowercase, ampersands spelled
  * out, and every other run of non-alphanumerics collapsed to one hyphen.
- * "AI & Ielts" becomes "ai-and-ielts".
+ * "AI & IELTS" becomes "ai-and-ielts".
  */
 function slugifyTitle(title: string) {
   return title

@@ -22,7 +22,7 @@ const PHOTOS = [
 
 export default function AboutPage() {
   return (
-    <div className="flex flex-col gap-y-[100px] pb-[100px] md:gap-y-[200px] md:pb-[200px]">
+    <div className="flex flex-col gap-y-step-4 pb-step-4 md:gap-y-step-5 md:pb-step-5">
       <h1 className="hero-stack [--hero-lines:4]">
         <div className="flex w-full justify-center overflow-hidden">
           <RevealLine className="text-h1 text-center whitespace-nowrap">
@@ -66,7 +66,7 @@ export default function AboutPage() {
       </h1>
 
       <div className="page-margin page-grid">
-        <div className="col-span-10 col-start-2 flex flex-col items-center justify-center gap-y-[30px]">
+        <div className="col-span-10 col-start-2 flex flex-col items-center justify-center gap-y-step-1">
           <RevealLine as="h2" className="text-h2 text-confirm pt-2 text-center">
             I know what it feels like to be judged on a language that
             isn&rsquo;t yours.
@@ -81,7 +81,7 @@ export default function AboutPage() {
       </div>
 
       <div className="page-margin page-grid">
-        <div className="col-span-10 col-start-2 flex flex-col items-center justify-center gap-y-[30px]">
+        <div className="col-span-10 col-start-2 flex flex-col items-center justify-center gap-y-step-1">
           <RevealLine as="h2" className="text-h2 text-confirm pt-2 text-center">
             I find what&rsquo;s actually costing you marks, adapt fast, and
             stay until it&rsquo;s fixed.
@@ -97,7 +97,7 @@ export default function AboutPage() {
         </div>
       </div>
 
-      <div className="page-margin flex flex-col gap-y-[50px]">
+      <div className="page-margin flex flex-col gap-y-step-2">
         <div className="page-grid">
           <div className="col-span-10 col-start-2 flex justify-center">
             <RevealLine as="h2" className="text-h2 pt-2 text-center">
@@ -107,9 +107,9 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 items-start gap-x-[15px] gap-y-[50px] sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 items-start gap-x-gutter gap-y-step-2 sm:grid-cols-2 lg:grid-cols-3">
           {PHOTOS.map((photo) => (
-            <div key={photo.num} className="flex flex-col gap-y-[15px]">
+            <div key={photo.num} className="flex flex-col gap-y-gutter">
               <span className="text-note">( {photo.num} )</span>
               <Image
                 src={photo.image}

@@ -13,7 +13,7 @@ const THUMBNAILS = [
 
 export default function Quote() {
   return (
-    <section className="page-margin flex flex-col items-center gap-y-[50px] py-[60px] md:py-[100px]">
+    <section className="page-margin flex flex-col items-center gap-y-step-2 py-step-3 md:py-step-4">
       <RevealLine as="h2" className="text-h2 max-w-5xl text-center">
 
         One student, one learning path — built to end the day you no longer
@@ -25,9 +25,9 @@ export default function Quote() {
         More about me
       </a>
 
-      <div className="flex w-full justify-center max-md:flex-col max-md:items-center max-md:gap-y-[50px] md:justify-between">
+      <div className="flex w-full justify-center max-md:flex-col max-md:items-center max-md:gap-y-step-2 md:justify-between">
         {THUMBNAILS.map((thumb) => (
-          <div key={thumb.num} className="flex flex-col gap-y-[15px] self-center">
+          <div key={thumb.num} className="flex flex-col gap-y-gutter self-center">
             <span className="text-note">( {thumb.num} )</span>
             <div className="relative aspect-[4/3] w-[218px] overflow-hidden bg-media-gray md:w-[150px] xl:w-[218px]">
               <Image
