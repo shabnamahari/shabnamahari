@@ -146,7 +146,7 @@ export default async function ConversationPage({
         >
           ← Conversations
         </Link>
-        <h1 className="font-nhm mt-3 text-2xl font-bold tracking-tight">
+        <h1 className="font-instrument-sans mt-3 text-2xl font-bold tracking-tight">
           {new Date(conversation.started_at as string).toLocaleDateString("en-GB", {
             day: "numeric",
             month: "long",

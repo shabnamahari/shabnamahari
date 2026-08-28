@@ -160,7 +160,7 @@ const WIDTH = "mx-auto w-[clamp(20rem,34vw,40rem)]";
 const BAR_DEFAULT = 42;
 
 function fontFor(lang: Lang): string {
-  return lang === "fa" ? "font-vazirmatn" : "font-nhm";
+  return lang === "fa" ? "font-vazirmatn" : "font-instrument-sans";
 }
 
 /** A query parameter as a number inside a range, or null if it is not there. */
@@ -592,7 +592,7 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
               ))}
 
               {busy && (
-                <p className="text-chat-dim font-nhm text-[1.0625rem]" aria-live="polite">
+                <p className="text-chat-dim font-instrument-sans text-[1.0625rem]" aria-live="polite">
                   …
                 </p>
               )}
@@ -657,7 +657,7 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
             <button
               type="button"
               onClick={() => setLang((l) => (l === "en" ? "fa" : "en"))}
-              className="font-nhm rounded-full px-6 py-1.5 text-[0.875rem] text-white transition-colors hover:bg-white/10"
+              className="font-instrument-sans rounded-full px-6 py-1.5 text-[0.875rem] text-white transition-colors hover:bg-white/10"
             >
               {t.switchLabel}
             </button>

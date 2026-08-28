@@ -20,15 +20,15 @@ const kumbhSans = Kumbh_Sans({
 // motion reference uses, which the brand's Kumbh Sans doesn't cover.
 // Loaded as a variable range rather than fixed cuts so design 3 can animate the
 // weight down as the word shrinks, instead of snapping between two faces.
-const grotesk = Inter({
-  variable: "--font-grotesk",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
 });
 
 // Brand guide, editorial layer (large): Instrument Serif — Google Fonts, free.
-const psl = Instrument_Serif({
-  variable: "--font-psl",
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
   weight: "400",
   style: ["normal", "italic"],
   subsets: ["latin"],
@@ -36,16 +36,16 @@ const psl = Instrument_Serif({
 });
 
 // Brand guide, editorial layer (small): Newsreader — Google Fonts, free.
-const psr = Newsreader({
-  variable: "--font-psr",
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
   weight: "300",
   subsets: ["latin"],
   display: "swap",
 });
 
 // Brand guide, body/UI layer: Instrument Sans — Google Fonts, free.
-const nhm = Instrument_Sans({
-  variable: "--font-nhm",
+const instrumentSans = Instrument_Sans({
+  variable: "--font-instrument-sans",
   weight: "400",
   subsets: ["latin"],
   display: "swap",
@@ -139,9 +139,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${kumbhSans.variable} ${psl.variable} ${psr.variable} ${nhm.variable} ${grotesk.variable} ${vazirmatn.variable}`}
+      className={`${kumbhSans.variable} ${instrumentSerif.variable} ${newsreader.variable} ${instrumentSans.variable} ${inter.variable} ${vazirmatn.variable}`}
     >
-      <body className="bg-cream text-ink font-nhm text-body antialiased">
+      <body className="bg-cream text-ink font-instrument-sans text-body antialiased">
         {children}
       </body>
     </html>

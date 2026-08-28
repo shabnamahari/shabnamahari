@@ -62,7 +62,7 @@ export default function FooterWordmark() {
           negative bottom margin trims the empty space under them —
           0.165em is the most that can come off before it starts cutting
           into the baseline. */}
-      <span className="-mb-[0.165em] flex w-full justify-center gap-x-[3vw] font-psl text-[48vw] leading-[1] lowercase italic">
+      <span className="-mb-[0.165em] flex w-full justify-center gap-x-[3vw] font-instrument-serif text-[48vw] leading-[1] lowercase italic">
         {LETTERS.map((letter, i) => (
           <span key={i} className="block overflow-hidden pb-[0.04em]">
             <span

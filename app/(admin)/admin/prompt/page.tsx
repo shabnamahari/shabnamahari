@@ -45,7 +45,7 @@ export default async function PromptPage() {
         >
           ← Panel
         </Link>
-        <h1 className="font-nhm mt-3 text-2xl font-bold tracking-tight">Prompt</h1>
+        <h1 className="font-instrument-sans mt-3 text-2xl font-bold tracking-tight">Prompt</h1>
         <p className="text-muted-ink mt-1 text-sm">
           What Sir Cue is told to be, before it is told anything else. Saving
           writes a new version and makes it live — nothing is overwritten, and

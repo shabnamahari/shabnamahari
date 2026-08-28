@@ -80,7 +80,7 @@ export default async function LeadsPage() {
           ← Panel
         </Link>
         <div className="flex items-baseline justify-between gap-4">
-          <h1 className="font-nhm mt-3 text-2xl font-bold tracking-tight">People</h1>
+          <h1 className="font-instrument-sans mt-3 text-2xl font-bold tracking-tight">People</h1>
           {leads.length > 0 ? (
             // A plain link, not a button: it is a GET that returns a file, and
             // the browser already knows how to do that.
@@ -169,7 +169,7 @@ export default async function LeadsPage() {
 function Count({ label, value }: { label: string; value: number }) {
   return (
     <div>
-      <div className="font-nhm text-3xl font-bold tabular-nums">{value}</div>
+      <div className="font-instrument-sans text-3xl font-bold tabular-nums">{value}</div>
       <div className="text-muted-ink mt-1 text-xs tracking-wide uppercase">
         {label}
       </div>

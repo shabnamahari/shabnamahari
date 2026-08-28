@@ -125,10 +125,10 @@
   --auth-field-lit: rgb(255 255 255 / 0.75);
   --font-kumbh: var(--font-kumbh);
   --font-vazirmatn: var(--font-vazirmatn);
-  --font-psl: var(--font-psl);
-  --font-psr: var(--font-psr);
-  --font-nhm: var(--font-nhm);
-  --font-grotesk: var(--font-grotesk);
+  --font-instrument-serif: var(--font-instrument-serif);
+  --font-newsreader: var(--font-newsreader);
+  --font-instrument-sans: var(--font-instrument-sans);
+  --font-inter: var(--font-inter);
 }
 
 
@@ -182,7 +182,7 @@ body {
 }
 
 body {
-  font-family: var(--font-nhm), sans-serif;
+  font-family: var(--font-instrument-sans), sans-serif;
   font-size: 16px;
   line-height: 1.2;
 }
@@ -344,7 +344,7 @@ body {
 
 .text-h2,
 .text-h3 {
-  font-family: var(--font-psl), serif;
+  font-family: var(--font-instrument-serif), serif;
   letter-spacing: -0.015em;
 }
 
@@ -359,7 +359,7 @@ body {
 }
 
 .text-note {
-  font-family: var(--font-psr), serif;
+  font-family: var(--font-newsreader), serif;
   font-size: 16px;
   line-height: 1;
 }
@@ -371,7 +371,7 @@ body {
 }
 
 .text-body {
-  font-family: var(--font-nhm), sans-serif;
+  font-family: var(--font-instrument-sans), sans-serif;
   font-size: 16px;
   line-height: 1.2;
 }
@@ -540,7 +540,7 @@ body {
   /* Centred by transform rather than grid/flex so the layers stay centred once
      they outgrow the tile and start being clipped. */
   transform: translate(-50%, -50%) scale(1);
-  font-family: var(--font-grotesk), sans-serif;
+  font-family: var(--font-inter), sans-serif;
   font-weight: 800;
   font-size: var(--kt-size);
   text-transform: uppercase;

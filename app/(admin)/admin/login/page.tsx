@@ -19,7 +19,7 @@ export default async function LoginPage({
   return (
     <main className="flex min-h-screen items-center justify-center px-gutter">
       <div className="w-full max-w-sm">
-        <h1 className="font-nhm text-2xl font-bold tracking-tight">Panel</h1>
+        <h1 className="font-instrument-sans text-2xl font-bold tracking-tight">Panel</h1>
         <p className="text-muted-ink mt-2 text-sm">
           The knowledge base, the model, and what Sir Cue is told to be.
         </p>

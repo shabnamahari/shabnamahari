@@ -31,7 +31,7 @@ export default function WorkEntry({
           <span className="absolute top-1/2 -left-[16vw] w-[calc((0.9em+2.7vw)*1)] -translate-y-1/2 text-ink sm:-left-[14vw] lg:w-[calc((0.9em+2.7vw)*1.5)] xl:-left-[13vw]">
             <Asterisk />
           </span>
-          <div className="text-h1 flex items-center justify-center gap-x-[calc(0.1em+1vw)] p-0 font-nhm font-bold">
+          <div className="text-h1 flex items-center justify-center gap-x-[calc(0.1em+1vw)] p-0 font-instrument-sans font-bold">
             <span className="absolute top-1/2 -left-[8vw] -translate-y-1/2 -scale-x-100 text-center lg:-left-[6vw]">
               )
             </span>

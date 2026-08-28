@@ -82,7 +82,7 @@ export default async function DashboardPage({
         >
           ← Panel
         </Link>
-        <h1 className="font-nhm mt-3 text-2xl font-bold tracking-tight">
+        <h1 className="font-instrument-sans mt-3 text-2xl font-bold tracking-tight">
           How it is going
         </h1>
         <nav className="mt-4 flex gap-4">
@@ -243,7 +243,7 @@ function Figures({
     <div className="mt-4 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4">
       {items.map((item) => (
         <div key={item.label}>
-          <div className="font-nhm text-3xl font-bold tabular-nums">
+          <div className="font-instrument-sans text-3xl font-bold tabular-nums">
             {item.value}
             {item.note ? (
               <span className="text-muted-ink ml-2 text-sm font-normal">
