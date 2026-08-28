@@ -437,6 +437,46 @@ body {
   filter: grayscale(0);
 }
 
+/*
+ * The same reveal, re-hung on scroll position for touch.
+ *
+ * :hover never fires on a phone, so every photograph sat permanently in the
+ * drained half of a system whose whole argument is that both halves get seen
+ * (brand guide p.11). Colour now resolves as the image enters the viewport.
+ *
+ * Desktop is untouched: the whole rule lives inside `hover: none`. The
+ * @supports guard matters — without it, a browser that ignores
+ * `animation-timeline` would still apply the animation with no duration and
+ * snap straight to colour, which is a different behaviour rather than the
+ * existing one. Unsupported browsers keep today's greyscale instead.
+ */
+@supports (animation-timeline: view()) {
+  @media (hover: none) {
+    .media-grayscale {
+      animation: media-color-in linear both;
+      animation-timeline: view();
+      animation-range: entry 20% entry 80%;
+    }
+  }
+}
+
+@keyframes media-color-in {
+  from {
+    filter: grayscale(1);
+  }
+  to {
+    filter: grayscale(0);
+  }
+}
+
+/* Colour still arrives, it just does not track the scroll. */
+@media (hover: none) and (prefers-reduced-motion: reduce) {
+  .media-grayscale {
+    animation: none;
+    filter: grayscale(0);
+  }
+}
+
 /* ---- kinetic type tiles (homepage category media) ---- */
 
 .kinetic-tile {
@@ -877,13 +917,57 @@ body {
   display: block;
   opacity: 0;
   animation: var(--reel-dur) linear infinite;
-  filter: grayscale(1);
+  /* Resolves to grayscale(1) until something animates the property; see the
+     touch block below for why the value is indirected at all. */
+  filter: grayscale(var(--reel-gray, 1));
   transition: filter 0.7s cubic-bezier(0.82, 0, 0.18, 1);
   will-change: transform, opacity;
 }
 
 .reel:hover .reel-frame {
   filter: grayscale(0);
+}
+
+/*
+ * The reel needs the scroll reveal too, but it cannot be done the way
+ * `.media-grayscale` does it: `ShowReel` sets `animation-name` inline on every
+ * frame to drive the cross-fade, so a second animation on `.reel-frame` would
+ * fight it. The animation therefore runs on the parent and carries a
+ * registered custom property down instead — registration is what makes a
+ * custom property interpolate rather than flip at 50%.
+ */
+@property --reel-gray {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+@supports (animation-timeline: view()) {
+  @media (hover: none) {
+    .reel {
+      animation: reel-color-in linear both;
+      animation-timeline: view();
+      animation-range: entry 20% entry 80%;
+    }
+  }
+}
+
+@keyframes reel-color-in {
+  from {
+    --reel-gray: 1;
+  }
+  to {
+    --reel-gray: 0;
+  }
+}
+
+@media (hover: none) and (prefers-reduced-motion: reduce) {
+  .reel {
+    animation: none;
+  }
+  .reel-frame {
+    filter: grayscale(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
