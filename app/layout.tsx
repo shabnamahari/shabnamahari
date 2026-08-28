@@ -67,7 +67,7 @@ const vazirmatn = Vazirmatn({
 
 // Shabnam's words. "Coaching" undersold it and left out the business English
 // side entirely, which is a third of what she teaches.
-const TITLE = "Shabnam Ahari — Ielts and business English studio";
+const TITLE = "Shabnam Ahari — IELTS and Business English studio";
 const DESCRIPTION = "Your goal speaks English.";
 
 /**

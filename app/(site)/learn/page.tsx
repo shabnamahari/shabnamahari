@@ -9,7 +9,7 @@ import WorkEntry from "@/components/WorkEntry";
 import { PROJECTS } from "@/lib/projects";
 
 export const metadata: Metadata = {
-  // "Learn", not "Programs". Programs are the six entries inside Ielts; this
+  // "Learn", not "Programs". Programs are the six entries inside IELTS; this
   // page holds all three sections, whose entries are Programs, Insights and
   // Areas. It was the fourth name for one thing, and the menu, the heading, the
   // Back control and the address all say Learn.

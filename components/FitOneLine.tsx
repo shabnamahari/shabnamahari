@@ -41,7 +41,7 @@ export default function FitOneLine({
 
       // Estimate, then check. Width is not quite linear in font size —
       // letter-spacing does not scale with it and every glyph advance is
-      // rounded — so the ratio lands a hair wide. On the AI & Ielts page,
+      // rounded — so the ratio lands a hair wide. On the AI & IELTS page,
       // whose row is the five longest titles in the program, one pass left it
       // ten pixels over and `overflow: hidden` sliced a word off each end.
       let size = Math.max(min, Math.floor((max * available) / row.scrollWidth));
