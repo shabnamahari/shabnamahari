@@ -370,18 +370,6 @@ body {
   }
 }
 
-.text-body-h2 {
-  font-family: var(--font-psr), serif;
-  font-size: calc(1.75em + 1.4vw);
-}
-
-@media (min-width: 1024px) {
-  .text-body-h2 {
-    font-family: var(--font-nhm), sans-serif;
-    font-size: 21px;
-  }
-}
-
 .text-body {
   font-family: var(--font-nhm), sans-serif;
   font-size: 16px;
@@ -442,10 +430,6 @@ body {
 
 .ease-custom-less {
   transition-timing-function: cubic-bezier(0.82, 0, 0.18, 1);
-}
-
-.ease-custom-less-2 {
-  transition-timing-function: cubic-bezier(0.75, 0, 0.25, 1);
 }
 
 .ease-custom-text-links {
