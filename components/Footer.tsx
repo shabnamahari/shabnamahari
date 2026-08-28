@@ -7,7 +7,7 @@ import FooterWordmark from "./FooterWordmark";
 import AuthSignUp from "./AuthSignUp";
 
 const MENU_LINKS = [
-  { label: "Index", href: "/" },
+  { label: "Home", href: "/" },
   { label: "Learn", href: LEARN },
   { label: "About", href: "/about" },
 ];

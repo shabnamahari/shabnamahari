@@ -16,7 +16,7 @@ const LEARN_LABEL = "Learn";
 /**
  * Where a page's ( Back ) leads, or null if the page has no way back.
  *
- * Only the pages you reach by going *into* something get one. Index, About and
+ * Only the pages you reach by going *into* something get one. Home, About and
  * Programs are what Menu opens onto — a Back on those would point at whatever
  * you happened to look at before, which is not a place the site knows about.
  * Everything under /learn is nested, and /auth is a detour from an entry page.
@@ -35,11 +35,10 @@ export function backTarget(pathname: string): BackTarget | null {
   /*
    * The account page, which is reached by signing in rather than by browsing
    * into anything — so there is no page "above" it in the way there is above a
-   * lesson. Home, because that is where signing in starts and what the menu
-   * calls Index, and because a page whose only exit is Sign out is a room with
-   * the door locked behind you.
+   * lesson. Home, because that is where signing in starts, and because a page
+   * whose only exit is Sign out is a room with the door locked behind you.
    */
-  if (parts[0] === "myaccount") return { href: "/", label: "Index" };
+  if (parts[0] === "myaccount") return { href: "/", label: "Home" };
 
   // `LEARN` is "/learn", so its first segment is what a nested page begins
   // with. Compared against the constant rather than a literal, so renaming the
