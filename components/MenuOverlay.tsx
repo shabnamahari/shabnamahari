@@ -82,7 +82,7 @@ export default function MenuOverlay({
 
   const items: Item[] = [
     { label: "Home", href: "/", note: "Overview" },
-    { label: "Learn", href: LEARN, note: "What you do" },
+    { label: "Learn", href: LEARN, note: "What you learn" },
     { label: "About", href: "/about", note: "Who I am" },
     {
       label: "Contact",
