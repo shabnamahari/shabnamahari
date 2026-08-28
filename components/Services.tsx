@@ -16,7 +16,7 @@ export default function Services() {
           className="text-note absolute left-4 top-1/2 max-lg:hidden -translate-x-full -translate-y-1/2"
           style={{ marginLeft: "-1.5vw" }}
         >
-          Our services
+          What I teach
         </span>
       </div>
 
