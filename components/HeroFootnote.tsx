@@ -39,6 +39,11 @@ import RevealLine from "./RevealLine";
  * "Showreel" and "You will reach your" are. Visibility keeps the box in the
  * layout, so the measurement stays true while it is hidden — dropping the box
  * would report it as fitting and flip it straight back on.
+ *
+ * It finds the hero by `[data-hero]` rather than by tag. This sits beside the
+ * h1 rather than inside it — it is a label about the headline, not part of it —
+ * and `/myaccount` puts `.hero-stack` on a section, so neither the tag nor the
+ * class is the thing worth asking for.
  */
 export default function HeroFootnote() {
   const ref = useRef<HTMLSpanElement>(null);
@@ -46,7 +51,7 @@ export default function HeroFootnote() {
 
   useEffect(() => {
     const el = ref.current;
-    const hero = el?.closest("h1");
+    const hero = el?.closest("[data-hero]");
     if (!el || !hero) return;
 
     const measure = () => {
