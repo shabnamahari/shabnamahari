@@ -4,6 +4,8 @@ import RevealLine from "./RevealLine";
 import Asterisk from "./Asterisk";
 import ParenMedia from "./ParenMedia";
 import VideoSlot from "./VideoSlot";
+import HeroKicker from "./HeroKicker";
+import HeroFootnote from "./HeroFootnote";
 
 // Drop your file in public/videos/ and set this, e.g. "/videos/hero.mp4".
 const HERO_VIDEO: string | undefined = undefined;
@@ -14,7 +16,12 @@ export default function Hero() {
   return (
     /* Five lines, so the whole sentence is visible on a short window — see
        .hero-stack in globals.css. */
-    <h1 className="hero-stack">
+    <h1 className="hero-stack relative">
+      {/* Both hang off the hero box rather than sitting in the stack, so
+          neither counts towards --hero-lines and no word changes size. */}
+      <HeroKicker />
+      <HeroFootnote />
+
       <div className="flex w-full justify-center overflow-hidden">
         <RevealLine className="text-h1 text-center whitespace-nowrap">
           Your
