@@ -79,6 +79,20 @@ const TIGHT = 0.9;
  */
 const PAD = 0.22;
 
+/*
+ * The block's cap span, as a multiple of GOAL's cap height.
+ *
+ * Two lines fitted inside GOAL's own cap height. Three cannot and stay legible,
+ * so the block grows and is centred on GOAL's cap band instead — what makes it
+ * read as belonging to GOAL is a shared middle, not a shared height.
+ *
+ * 1.2 rather than more because the limit is now horizontal, not vertical.
+ * ONLINE is 1.564 times the width of IELTS at one size, so the third line makes
+ * the block wider as well as taller, and 1024x768 is where that runs out: the
+ * room between GOAL and the window edge does not grow with the type.
+ */
+const SPAN = 1.2;
+
 /** Kept clear between the block and the window edge. */
 const MARGIN = 15;
 
@@ -145,14 +159,26 @@ export default function HeroIeltsMark() {
         probe.textContent = text;
         return probe.getBoundingClientRect().width / 100;
       };
-      const wFirst = widthPerPx("IELTS");
-      const wSecond = widthPerPx("Preparation");
+      const wOnline = widthPerPx("Online");
+      const wIelts = widthPerPx("IELTS");
+      const wPrep = widthPerPx("Preparation");
       probe.remove();
-      if (!wFirst || !wSecond) return;
+      if (!wOnline || !wIelts || !wPrep) return;
 
-      // Same rendered width, and the two caps sharing TIGHT of the cap height.
-      const first = (TIGHT * capHeight) / (cap * (1 + wFirst / wSecond));
-      const second = first * (wFirst / wSecond);
+      /*
+       * ONLINE and IELTS share a size, so PREPARATION is set to the width of
+       * the wider of them, which is ONLINE: at one size it measures 1.564
+       * times IELTS, so it is ONLINE that decides how wide the block is.
+       *
+       * That is also what costs the block its flush right edge — IELTS now
+       * ends short of the other two. The alternative is the old rule, all
+       * three lines to one width, which keeps the rectangle but makes ONLINE
+       * a third smaller than IELTS rather than its equal.
+       */
+      const span = SPAN * capHeight;
+      const display = (TIGHT * span) / (cap * (2 + wOnline / wPrep));
+      const base = display * (wOnline / wPrep);
+      const lead = ((1 - TIGHT) * span) / 2;
 
       /*
        * "with" belongs to the note voice — the same face, size and colour as
@@ -187,7 +213,14 @@ export default function HeroIeltsMark() {
       // Air, then the word, then the same air again.
       const pad = PAD * capHeight;
       const left = box.right - heroBox.left + joinWidth + 2 * pad;
-      const width = first * wFirst;
+      const width = display * wOnline;
+
+      // Cap top of the first line, cap top of the next, and so on down: the
+      // block is centred on GOAL's cap band rather than filling it.
+      const topOfBlock = capTop + capHeight / 2 - span / 2;
+      const baselineOne = topOfBlock + cap * display;
+      const baselineTwo = baselineOne + lead + cap * display;
+      const baselineThree = baselineTwo + lead + cap * base;
 
       // The rule is the idea, so if the block cannot have its full height in
       // the room available it does not appear at all rather than shrink out of
@@ -208,16 +241,22 @@ export default function HeroIeltsMark() {
         },
         lines: [
           {
-            text: "IELTS",
-            fontSize: first,
-            top: capTop - (ascent - cap) * first,
+            text: "Online",
+            fontSize: display,
+            top: baselineOne - ascent * display,
             delay: 0.1667,
           },
           {
-            text: "Preparation",
-            fontSize: second,
-            top: baseline - ascent * second,
+            text: "IELTS",
+            fontSize: display,
+            top: baselineTwo - ascent * display,
             delay: 0.2,
+          },
+          {
+            text: "Preparation",
+            fontSize: base,
+            top: baselineThree - ascent * base,
+            delay: 0.2333,
           },
         ],
       });

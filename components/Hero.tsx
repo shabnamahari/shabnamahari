@@ -5,7 +5,6 @@ import Asterisk from "./Asterisk";
 import ParenMedia from "./ParenMedia";
 import VideoSlot from "./VideoSlot";
 import HeroKicker from "./HeroKicker";
-import HeroFootnote from "./HeroFootnote";
 import HeroIeltsMark from "./HeroIeltsMark";
 
 // Drop your file in public/videos/ and set this, e.g. "/videos/hero.mp4".
@@ -114,7 +113,6 @@ export default function Hero() {
       {/* Outside the heading, and outside the stack: none of these counts
           towards --hero-lines, so no word changes size. */}
       <HeroKicker />
-      <HeroFootnote />
       <HeroIeltsMark />
     </div>
   );
