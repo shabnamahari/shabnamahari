@@ -68,15 +68,28 @@ import RevealLine from "./RevealLine";
 /** Share of GOAL's cap height the two lines' own caps take. The rest is leading. */
 const TIGHT = 0.9;
 
-/** Space between GOAL's right edge and the block, as a fraction of cap height. */
-const GAP = 0.14;
+/*
+ * Breathing room either side of "with", as a fraction of GOAL's cap height —
+ * so the gap scales with the headline rather than with a number typed once.
+ *
+ * The gap itself is this twice over plus the width of "with", rather than a
+ * ratio alone: "with" is set at the note size, which is fixed at 21px and does
+ * not scale with the headline, so a pure ratio would crush it on a small window
+ * and strand it on a large one. The part that scales is the air around it.
+ */
+const PAD = 0.22;
 
 /** Kept clear between the block and the window edge. */
 const MARGIN = 15;
 
 type Line = { text: string; top: number; fontSize: number; delay: number };
 
-type Metrics = { left: number; lineHeight: number; lines: Line[] };
+type Metrics = {
+  left: number;
+  lineHeight: number;
+  lines: Line[];
+  join: { left: number; top: number; lineHeight: number };
+};
 
 export default function HeroIeltsMark() {
   const ref = useRef<HTMLDivElement>(null);
@@ -141,7 +154,39 @@ export default function HeroIeltsMark() {
       const first = (TIGHT * capHeight) / (cap * (1 + wFirst / wSecond));
       const second = first * (wFirst / wSecond);
 
-      const left = box.right - heroBox.left + GAP * capHeight;
+      /*
+       * "with" belongs to the note voice — the same face, size and colour as
+       * "You will reach your" on the other side of GOAL — so it is measured in
+       * that face, not this one.
+       *
+       * Vertically it is centred on its own ink rather than on its baseline or
+       * its em box: the optical middle of a word with ascenders and no
+       * descenders is not where either of those falls. `actualBoundingBox`
+       * gives the ink, and its midpoint goes on the midline of the cap band
+       * that GOAL and the block share.
+       */
+      const note = document.createElement("span");
+      note.className = "text-note";
+      note.style.cssText =
+        "position:absolute;visibility:hidden;white-space:nowrap";
+      note.textContent = "with";
+      hero.appendChild(note);
+      const noteStyle = getComputedStyle(note);
+      const noteSize = parseFloat(noteStyle.fontSize);
+      const joinWidth = note.getBoundingClientRect().width;
+      ctx.letterSpacing = "normal";
+      ctx.font = `${noteStyle.fontWeight} ${noteSize}px ${noteStyle.fontFamily}`;
+      const ink = ctx.measureText("with");
+      note.remove();
+
+      const joinBaseline =
+        capTop +
+        capHeight / 2 +
+        (ink.actualBoundingBoxAscent - ink.actualBoundingBoxDescent) / 2;
+
+      // Air, then the word, then the same air again.
+      const pad = PAD * capHeight;
+      const left = box.right - heroBox.left + joinWidth + 2 * pad;
       const width = first * wFirst;
 
       // The rule is the idea, so if the block cannot have its full height in
@@ -153,6 +198,14 @@ export default function HeroIeltsMark() {
       setMetrics({
         left,
         lineHeight: ascent + descent,
+        join: {
+          left: box.right - heroBox.left + pad,
+          top: joinBaseline - (ink.fontBoundingBoxAscent || noteSize),
+          lineHeight:
+            ((ink.fontBoundingBoxAscent || noteSize) +
+              (ink.fontBoundingBoxDescent || 0)) /
+            noteSize,
+        },
         lines: [
           {
             text: "IELTS",
@@ -200,18 +253,26 @@ export default function HeroIeltsMark() {
      */
     <div
       ref={ref}
-      className="text-cursor font-kumbh pointer-events-none absolute inset-0 font-bold uppercase max-md:hidden"
-      style={{ visibility: m ? "visible" : "hidden" }}
+      className="pointer-events-none absolute inset-0 max-md:hidden"
     >
       {m?.lines.map((l) => (
         <span
           key={l.text}
-          className="absolute whitespace-nowrap"
+          className="font-kumbh absolute font-bold whitespace-nowrap uppercase"
           style={{
             left: `${m.left}px`,
             top: `${l.top}px`,
             fontSize: `${l.fontSize}px`,
             lineHeight: m.lineHeight,
+            /*
+             * The colour is set here, from the variable, rather than by a
+             * `text-cursor` utility on the wrapper. A generated class that is
+             * missing from a stale stylesheet leaves this text inheriting
+             * --foreground and renders the one coloured thing on the page in
+             * near-black; an inline declaration cannot go missing. Same single
+             * declaration the cursor's own dot resolves to.
+             */
+            color: "var(--signal-red)",
             // On each line, not on the wrapper. An em letter-spacing resolves
             // against the font size of the element that declares it and then
             // inherits as an absolute length — set above, both lines got the
@@ -225,6 +286,24 @@ export default function HeroIeltsMark() {
           </RevealLine>
         </span>
       ))}
+
+      {/* The note voice, not the headline's and not the block's: this is the
+          same face, size and colour as "You will reach your" on GOAL's other
+          side, and it is the word that makes the two halves one sentence. */}
+      {m ? (
+        <span
+          className="text-note text-ink absolute whitespace-nowrap"
+          style={{
+            left: `${m.join.left}px`,
+            top: `${m.join.top}px`,
+            lineHeight: m.join.lineHeight,
+          }}
+        >
+          <RevealLine as="span" delay={0.2333} className="inline-block">
+            with
+          </RevealLine>
+        </span>
+      ) : null}
     </div>
   );
 }

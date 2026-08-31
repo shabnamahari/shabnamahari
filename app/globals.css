@@ -3,6 +3,19 @@
 :root {
   --background: #efedea;
   --foreground: #191919;
+  /*
+   * Signal Red, the brand guide's name for it (p.9), declared here rather than
+   * only in @theme so that it exists at runtime.
+   *
+   * `@theme inline` inlines its values into the utilities it generates and
+   * emits no custom property, so `var(--color-cursor)` resolves to nothing on
+   * the page. That is fine while every user of the colour is a generated class
+   * — and it stops being fine the moment one of those classes is missing from
+   * a stale stylesheet, because the element then inherits --foreground and the
+   * one coloured thing on the site renders near-black. This variable is what a
+   * caller can reach for instead.
+   */
+  --signal-red: #ff3b30;
 }
 
 @theme inline {
@@ -10,8 +23,10 @@
   --color-ink: #191919;
   --color-media-gray: #e3e1de;
   /* Custom cursor — the one saturated colour on an otherwise monochrome site,
-     so it stays legible over cream, near-black and greyscale photography. */
-  --color-cursor: #ff3b30;
+     so it stays legible over cream, near-black and greyscale photography.
+     Points at the runtime variable so the cursor and the hero's coral cannot
+     drift apart: there is one declaration of this colour on the site. */
+  --color-cursor: var(--signal-red);
   /* Brand guide additions (p.9) — gaps that would otherwise get invented. */
   --color-muted-ink: #6b6864; /* captions, labels, form hints */
   --color-rule: #d5d2cd; /* dividers, input borders, card edges */
