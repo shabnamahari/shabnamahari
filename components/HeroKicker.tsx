@@ -18,14 +18,24 @@ import RevealLine from "./RevealLine";
  * "online" is not decoration. Half the people this is written for are outside
  * Iran, and it is the word that tells them the service reaches them at all.
  *
- * Below md it drops to the foot of the hero. The assistant's bar is 20rem at
- * its narrowest and centred, which on a 375px window leaves 27px either side —
- * not a gutter, and not somewhere to put the only words that say what is sold
- * here. The foot of the hero is still inside the first screen.
+ * ( WHY IT IS NOW A PHONE ONLY )
+ *
+ * The coral block beside GOAL says IELTS far louder than this corner can, and
+ * two labels saying the same word on one screen read as an oversight rather
+ * than a hierarchy. So above md the block has the job and this stands down.
+ * Below md the block cannot fit beside GOAL at the cap height that is its
+ * whole idea, so this has it instead. They are never both on screen.
+ *
+ * The cost, on the record: "online" is the one thing the block does not say,
+ * and it is gone from desktop with this.
+ *
+ * It sits at the foot rather than the top because the assistant's bar goes
+ * full width on a phone and takes the corner this used on desktop. The foot of
+ * the hero is still inside the first screen.
  */
 export default function HeroKicker() {
   return (
-    <span className="pointer-events-none p-gutter absolute left-0 z-10 text-white mix-blend-difference max-md:bottom-0 md:top-0">
+    <span className="pointer-events-none p-gutter absolute bottom-0 left-0 z-10 text-white mix-blend-difference md:hidden">
       {/* Last in, a beat after "English" — the stack runs 0 to 0.2667 in
           fifteenths of a second, and this is the next step in that series. */}
       <RevealLine

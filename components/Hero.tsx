@@ -6,6 +6,7 @@ import ParenMedia from "./ParenMedia";
 import VideoSlot from "./VideoSlot";
 import HeroKicker from "./HeroKicker";
 import HeroFootnote from "./HeroFootnote";
+import HeroIeltsMark from "./HeroIeltsMark";
 
 // Drop your file in public/videos/ and set this, e.g. "/videos/hero.mp4".
 const HERO_VIDEO: string | undefined = undefined;
@@ -67,7 +68,8 @@ export default function Hero() {
         </div>
 
         <div className="flex w-full justify-center">
-          <div className="relative flex">
+          {/* Marked so the coral block can measure this word's cap height. */}
+          <div data-hero-goal className="relative flex">
             {/* Read aloud, this lands mid-sentence as "You will reach your
              *  goal speaks English". It is a gloss on the tagline rather than
              *  part of it, and it says what the tagline already says, so
@@ -109,10 +111,11 @@ export default function Hero() {
         </div>
       </h1>
 
-      {/* Outside the heading, and outside the stack: neither counts towards
-          --hero-lines, so no word changes size. */}
+      {/* Outside the heading, and outside the stack: none of these counts
+          towards --hero-lines, so no word changes size. */}
       <HeroKicker />
       <HeroFootnote />
+      <HeroIeltsMark />
     </div>
   );
 }
