@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback, useState } from "react";
+
 import RevealLine from "./RevealLine";
 import Asterisk from "./Asterisk";
 import ParenMedia from "./ParenMedia";
@@ -12,6 +14,23 @@ const HERO_VIDEO: string | undefined = undefined;
 
 export default function Hero() {
   const media = <VideoSlot src={HERO_VIDEO} label="Showreel" />;
+
+  /*
+   * Which of the two is saying IELTS.
+   *
+   * The coral block reports whether it actually rendered — it hides itself
+   * rather than push the page into horizontal scroll — and the corner label
+   * stands down only when it did. A breakpoint cannot answer this: the block
+   * is sized from measured type against the room left beside GOAL, so where it
+   * starts fitting depends on the words, not on a number.
+   *
+   * It starts true — assume the block has the job — because that resting state
+   * is `md:hidden` on the label, which is right on a desktop before anything
+   * has been measured and harmless on a phone, where md:hidden does not apply.
+   * Starting false paints the label for a moment on every desktop load.
+   */
+  const [markShown, setMarkShown] = useState(true);
+  const handleFit = useCallback((fits: boolean) => setMarkShown(fits), []);
 
   return (
     /*
@@ -112,8 +131,8 @@ export default function Hero() {
 
       {/* Outside the heading, and outside the stack: none of these counts
           towards --hero-lines, so no word changes size. */}
-      <HeroKicker />
-      <HeroIeltsMark />
+      <HeroKicker standDown={markShown} />
+      <HeroIeltsMark onFit={handleFit} />
     </div>
   );
 }

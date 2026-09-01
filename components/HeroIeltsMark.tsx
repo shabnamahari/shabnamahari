@@ -105,7 +105,13 @@ type Metrics = {
   join: { left: number; top: number; lineHeight: number };
 };
 
-export default function HeroIeltsMark() {
+export default function HeroIeltsMark({
+  onFit,
+}: {
+  /** Told whether the block is on screen, so the corner label knows to stand
+      down — or to come back where the block cannot fit. */
+  onFit: (fits: boolean) => void;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const [m, setMetrics] = useState<Metrics | null>(null);
 
@@ -226,7 +232,10 @@ export default function HeroIeltsMark() {
       // the room available it does not appear at all rather than shrink out of
       // agreement with GOAL. It does not fire at any window tested; it is here
       // so that the day it would, the page does not scroll sideways instead.
-      if (left + width > heroBox.width - MARGIN) return setMetrics(null);
+      if (left + width > heroBox.width - MARGIN) {
+        onFit(false);
+        return setMetrics(null);
+      }
 
       setMetrics({
         left,
@@ -260,6 +269,7 @@ export default function HeroIeltsMark() {
           },
         ],
       });
+      onFit(true);
     };
 
     // The metrics are the font's, so they are wrong until the font is the one
@@ -273,7 +283,7 @@ export default function HeroIeltsMark() {
       live = false;
       observer.disconnect();
     };
-  }, []);
+  }, [onFit]);
 
 
 
