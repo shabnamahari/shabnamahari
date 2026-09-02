@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+
+import { HOMEPAGE_LINKS } from "@/lib/projects";
 import RevealLine from "./RevealLine";
 
 /**
@@ -120,7 +123,11 @@ const MARGIN = 15;
 type Line = { text: string; top: number; fontSize: number; delay: number };
 
 type Metrics = {
+  /** The anchor's own box, which the three lines are then placed inside. */
   left: number;
+  top: number;
+  width: number;
+  height: number;
   lineHeight: number;
   lines: Line[];
   join: { left: number; top: number; lineHeight: number };
@@ -258,8 +265,34 @@ export default function HeroIeltsMark({
         return setMetrics(null);
       }
 
+      /*
+       * The link's box, and why the lines move inside it.
+       *
+       * Three absolutely positioned lines cannot hang inside one anchor and
+       * still give it a size — the anchor would collapse to nothing and there
+       * would be nothing to click or to draw a focus ring around. So the
+       * anchor takes the block's own extent and the lines are re-based onto
+       * it: same pixels on screen, one hit area covering all three and the
+       * leading between them, and one tab stop instead of three.
+       */
+      const boxHeight = (size: number) => (ascent + descent) * size;
+      const tops = [
+        baselineOne - ascent * display,
+        baselineTwo - ascent * display,
+        baselineThree - ascent * base,
+      ];
+      const top = Math.min(...tops);
+      const bottom = Math.max(
+        tops[0] + boxHeight(display),
+        tops[1] + boxHeight(display),
+        tops[2] + boxHeight(base),
+      );
+
       setMetrics({
         left,
+        top,
+        width,
+        height: bottom - top,
         lineHeight: ascent + descent,
         join: {
           left: box.right - heroBox.left + pad,
@@ -273,19 +306,19 @@ export default function HeroIeltsMark({
           {
             text: "Online",
             fontSize: display,
-            top: baselineOne - ascent * display,
+            top: tops[0] - top,
             delay: REVEAL_START + REVEAL_STAGGER,
           },
           {
             text: "IELTS",
             fontSize: display,
-            top: baselineTwo - ascent * display,
+            top: tops[1] - top,
             delay: REVEAL_START + 2 * REVEAL_STAGGER,
           },
           {
             text: "Preparation",
             fontSize: base,
-            top: baselineThree - ascent * base,
+            top: tops[2] - top,
             delay: REVEAL_START + 3 * REVEAL_STAGGER,
           },
         ],
@@ -314,6 +347,9 @@ export default function HeroIeltsMark({
      * mixed for the occasion — the guide's point about the accent is that
      * there is one of it. p.9 permits it for very large display type and bans
      * it at body size, which is exactly this and exactly not the kicker.
+     *
+     * The box stays pointer-events-none and the anchor inside turns them back
+     * on, so this full-bleed layer never swallows a click meant for the page.
      */
     /*
      * No aria-label on this box. It carries no role, and a name on a generic
@@ -326,42 +362,94 @@ export default function HeroIeltsMark({
       data-hero-mark
       className="pointer-events-none absolute inset-0 max-md:hidden"
     >
-      {m?.lines.map((l) => (
-        <span
-          key={l.text}
-          className="font-kumbh absolute font-bold whitespace-nowrap uppercase"
+      {m ? (
+        /*
+         * A real anchor, not a box with a handler: it is in the tab order, it
+         * opens in a new tab on the modifier a reader already knows, and its
+         * accessible name is "Online IELTS Preparation" without anything being
+         * written out twice.
+         *
+         * The address comes from HOMEPAGE_LINKS rather than being typed here.
+         * lib/routes.ts records that these paths were spelled out in nine
+         * places and drifted from the words on the page; this would have been
+         * the tenth. It is also exactly where the Services section's own IELTS
+         * entry points, so the two agree by construction rather than by care.
+         *
+         * The colour lives here now, inherited by all three lines, and it is
+         * set from the variable rather than by a `text-cursor` utility: a
+         * generated class missing from a stale stylesheet would leave this
+         * text on --foreground and render the one coloured thing on the page
+         * in near-black. An inline declaration cannot go missing.
+         *
+         * Resting state is untouched. Hover and keyboard focus deepen Signal
+         * Red to Red Ink — the palette's answer for red that has to carry
+         * weight (p.9) — which also takes the block from 3.04:1 on cream to
+         * 4.86:1 for as long as it is being aimed at.
+         */
+        <Link
+          href={HOMEPAGE_LINKS.ielts}
+          /*
+           * Spelled out, because the three lines are absolutely positioned
+           * with no whitespace between them and the name computed from their
+           * text came out "OnlineIELTSPreparation" — one word, read as one
+           * word. An <a> takes a name from the author, so this is the right
+           * element to put it on.
+           */
+          aria-label="Online IELTS preparation"
+          className="ease-custom-less pointer-events-auto absolute block transition-colors duration-300"
           style={{
-            left: `${m.left}px`,
-            top: `${l.top}px`,
-            fontSize: `${l.fontSize}px`,
-            lineHeight: m.lineHeight,
             /*
-             * The colour is set here, from the variable, rather than by a
-             * `text-cursor` utility on the wrapper. A generated class that is
-             * missing from a stale stylesheet leaves this text inheriting
-             * --foreground and renders the one coloured thing on the page in
-             * near-black; an inline declaration cannot go missing. Same single
-             * declaration the cursor's own dot resolves to.
+             * Through a variable, not straight to the colour. An inline style
+             * outranks any stylesheet, so writing the colour here directly
+             * meant :hover and :focus-visible could not change it — the same
+             * trap the reduced-motion duration fell into. The declaration
+             * stays inline, so a stale stylesheet can still never leave this
+             * text on --foreground; what the stylesheet gets to move is the
+             * variable it reads.
              */
-            color: "var(--signal-red)",
-            // On each line, not on the wrapper. An em letter-spacing resolves
-            // against the font size of the element that declares it and then
-            // inherits as an absolute length — set above, both lines got the
-            // wrapper's 16px worth, -0.8px, where the headline they are meant
-            // to match has -0.05em of a far larger em.
-            letterSpacing: "-0.05em",
+            color: "var(--mark-ink, var(--signal-red))",
+            /*
+             * So the focus ring can be written in em and mean something. The
+             * anchor sets no size of its own — each line sets its own — which
+             * left em resolving against the inherited 16px and drew a 1px gap
+             * around letters eighty pixels tall. The lines override this, so
+             * nothing renders differently for it.
+             */
+            fontSize: `${m.lines[0].fontSize}px`,
+            left: `${m.left}px`,
+            top: `${m.top}px`,
+            width: `${m.width}px`,
+            height: `${m.height}px`,
           }}
         >
-          <RevealLine
-            as="span"
-            delay={l.delay}
-            duration={REVEAL_DURATION}
-            className="inline-block"
-          >
-            {l.text}
-          </RevealLine>
-        </span>
-      ))}
+          {m.lines.map((l) => (
+            <span
+              key={l.text}
+              className="font-kumbh absolute left-0 font-bold whitespace-nowrap uppercase"
+              style={{
+                top: `${l.top}px`,
+                fontSize: `${l.fontSize}px`,
+                lineHeight: m.lineHeight,
+                // On each line, not on an ancestor. An em letter-spacing
+                // resolves against the font size of the element that declares
+                // it and then inherits as an absolute length — set higher up,
+                // every line got that element's 16px worth, -0.8px, where the
+                // headline they answer to has -0.05em of a far larger em.
+                letterSpacing: "-0.05em",
+              }}
+            >
+              <RevealLine
+                as="span"
+                delay={l.delay}
+                duration={REVEAL_DURATION}
+                className="inline-block"
+              >
+                {l.text}
+              </RevealLine>
+            </span>
+          ))}
+        </Link>
+      ) : null}
 
       {/* The note voice, not the headline's and not the block's: this is the
           same face, size and colour as "You will reach your" on GOAL's other

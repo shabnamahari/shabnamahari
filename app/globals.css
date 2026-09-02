@@ -478,6 +478,47 @@ body {
  * the hero has animated unguarded since it was built, and quietly changing how
  * four other pages open is not this branch's business — but it is worth its own.
  */
+/*
+ * The hero's two IELTS links, for a reader arriving by keyboard.
+ *
+ * The site had no focus style on any public page — the only precedent is the
+ * kinetic tiles, where :focus-visible simply runs what hover runs. That is
+ * enough for a tile and not for these: one is display type with no underline
+ * and no resting colour change, the other is a corner label, and neither shows
+ * where the keyboard is without a ring.
+ *
+ * Ink on the block, because a coral ring around coral letters says little; it
+ * reads at 15.6:1 on cream. currentColor on the label, which is white under
+ * mix-blend-difference and therefore lands as near-ink like its own text —
+ * an ink ring there would blend to a pale grey and disappear. Offset in em so
+ * both scale with the type they belong to.
+ */
+[data-hero-mark] a:focus-visible {
+  outline: 0.045em solid var(--foreground);
+  outline-offset: 0.06em;
+}
+
+[data-hero-kicker] a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 0.35em;
+}
+
+/*
+ * Hover and focus deepen Signal Red to Red Ink. Both are red, so this is not a
+ * second colour arriving; it is the same mark, aimed at.
+ *
+ * The literal rather than var(--color-red-ink): that token is declared inside
+ * `@theme inline`, which inlines values into the classes it generates and emits
+ * no custom property, so the var would resolve to nothing here. Signal Red is
+ * reachable as --signal-red because it is also declared in :root, three lines
+ * up; Red Ink is not, and adding it there for one hover state is more surface
+ * than this needs.
+ */
+[data-hero-mark] a:hover,
+[data-hero-mark] a:focus-visible {
+  --mark-ink: #c42a1e;
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-hero-mark] .reveal-inner {
     transform: none;

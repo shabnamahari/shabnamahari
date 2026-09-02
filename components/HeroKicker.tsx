@@ -1,3 +1,6 @@
+import Link from "next/link";
+
+import { HOMEPAGE_LINKS } from "@/lib/projects";
 import RevealLine from "./RevealLine";
 
 /**
@@ -13,7 +16,11 @@ import RevealLine from "./RevealLine";
  * Absolute rather than fixed. Fixed is what put a wordmark in this corner once
  * before, and it rode the page down onto the footer's ( Menu ).
  *
- * Unbracketed on purpose: ( ) is this site's mark for a thing you can press.
+ * Bracketed on hover, which it was not before. ( ) is this site's mark for a
+ * thing you can press, and while this was a label it had no business wearing
+ * them. It is a link now, so it does — arriving the way Menu's do, in the same
+ * face at the same size, and holding their width at rest so the words never
+ * move and nothing reflows under the pointer.
  *
  * "online" is not decoration. Half the people this is written for are outside
  * Iran, and it is the word that tells them the service reaches them at all.
@@ -43,6 +50,7 @@ import RevealLine from "./RevealLine";
 export default function HeroKicker({ standDown }: { standDown: boolean }) {
   return (
     <span
+      data-hero-kicker
       className={`pointer-events-none p-gutter absolute bottom-0 left-0 z-10 text-white mix-blend-difference ${
         /* md:hidden is the resting state, so a desktop that is about to show
            the block never flashes this first: it starts hidden there and only
@@ -57,7 +65,18 @@ export default function HeroKicker({ standDown }: { standDown: boolean }) {
         delay={0.3333}
         className="inline-block text-sm font-semibold tracking-wide uppercase"
       >
-        IELTS preparation · online
+        <Link
+          href={HOMEPAGE_LINKS.ielts}
+          className="group pointer-events-auto inline-block"
+        >
+          <span aria-hidden="true" className="ease-custom-less inline-block -translate-x-[0.35em] opacity-0 transition-all duration-700 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100">
+            (
+          </span>
+          <span className="px-[0.35em]">IELTS preparation · online</span>
+          <span aria-hidden="true" className="ease-custom-less inline-block translate-x-[0.35em] opacity-0 transition-all duration-700 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100">
+            )
+          </span>
+        </Link>
       </RevealLine>
     </span>
   );
