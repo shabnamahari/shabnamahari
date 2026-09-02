@@ -93,6 +93,27 @@ const PAD = 0.22;
  */
 const SPAN = 1.2;
 
+/*
+ * The reveal: the sentence finishing, not a banner arriving.
+ *
+ * Everything here answers the headline, so it moves the way the headline moves
+ * — the same upward unmask from behind its own baseline, the same curve — and
+ * it runs in reading order: "with" first, because it is the word that joins the
+ * two halves, then the block top to bottom.
+ *
+ * It starts a beat after the last line of the stack does and lands with it.
+ * "English" begins at 0.2667s and takes a second, so it settles at 1.267s; the
+ * last coral line begins at 0.57s and takes 0.7, settling at 1.270s. The block
+ * is not a thing that happens after the sentence, it is the end of it.
+ *
+ * 0.7s rather than the stack's 1s because four lines staggered at a full second
+ * each would still be arriving long after the headline had stopped, which is
+ * what makes a reveal read as a separate event.
+ */
+const REVEAL_START = 0.3;
+const REVEAL_STAGGER = 0.09;
+const REVEAL_DURATION = 0.7;
+
 /** Kept clear between the block and the window edge. */
 const MARGIN = 15;
 
@@ -253,19 +274,19 @@ export default function HeroIeltsMark({
             text: "Online",
             fontSize: display,
             top: baselineOne - ascent * display,
-            delay: 0.1667,
+            delay: REVEAL_START + REVEAL_STAGGER,
           },
           {
             text: "IELTS",
             fontSize: display,
             top: baselineTwo - ascent * display,
-            delay: 0.2,
+            delay: REVEAL_START + 2 * REVEAL_STAGGER,
           },
           {
             text: "Preparation",
             fontSize: base,
             top: baselineThree - ascent * base,
-            delay: 0.2333,
+            delay: REVEAL_START + 3 * REVEAL_STAGGER,
           },
         ],
       });
@@ -302,6 +323,7 @@ export default function HeroIeltsMark({
      */
     <div
       ref={ref}
+      data-hero-mark
       className="pointer-events-none absolute inset-0 max-md:hidden"
     >
       {m?.lines.map((l) => (
@@ -330,7 +352,12 @@ export default function HeroIeltsMark({
             letterSpacing: "-0.05em",
           }}
         >
-          <RevealLine as="span" delay={l.delay} className="inline-block">
+          <RevealLine
+            as="span"
+            delay={l.delay}
+            duration={REVEAL_DURATION}
+            className="inline-block"
+          >
             {l.text}
           </RevealLine>
         </span>
@@ -348,7 +375,12 @@ export default function HeroIeltsMark({
             lineHeight: m.join.lineHeight,
           }}
         >
-          <RevealLine as="span" delay={0.2333} className="inline-block">
+          <RevealLine
+            as="span"
+            delay={REVEAL_START}
+            duration={REVEAL_DURATION}
+            className="inline-block"
+          >
             with
           </RevealLine>
         </span>
