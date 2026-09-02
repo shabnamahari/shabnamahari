@@ -465,6 +465,74 @@ body {
   transform: translateY(0);
 }
 
+/*
+ * The coral block, for a reader who has asked for less movement.
+ *
+ * It resolves to the finished state rather than to a slower one: there is no
+ * gentle version of a word sliding out from behind its own baseline, and the
+ * block is the part of the sentence that says what is being sold, so the one
+ * thing it must not do is arrive late or not at all. `transform: none` puts
+ * each line where it ends up and `transition: none` stops it travelling there.
+ *
+ * Scoped to this block rather than to `.reveal-line` everywhere. The rest of
+ * the hero has animated unguarded since it was built, and quietly changing how
+ * four other pages open is not this branch's business — but it is worth its own.
+ */
+/*
+ * The hero's two IELTS links, for a reader arriving by keyboard.
+ *
+ * The site had no focus style on any public page — the only precedent is the
+ * kinetic tiles, where :focus-visible simply runs what hover runs. That is
+ * enough for a tile and not for these: one is display type with no underline
+ * and no resting colour change, the other is a corner label, and neither shows
+ * where the keyboard is without a ring.
+ *
+ * Ink on the block, because a coral ring around coral letters says little; it
+ * reads at 15.6:1 on cream. currentColor on the label, which is white under
+ * mix-blend-difference and therefore lands as near-ink like its own text —
+ * an ink ring there would blend to a pale grey and disappear. Offset in em so
+ * both scale with the type they belong to.
+ */
+[data-hero-mark] a:focus-visible {
+  outline: 0.045em solid var(--foreground);
+  outline-offset: 0.06em;
+}
+
+[data-hero-kicker] a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 0.35em;
+}
+
+/*
+ * Hover and focus deepen Signal Red to Red Ink. Both are red, so this is not a
+ * second colour arriving; it is the same mark, aimed at.
+ *
+ * The literal rather than var(--color-red-ink): that token is declared inside
+ * `@theme inline`, which inlines values into the classes it generates and emits
+ * no custom property, so the var would resolve to nothing here. Signal Red is
+ * reachable as --signal-red because it is also declared in :root, three lines
+ * up; Red Ink is not, and adding it there for one hover state is more surface
+ * than this needs.
+ */
+[data-hero-mark] a:hover,
+[data-hero-mark] a:focus-visible {
+  --mark-ink: #c42a1e;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-hero-mark] .reveal-inner {
+    transform: none;
+    /*
+     * !important because the duration is written as an inline style — the block
+     * sets its own 0.7s per line — and a rule in a stylesheet cannot outrank
+     * that. Without it the declaration is ignored and the guarantee rests on
+     * `transform: none` above leaving nothing for a transition to animate,
+     * which is true today and true only by accident.
+     */
+    transition: none !important;
+  }
+}
+
 /* ---- media grayscale hover ---- */
 
 .media-grayscale {
