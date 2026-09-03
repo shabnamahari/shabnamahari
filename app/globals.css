@@ -515,26 +515,40 @@ body {
  * than this needs.
  */
 /*
- * Hover and focus bracket the block rather than recolouring it. The coral is
- * the one saturated thing on the page and it does not need a second state to
- * say it can be pressed; ( ) already says that everywhere else on the site.
+ * Hover and focus rule the block rather than recolouring it. The coral is the
+ * one saturated thing on the page and does not need a second state to say it
+ * can be pressed.
  *
- * The pair is absolutely positioned outside the anchor's box, so it costs no
- * layout when it arrives and nothing reflows under the pointer.
+ * The rule is absolutely positioned inside the anchor and faded on opacity, so
+ * it costs no layout when it arrives and nothing reflows under the pointer.
  */
-[data-hero-mark] [data-bracket] {
+[data-hero-mark] [data-rule] {
   opacity: 0;
   transition: opacity 0.3s cubic-bezier(0.82, 0, 0.18, 1);
 }
 
-[data-hero-mark] a:hover [data-bracket],
-[data-hero-mark] a:focus-visible [data-bracket] {
+[data-hero-mark] a:hover [data-rule],
+[data-hero-mark] a:focus-visible [data-rule] {
   opacity: 1;
 }
 
+/*
+ * The corner label takes the same treatment at its own size. text-decoration
+ * rather than a positioned rule: it cannot shift layout either, and it tracks
+ * the type without anything being measured. 0.14em is 2px at the label's 14px,
+ * which is the body rule's weight scaled up a step — the label is small, so it
+ * wants the small answer, not the display one.
+ */
+[data-hero-kicker] a:hover,
+[data-hero-kicker] a:focus-visible {
+  text-decoration: underline;
+  text-decoration-thickness: 0.14em;
+  text-underline-offset: 0.3em;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  /* The brackets still appear, they just stop fading in. */
-  [data-hero-mark] [data-bracket] {
+  /* The rule still appears, it just stops fading in. */
+  [data-hero-mark] [data-rule] {
     transition: none;
   }
 

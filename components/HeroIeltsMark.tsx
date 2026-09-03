@@ -118,26 +118,26 @@ const REVEAL_STAGGER = 0.09;
 const REVEAL_DURATION = 0.7;
 
 /*
- * The hover brackets, and the size they had to be.
+ * The hover rule, and where it sits.
  *
- * ( ) is this site's mark for a thing you can press — the showreel sits in a
- * pair, so does ( Menu ), so does the corner label. The block is a link now and
- * wears them too, in the same face the showreel's are set in and built the same
- * way: one ")" mirrored for the opener, so both are the same glyph.
+ * Under the last line, not under the block's bottom edge — and horizontally
+ * those are the same rule, because ONLINE and PREPARATION are both flush to the
+ * full width, so a rule under PREPARATION spans the whole block anyway. What
+ * differs is the height: the block's box carries PREPARATION's descender space
+ * below its baseline, and no glyph reaches into it, so a rule down there floats
+ * unattached to anything. Just under the baseline it underlines words.
  *
- * They do not enclose the block, because they cannot. A paren tall enough to
- * span all three lines needs 91px of width at 1440 and the gap between "with"
- * and the block is 30px — and the left side is the tighter one at every window.
- * Widening that gap would move the block, which is the resting state.
- *
- * So they are sized to the room that exists: the narrower of the two gaps, less
- * clearance either side, so the opener never touches "with" and the closer
- * never touches the window. That room is what it is, and what it is is small —
- * the pair comes out about a fifth of the block's height, which brackets the
- * middle line far more than it brackets the block. That is the honest maximum
- * at this geometry, not a chosen proportion.
+ * Thickness comes off GOAL's cap height rather than PREPARATION's own size,
+ * because the rule answers the display lines above it as much as the small one
+ * it sits under. The site's body links are 1px under 16px type — 0.0625em — and
+ * that ratio carried up to the 79px display line would be 4.9px. 0.03 of the
+ * cap height gives 4.1px at 1440, which is the same family of weight arrived at
+ * from the measure the whole block is built on.
  */
-const BRACKET_GAP = 0.05;
+const RULE_WEIGHT = 0.03;
+
+/** How far below the last baseline the rule sits, in that line's cap heights. */
+const RULE_DROP = 0.18;
 
 /** Kept clear between the block and the window edge. */
 const MARGIN = 15;
@@ -153,7 +153,7 @@ type Metrics = {
   lineHeight: number;
   lines: Line[];
   join: { left: number; top: number; lineHeight: number };
-  bracket: { fontSize: number; width: number; gap: number; top: number };
+  rule: { thickness: number; top: number };
 };
 
 export default function HeroIeltsMark({
@@ -298,28 +298,6 @@ export default function HeroIeltsMark({
        * it: same pixels on screen, one hit area covering all three and the
        * leading between them, and one tab stop instead of three.
        */
-      /*
-       * Instrument Sans's paren, per pixel of type, from the font rather than
-       * from a guess: how tall its ink is and how wide its box is. The pair is
-       * then placed by its ink, so it centres on the block's middle rather than
-       * on a line box with air above and below it.
-       */
-      const paren = document.createElement("span");
-      paren.className = "font-instrument-sans";
-      paren.style.cssText =
-        "position:absolute;visibility:hidden;font-size:100px;line-height:1";
-      paren.textContent = ")";
-      hero.appendChild(paren);
-      const parenFamily = getComputedStyle(paren).fontFamily;
-      const parenWidth = paren.getBoundingClientRect().width / 100;
-      paren.remove();
-      ctx.letterSpacing = "normal";
-      ctx.font = `400 100px ${parenFamily}`;
-      const pm = ctx.measureText(")");
-      const parenAscent = pm.actualBoundingBoxAscent / 100;
-      const parenInk =
-        (pm.actualBoundingBoxAscent + pm.actualBoundingBoxDescent) / 100;
-
       const boxHeight = (size: number) => (ascent + descent) * size;
       const tops = [
         baselineOne - ascent * display,
@@ -333,14 +311,6 @@ export default function HeroIeltsMark({
         tops[2] + boxHeight(base),
       );
 
-      const bracketGap = BRACKET_GAP * capHeight;
-      const roomLeft = left - (box.right - heroBox.left + pad + joinWidth);
-      const roomRight = heroBox.width - MARGIN - (left + width);
-      const bracketWidth = Math.max(
-        0,
-        Math.min(roomLeft, roomRight) - 2 * bracketGap,
-      );
-      const bracketSize = bracketWidth / parenWidth;
 
       setMetrics({
         left,
@@ -348,16 +318,9 @@ export default function HeroIeltsMark({
         width,
         height: bottom - top,
         lineHeight: ascent + descent,
-        bracket: {
-          fontSize: bracketSize,
-          width: bracketWidth,
-          // Gap either side, from the same cap height everything else uses.
-          gap: bracketGap,
-          // Ink centred on the block's own middle.
-          top:
-            (bottom - top) / 2 -
-            (parenInk * bracketSize) / 2 -
-            (parenAscent - parenInk) * bracketSize,
+        rule: {
+          thickness: RULE_WEIGHT * capHeight,
+          top: baselineThree - top + RULE_DROP * cap * base,
         },
         join: {
           left: box.right - heroBox.left + pad,
@@ -487,36 +450,18 @@ export default function HeroIeltsMark({
             height: `${m.height}px`,
           }}
         >
-          {/* The pair, built the showreel's way: one ")" mirrored for the
-              opener, so the two are the same glyph rather than two that
-              resemble each other. Absolutely positioned outside the anchor's
-              box, so nothing reflows when they arrive. */}
+          {/* Full width because the widest lines are flush to it, and
+              absolutely positioned so it costs no layout when it arrives. */}
           <span
-            data-bracket
+            data-rule
             aria-hidden="true"
-            className="font-instrument-sans absolute inline-block -scale-x-100"
+            className="absolute left-0 w-full"
             style={{
-              right: `calc(100% + ${m.bracket.gap}px)`,
-              top: `${m.bracket.top}px`,
-              fontSize: `${m.bracket.fontSize}px`,
-              lineHeight: 1,
+              top: `${m.rule.top}px`,
+              height: `${m.rule.thickness}px`,
+              background: "currentColor",
             }}
-          >
-            )
-          </span>
-          <span
-            data-bracket
-            aria-hidden="true"
-            className="font-instrument-sans absolute inline-block"
-            style={{
-              left: `calc(100% + ${m.bracket.gap}px)`,
-              top: `${m.bracket.top}px`,
-              fontSize: `${m.bracket.fontSize}px`,
-              lineHeight: 1,
-            }}
-          >
-            )
-          </span>
+          />
 
           {m.lines.map((l) => (
             <span

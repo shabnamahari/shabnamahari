@@ -16,11 +16,9 @@ import RevealLine from "./RevealLine";
  * Absolute rather than fixed. Fixed is what put a wordmark in this corner once
  * before, and it rode the page down onto the footer's ( Menu ).
  *
- * Bracketed on hover, which it was not before. ( ) is this site's mark for a
- * thing you can press, and while this was a label it had no business wearing
- * them. It is a link now, so it does — arriving the way Menu's do, in the same
- * face at the same size, and holding their width at rest so the words never
- * move and nothing reflows under the pointer.
+ * Underlined on hover and focus, at its own size — the same treatment the coral
+ * block takes, in the small version of it. text-decoration rather than a drawn
+ * rule, because it tracks the type on its own and cannot shift layout.
  *
  * "online" is not decoration. Half the people this is written for are outside
  * Iran, and it is the word that tells them the service reaches them at all.
@@ -67,15 +65,9 @@ export default function HeroKicker({ standDown }: { standDown: boolean }) {
       >
         <Link
           href={HOMEPAGE_LINKS.ielts}
-          className="group pointer-events-auto inline-block"
+          className="pointer-events-auto inline-block"
         >
-          <span aria-hidden="true" className="ease-custom-less inline-block -translate-x-[0.35em] opacity-0 transition-all duration-700 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100">
-            (
-          </span>
-          <span className="px-[0.35em]">IELTS preparation · online</span>
-          <span aria-hidden="true" className="ease-custom-less inline-block translate-x-[0.35em] opacity-0 transition-all duration-700 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100">
-            )
-          </span>
+          IELTS preparation · online
         </Link>
       </RevealLine>
     </span>
