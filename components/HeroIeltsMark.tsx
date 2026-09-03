@@ -130,14 +130,16 @@ const REVEAL_DURATION = 0.7;
  * The distance is a fraction of GOAL's cap height, like everything else here,
  * so it scales with the headline: 4.1px at 1440, 3.0px at 1024.
  *
- * The stagger is what separates this from the reveal, and it is deliberately
- * near the edge of being read as sequence at all — 30ms between lines against
- * the reveal's 90, on the other axis, at a twentieth of the distance. Set it to
- * 0 and the three lines move as one object; that is the whole difference
- * between the two variants of this, which is why it is one number.
+ * The stagger is 0 here, so the three lines move as one object — the block
+ * depresses rather than ripples. This is the variant that cannot be mistaken
+ * for the reveal replaying, because a sequence is the reveal's signature and
+ * there is no sequence left; what it gives up is the sense of the lines
+ * answering in the order they are read.
+ *
+ * The staggered version is one number away, at 30ms, and nothing else differs.
  */
 const LEAN = 0.03;
-const LEAN_STAGGER_MS = 30;
+const LEAN_STAGGER_MS = 0;
 
 /** Kept clear between the block and the window edge. */
 const MARGIN = 15;

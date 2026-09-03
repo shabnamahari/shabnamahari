@@ -522,8 +522,8 @@ body {
  * Transform only, on boxes that are already absolutely positioned, so the
  * headline, "with" and the stack cannot be moved by it and nothing reflows.
  *
- * In takes 160ms and is staggered per line; out takes 120ms with no stagger, so
- * releasing the pointer is one movement rather than an unravelling.
+ * In takes 160ms, out takes 120ms. The per-line delay is 0 in this variant, so
+ * the three lines move together as one object.
  *
  * The hover half is gated behind (hover: hover). Without it, tapping a link on
  * iOS can leave it stuck in its hovered state after the page has changed —
