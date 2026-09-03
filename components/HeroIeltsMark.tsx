@@ -117,6 +117,28 @@ const REVEAL_START = 0.3;
 const REVEAL_STAGGER = 0.09;
 const REVEAL_DURATION = 0.7;
 
+/*
+ * The hover brackets, and the size they had to be.
+ *
+ * ( ) is this site's mark for a thing you can press — the showreel sits in a
+ * pair, so does ( Menu ), so does the corner label. The block is a link now and
+ * wears them too, in the same face the showreel's are set in and built the same
+ * way: one ")" mirrored for the opener, so both are the same glyph.
+ *
+ * They do not enclose the block, because they cannot. A paren tall enough to
+ * span all three lines needs 91px of width at 1440 and the gap between "with"
+ * and the block is 30px — and the left side is the tighter one at every window.
+ * Widening that gap would move the block, which is the resting state.
+ *
+ * So they are sized to the room that exists: the narrower of the two gaps, less
+ * clearance either side, so the opener never touches "with" and the closer
+ * never touches the window. That room is what it is, and what it is is small —
+ * the pair comes out about a fifth of the block's height, which brackets the
+ * middle line far more than it brackets the block. That is the honest maximum
+ * at this geometry, not a chosen proportion.
+ */
+const BRACKET_GAP = 0.05;
+
 /** Kept clear between the block and the window edge. */
 const MARGIN = 15;
 
@@ -131,6 +153,7 @@ type Metrics = {
   lineHeight: number;
   lines: Line[];
   join: { left: number; top: number; lineHeight: number };
+  bracket: { fontSize: number; width: number; gap: number; top: number };
 };
 
 export default function HeroIeltsMark({
@@ -275,6 +298,28 @@ export default function HeroIeltsMark({
        * it: same pixels on screen, one hit area covering all three and the
        * leading between them, and one tab stop instead of three.
        */
+      /*
+       * Instrument Sans's paren, per pixel of type, from the font rather than
+       * from a guess: how tall its ink is and how wide its box is. The pair is
+       * then placed by its ink, so it centres on the block's middle rather than
+       * on a line box with air above and below it.
+       */
+      const paren = document.createElement("span");
+      paren.className = "font-instrument-sans";
+      paren.style.cssText =
+        "position:absolute;visibility:hidden;font-size:100px;line-height:1";
+      paren.textContent = ")";
+      hero.appendChild(paren);
+      const parenFamily = getComputedStyle(paren).fontFamily;
+      const parenWidth = paren.getBoundingClientRect().width / 100;
+      paren.remove();
+      ctx.letterSpacing = "normal";
+      ctx.font = `400 100px ${parenFamily}`;
+      const pm = ctx.measureText(")");
+      const parenAscent = pm.actualBoundingBoxAscent / 100;
+      const parenInk =
+        (pm.actualBoundingBoxAscent + pm.actualBoundingBoxDescent) / 100;
+
       const boxHeight = (size: number) => (ascent + descent) * size;
       const tops = [
         baselineOne - ascent * display,
@@ -288,12 +333,32 @@ export default function HeroIeltsMark({
         tops[2] + boxHeight(base),
       );
 
+      const bracketGap = BRACKET_GAP * capHeight;
+      const roomLeft = left - (box.right - heroBox.left + pad + joinWidth);
+      const roomRight = heroBox.width - MARGIN - (left + width);
+      const bracketWidth = Math.max(
+        0,
+        Math.min(roomLeft, roomRight) - 2 * bracketGap,
+      );
+      const bracketSize = bracketWidth / parenWidth;
+
       setMetrics({
         left,
         top,
         width,
         height: bottom - top,
         lineHeight: ascent + descent,
+        bracket: {
+          fontSize: bracketSize,
+          width: bracketWidth,
+          // Gap either side, from the same cap height everything else uses.
+          gap: bracketGap,
+          // Ink centred on the block's own middle.
+          top:
+            (bottom - top) / 2 -
+            (parenInk * bracketSize) / 2 -
+            (parenAscent - parenInk) * bracketSize,
+        },
         join: {
           left: box.right - heroBox.left + pad,
           top: joinBaseline - (ink.fontBoundingBoxAscent || noteSize),
@@ -422,6 +487,37 @@ export default function HeroIeltsMark({
             height: `${m.height}px`,
           }}
         >
+          {/* The pair, built the showreel's way: one ")" mirrored for the
+              opener, so the two are the same glyph rather than two that
+              resemble each other. Absolutely positioned outside the anchor's
+              box, so nothing reflows when they arrive. */}
+          <span
+            data-bracket
+            aria-hidden="true"
+            className="font-instrument-sans absolute inline-block -scale-x-100"
+            style={{
+              right: `calc(100% + ${m.bracket.gap}px)`,
+              top: `${m.bracket.top}px`,
+              fontSize: `${m.bracket.fontSize}px`,
+              lineHeight: 1,
+            }}
+          >
+            )
+          </span>
+          <span
+            data-bracket
+            aria-hidden="true"
+            className="font-instrument-sans absolute inline-block"
+            style={{
+              left: `calc(100% + ${m.bracket.gap}px)`,
+              top: `${m.bracket.top}px`,
+              fontSize: `${m.bracket.fontSize}px`,
+              lineHeight: 1,
+            }}
+          >
+            )
+          </span>
+
           {m.lines.map((l) => (
             <span
               key={l.text}

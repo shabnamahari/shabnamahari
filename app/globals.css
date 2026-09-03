@@ -514,12 +514,30 @@ body {
  * up; Red Ink is not, and adding it there for one hover state is more surface
  * than this needs.
  */
-[data-hero-mark] a:hover,
-[data-hero-mark] a:focus-visible {
-  --mark-ink: #c42a1e;
+/*
+ * Hover and focus bracket the block rather than recolouring it. The coral is
+ * the one saturated thing on the page and it does not need a second state to
+ * say it can be pressed; ( ) already says that everywhere else on the site.
+ *
+ * The pair is absolutely positioned outside the anchor's box, so it costs no
+ * layout when it arrives and nothing reflows under the pointer.
+ */
+[data-hero-mark] [data-bracket] {
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.82, 0, 0.18, 1);
+}
+
+[data-hero-mark] a:hover [data-bracket],
+[data-hero-mark] a:focus-visible [data-bracket] {
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* The brackets still appear, they just stop fading in. */
+  [data-hero-mark] [data-bracket] {
+    transition: none;
+  }
+
   [data-hero-mark] .reveal-inner {
     transform: none;
     /*
