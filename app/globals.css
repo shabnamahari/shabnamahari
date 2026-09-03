@@ -514,12 +514,107 @@ body {
  * up; Red Ink is not, and adding it there for one hover state is more surface
  * than this needs.
  */
-[data-hero-mark] a:hover,
-[data-hero-mark] a:focus-visible {
-  --mark-ink: #c42a1e;
+/*
+ * Hover and focus move the block rather than marking it. The coral does not
+ * change — #ff3b30 at rest, hovered and focused — and no underline or bracket
+ * arrives; the lines lean left, toward GOAL and the sentence they finish.
+ *
+ * Transform only, on boxes that are already absolutely positioned, so the
+ * headline, "with" and the stack cannot be moved by it and nothing reflows.
+ *
+ * In takes 160ms and is staggered per line; out takes 120ms with no stagger, so
+ * releasing the pointer is one movement rather than an unravelling.
+ *
+ * The hover half is gated behind (hover: hover). Without it, tapping a link on
+ * iOS can leave it stuck in its hovered state after the page has changed —
+ * which is the same reason the custom cursor is gated further down this file.
+ */
+[data-hero-mark] [data-lean] {
+  transition: transform 120ms cubic-bezier(0.82, 0, 0.18, 1);
+}
+
+@media (hover: hover) {
+  [data-hero-mark] a:hover [data-lean] {
+    transform: translateX(calc(-1 * var(--lean-scale, 1) * var(--lean)));
+    transition-duration: 160ms;
+    transition-delay: var(--lean-delay, 0ms);
+  }
+}
+
+[data-hero-mark] a:focus-visible [data-lean] {
+  transform: translateX(calc(-1 * var(--lean-scale, 1) * var(--lean)));
+  transition-duration: 160ms;
+  transition-delay: var(--lean-delay, 0ms);
+}
+
+/*
+ * The corner label, the same idea at its own size — 2px, because this type is
+ * fixed at 14px and does not scale with the window.
+ *
+ * :active as well as :hover, because a touch device has no hover and the only
+ * moment a tap offers is while the finger is down.
+ *
+ * Reached through :has() because the transform has to sit on this box rather
+ * than on the anchor: the anchor is inside the reveal's mask, which is
+ * overflow:hidden, and moving it left would shave its own left edge off.
+ */
+[data-hero-kicker] {
+  --kick-lean: 2px;
+  transition: transform 160ms cubic-bezier(0.82, 0, 0.18, 1);
+}
+
+@media (hover: hover) {
+  [data-hero-kicker]:has(a:hover) {
+    transform: translateX(calc(-1 * var(--kick-lean)));
+  }
+}
+
+[data-hero-kicker]:has(a:focus-visible),
+[data-hero-kicker]:has(a:active) {
+  transform: translateX(calc(-1 * var(--kick-lean)));
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /*
+   * The hovered state stays the leaned position — it is simply arrived at
+   * rather than travelled to. A motion that carries the whole signal cannot be
+   * removed without removing the signal, so what goes is the travel.
+   *
+   * Halved, because a 4px jump with no transition is more abrupt than the same
+   * distance covered in 160ms. The variables are what change; the selectors
+   * above keep their (hover: hover) gate rather than being restated here
+   * without it.
+   */
+  [data-hero-mark] {
+    --lean-scale: 0.5;
+  }
+
+  [data-hero-mark] [data-lean],
+  [data-hero-kicker] {
+    transition: none;
+  }
+
+  /*
+   * And again on the hovered and focused selectors, which is not redundant.
+   * `a:hover [data-lean]` outranks the base selector above, so its 160ms
+   * survived the rule that was meant to remove it and the lean still travelled
+   * under reduced motion — measured at 0.16s before this line existed. Matching
+   * the specificity and coming later is what actually settles it. The pair also
+   * clears the per-line delay, which is an inline custom property and would
+   * otherwise land the jump 60ms late.
+   *
+   * No (hover: hover) gate needed here: this sets no transform, so it cannot
+   * leave anything stuck after a tap.
+   */
+  [data-hero-mark] a:hover [data-lean],
+  [data-hero-mark] a:focus-visible [data-lean] {
+    transition: none;
+  }
+
+  [data-hero-kicker] {
+    --kick-lean: 1px;
+  }
+
   [data-hero-mark] .reveal-inner {
     transform: none;
     /*

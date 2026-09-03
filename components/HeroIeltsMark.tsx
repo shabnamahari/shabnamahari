@@ -117,6 +117,28 @@ const REVEAL_START = 0.3;
 const REVEAL_STAGGER = 0.09;
 const REVEAL_DURATION = 0.7;
 
+/*
+ * The hover, which is a movement rather than a mark.
+ *
+ * No underline, no brackets, no second colour: the block leans left, toward
+ * GOAL and the sentence it finishes, and settles. The direction is the whole
+ * argument — the same gesture says "you can press this" and "this belongs to
+ * that" — and it is also the only direction that is free, since the block sits
+ * 17.6px from the window edge at 1024x768 and anything moving right or growing
+ * runs out of room there.
+ *
+ * The distance is a fraction of GOAL's cap height, like everything else here,
+ * so it scales with the headline: 4.1px at 1440, 3.0px at 1024.
+ *
+ * The stagger is what separates this from the reveal, and it is deliberately
+ * near the edge of being read as sequence at all — 30ms between lines against
+ * the reveal's 90, on the other axis, at a twentieth of the distance. Set it to
+ * 0 and the three lines move as one object; that is the whole difference
+ * between the two variants of this, which is why it is one number.
+ */
+const LEAN = 0.03;
+const LEAN_STAGGER_MS = 30;
+
 /** Kept clear between the block and the window edge. */
 const MARGIN = 15;
 
@@ -131,6 +153,7 @@ type Metrics = {
   lineHeight: number;
   lines: Line[];
   join: { left: number; top: number; lineHeight: number };
+  lean: number;
 };
 
 export default function HeroIeltsMark({
@@ -294,6 +317,7 @@ export default function HeroIeltsMark({
         width,
         height: bottom - top,
         lineHeight: ascent + descent,
+        lean: LEAN * capHeight,
         join: {
           left: box.right - heroBox.left + pad,
           top: joinBaseline - (ink.fontBoundingBoxAscent || noteSize),
@@ -396,18 +420,16 @@ export default function HeroIeltsMark({
            * element to put it on.
            */
           aria-label="Online IELTS preparation"
-          className="ease-custom-less pointer-events-auto absolute block transition-colors duration-300"
+          className="pointer-events-auto absolute block"
           style={{
             /*
-             * Through a variable, not straight to the colour. An inline style
-             * outranks any stylesheet, so writing the colour here directly
-             * meant :hover and :focus-visible could not change it — the same
-             * trap the reduced-motion duration fell into. The declaration
-             * stays inline, so a stale stylesheet can still never leave this
-             * text on --foreground; what the stylesheet gets to move is the
-             * variable it reads.
+             * Straight to the colour again. It went through --mark-ink while
+             * hover darkened it, because an inline style outranks any
+             * stylesheet and the rule could not otherwise reach it. Nothing
+             * recolours this now, so the indirection has no job. Still inline,
+             * so a stale stylesheet can never leave this text on --foreground.
              */
-            color: "var(--mark-ink, var(--signal-red))",
+            color: "var(--signal-red)",
             /*
              * So the focus ring can be written in em and mean something. The
              * anchor sets no size of its own — each line sets its own — which
@@ -416,6 +438,8 @@ export default function HeroIeltsMark({
              * nothing renders differently for it.
              */
             fontSize: `${m.lines[0].fontSize}px`,
+            // How far the lines lean, published for the stylesheet to use.
+            ["--lean" as string]: `${m.lean}px`,
             left: `${m.left}px`,
             top: `${m.top}px`,
             width: `${m.width}px`,
@@ -425,8 +449,16 @@ export default function HeroIeltsMark({
           {m.lines.map((l) => (
             <span
               key={l.text}
+              data-lean
               className="font-kumbh absolute left-0 font-bold whitespace-nowrap uppercase"
               style={{
+                /*
+                 * Reading order, from the line's own index. The transform goes
+                 * on this span and not on the mask inside it: the mask is
+                 * overflow:hidden, so a transform in there would slice the
+                 * letters instead of moving them.
+                 */
+                ["--lean-delay" as string]: `${m.lines.indexOf(l) * LEAN_STAGGER_MS}ms`,
                 top: `${l.top}px`,
                 fontSize: `${l.fontSize}px`,
                 lineHeight: m.lineHeight,
