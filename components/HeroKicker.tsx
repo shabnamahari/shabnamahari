@@ -16,11 +16,20 @@ import RevealLine from "./RevealLine";
  * Absolute rather than fixed. Fixed is what put a wordmark in this corner once
  * before, and it rode the page down onto the footer's ( Menu ).
  *
- * Bracketed on hover, which it was not before. ( ) is this site's mark for a
- * thing you can press, and while this was a label it had no business wearing
- * them. It is a link now, so it does — arriving the way Menu's do, in the same
- * face at the same size, and holding their width at rest so the words never
- * move and nothing reflows under the pointer.
+ * It leans, like the coral block does, at its own size — 2px rather than a
+ * fraction of the headline, because this type does not scale with the window.
+ *
+ * On touch there is no hover, so the lean is bound to :active as well: a tap's
+ * only moment is while the finger is down, and that is when it can confirm the
+ * tap landed. The hover rule itself is gated behind (hover: hover) — without
+ * that, tapping a link on iOS leaves it stuck in its hovered state after the
+ * page has changed. globals.css already draws this distinction for the custom
+ * cursor, and for the same reason.
+ *
+ * The transform sits on this span rather than on the anchor. The anchor is
+ * inside the reveal's mask, which is overflow:hidden, so moving it left would
+ * shave its own left edge off; moving the box the mask lives in moves all of
+ * it. That is why the stylesheet reaches this element through :has().
  *
  * "online" is not decoration. Half the people this is written for are outside
  * Iran, and it is the word that tells them the service reaches them at all.
@@ -67,15 +76,9 @@ export default function HeroKicker({ standDown }: { standDown: boolean }) {
       >
         <Link
           href={HOMEPAGE_LINKS.ielts}
-          className="group pointer-events-auto inline-block"
+          className="pointer-events-auto inline-block"
         >
-          <span aria-hidden="true" className="ease-custom-less inline-block -translate-x-[0.35em] opacity-0 transition-all duration-700 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100">
-            (
-          </span>
-          <span className="px-[0.35em]">IELTS preparation · online</span>
-          <span aria-hidden="true" className="ease-custom-less inline-block translate-x-[0.35em] opacity-0 transition-all duration-700 group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100">
-            )
-          </span>
+          IELTS preparation · online
         </Link>
       </RevealLine>
     </span>
