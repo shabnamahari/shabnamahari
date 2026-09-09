@@ -56,7 +56,32 @@ export default function Hero() {
         </div>
 
         <div className="relative flex shrink-0 items-center px-16 md:px-28">
-          <span className="absolute left-16 md:left-24 -translate-x-full pt-1 w-[calc((0.9em+2.7vw)*1.5)] max-md:w-10 text-ink">
+          {/* The mark, not a reference.
+           *
+           * This is read as an orphaned footnote marker roughly once a
+           * session, because a "*" in prose points at something and this one
+           * points at nothing. It is not that. The same SVG sits immediately
+           * left of the same ParenMedia showreel on About, Learn, the two
+           * Learn detail routes, MenuOverlay and WorkEntry — seven places,
+           * one class string — and none of the other six has ever carried a
+           * footnote. It marks the media element sitewide; it is part of the
+           * identity, in the brand guide's own glyph rather than a typed "*".
+           *
+           * A footnote did briefly hang off this one — "Speaking and Writing
+           * first.", removed in 5fe5749 along with the component that
+           * measured its own fit. That is history, not an obligation: the
+           * asterisk predates it here and outlived it everywhere else.
+           * Removing it from the hero would make the hero the only page whose
+           * showreel is unmarked.
+           *
+           * aria-hidden for the same reason as the "Showreel" caption below
+           * and the "You will reach your" gloss under GOAL: decoration that
+           * would otherwise be spliced into the heading's accessible name.
+           */}
+          <span
+            aria-hidden="true"
+            className="absolute left-16 md:left-24 -translate-x-full pt-1 w-[calc((0.9em+2.7vw)*1.5)] max-md:w-10 text-ink"
+          >
             <Asterisk />
           </span>
           <RevealLine
