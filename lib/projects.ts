@@ -74,6 +74,7 @@ export const PROJECTS: Project[] = [
         title: "Skills for Band Score 6.5",
         slug: "band-6-5",
         image: "/images/categories/ielts-02-band-6.5.jpg",
+        video: "/videos/categories/ielts-02-band-6.5.mp4",
       },
       {
         title: "Skills for Band Score 7 and Above",
@@ -83,14 +84,17 @@ export const PROJECTS: Project[] = [
       {
         title: "Grammar and Vocabulary",
         image: "/images/categories/ielts-04-grammar-vocab.jpg",
+        video: "/videos/categories/ielts-04-grammar-vocab.mp4",
       },
       {
         title: "AI & IELTS",
         image: "/images/categories/ielts-05-ai-ielts.jpg",
+        video: "/videos/categories/ielts-05-ai-ielts.mp4",
       },
       {
         title: "Plan Tracker",
         image: "/images/categories/ielts-06-plan-tracker.jpg",
+        video: "/videos/categories/ielts-06-plan-tracker.mp4",
       },
     ],
   },
@@ -106,6 +110,7 @@ export const PROJECTS: Project[] = [
       {
         title: "Latest IELTS Updates",
         image: "/images/categories/blog-01-latest-updates.jpg",
+        video: "/videos/categories/blog-01-latest-updates.mp4",
       },
       {
         title: "AI & IELTS",
@@ -115,18 +120,22 @@ export const PROJECTS: Project[] = [
       {
         title: "IELTS Skills",
         image: "/images/categories/blog-03-ielts-skills.jpg",
+        video: "/videos/categories/blog-03-ielts-skills.mp4",
       },
       {
         title: "Career English",
         image: "/images/categories/blog-04-career-english.jpg",
+        video: "/videos/categories/blog-04-career-english.mp4",
       },
       {
         title: "Learning Paths",
         image: "/images/categories/blog-05-learning-paths.jpg",
+        video: "/videos/categories/blog-05-learning-paths.mp4",
       },
       {
         title: "Band Score Explained",
         image: "/images/categories/blog-06-band-score-explained.jpg",
+        video: "/videos/categories/blog-06-band-score-explained.mp4",
       },
     ],
   },
@@ -144,32 +153,38 @@ export const PROJECTS: Project[] = [
         roles:
           "Software Engineers, Developers, Product Managers, Data Analysts",
         image: "/images/categories/be-01-tech-it.jpg",
+        video: "/videos/categories/be-01-tech-it.mp4",
       },
       {
         title: "Business & Management",
         roles: "Managers, Team Leaders, Executives, Entrepreneurs",
         image: "/images/categories/be-02-business-mgmt.jpg",
+        video: "/videos/categories/be-02-business-mgmt.mp4",
       },
       {
         title: "Sales & Marketing",
         roles:
           "Sales Representatives, Marketing Specialists, Digital Marketers",
         image: "/images/categories/be-03-sales-marketing.jpg",
+        video: "/videos/categories/be-03-sales-marketing.mp4",
       },
       {
         title: "Finance & Accounting",
         roles: "Accountants, Financial Analysts, Banking Professionals",
         image: "/images/categories/be-04-finance-accounting.jpg",
+        video: "/videos/categories/be-04-finance-accounting.mp4",
       },
       {
         title: "Healthcare",
         roles: "Doctors, Nurses, Pharmacists, Healthcare Professionals",
         image: "/images/categories/be-05-healthcare.jpg",
+        video: "/videos/categories/be-05-healthcare.mp4",
       },
       {
         title: "Engineering & Construction",
         roles: "Engineers, Project Engineers, Technical Professionals",
         image: "/images/categories/be-06-engineering.jpg",
+        video: "/videos/categories/be-06-engineering.mp4",
       },
     ],
   },

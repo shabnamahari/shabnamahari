@@ -24,8 +24,13 @@
 #   ping-pong Plays the clip forwards then backwards. The generators do not
 #             return to their first frame, so a plain loop visibly jumps; going
 #             back the way it came has no seam at all. Costs double the length.
-#   -an       No audio track. The panels are silent, and a muted track is still
-#             bytes on the wire.
+#   -an       No audio track. These are silent decorative loops by design, not
+#             clips that lost their sound: the Veo raws do carry real audio
+#             (AAC stereo, around -18dB mean), and it is discarded on purpose.
+#             Nothing could use it — the panel plays the clip forwards then
+#             backwards, which no soundtrack survives, and HoverExpand has to
+#             set `muted` regardless or the browser refuses to autoplay at all.
+#             A muted track is still bytes on the wire.
 #   faststart Moves the index to the front of the file so playback can begin
 #             before the whole clip has arrived.
 #
