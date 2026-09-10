@@ -105,12 +105,12 @@ words — `بعدش`, `الان`, `یه`, `خب`, and `چی هست`, which is ke
 and does not count as a broken verb. Written with a spoken seasoning; neither
 bureaucratic nor colloquial.
 
-**The decision is made but not yet applied.** Her own knowledge base in
-`content/kb/*.fa.md` was written colloquially throughout, which is what the bot was
-copying. The rewrite is prepared at `chatbot /2026-08-14-persian-rewrite.md` and awaits
-her review; as of 28 August 2026 roughly 59 colloquial forms remain in the source files.
-Until it lands, `spokenVerbForms` in `evals/brand.eval.ts` will fail answers that
-faithfully match her own content.
+**Applied 10 September 2026.** Her own knowledge base in `content/kb/*.fa.md` had
+been written colloquially throughout, which is what the bot was copying. Shabnam's
+edited rewrite now *is* those nine files — there is no separate rewrite document to
+consult, and the colloquial forms are gone from the source. `spokenVerbForms` in
+`evals/brand.eval.ts` therefore now measures what it was written to measure, rather
+than failing answers that faithfully matched her own content.
 
 Three reasons this held: the brand guide's own address-and-register section locates
 intimacy in the pronoun rather than in contraction; the knowledge base she wrote herself
