@@ -21,7 +21,7 @@ const PANELS: HoverExpandImage[] = [
   },
   {
     href: "#",
-    src: "/videos/categories/blog-02-ai-ielts-poster.jpg",
+    src: "/images/categories/blog-02-ai-ielts.jpg",
     video: "/videos/categories/blog-02-ai-ielts.mp4",
     alt: "",
     code: "# 02",
