@@ -217,8 +217,8 @@ a fair basis for judging the bot — or its Persian tone — until that changes.
 
 - **OpenRouter credit.** Blocks the 20 paid brand evals and the request-limit / spend-cap
   work, which must ship *with* the top-up rather than after it.
-- **The Persian rewrite.** Decided, drafted, not yet written into `content/kb/*.fa.md`.
-  Applying it means running `npm run kb:content` so retrieval rebuilds from the new text.
+- ~~**The Persian rewrite.**~~ Done 10 September 2026: her edited version was written into
+  `content/kb/*.fa.md` and `npm run kb:content` rebuilt retrieval from it.
 - **The real FAQ.** The knowledge base still needs her actual most-asked questions.
 - **Panel: model settings and the playground**, and the Embedding section, which was
   never started.
