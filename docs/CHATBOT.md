@@ -261,9 +261,11 @@ Checked against the ingest scripts, the chat route and the `documents` table on
 - `docs/CHATBOT.md` (this file), `docs/BRAND.md`, `docs/kling-prompts.md`.
 - The repo-root `chatbot /` folder — the build brief, the prompt document, the
   content-gaps note.
-- Everything in `mywebsite. personal/` — `chatbot-content-persian.md` and
-  `chatbot-content-english.md` and their PDFs, `2026-08-14-persian-rewrite.*`,
-  `chatbot-faq-answers.md`, the tasks document and its `.build/appendix-kb.md`.
+- Everything in `mywebsite. personal/chatbot knowledge base/` — the documents are
+  dated and named for what they are: `2026-09-11-chatbot-content-persian.*` (the
+  rewrite that became the nine Persian files),
+  `2026-09-11-chatbot-content-english.*`, and `2026-08-12-chatbot-faq-answers.md`.
+  Also the tasks document and its `.build/appendix-kb.md`.
   These are the documents the knowledge base was written *from*, not the
   knowledge base. Nothing in the codebase reads that directory.
 - `evals/` — tests, not a runtime source.
