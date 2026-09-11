@@ -48,6 +48,8 @@ time you have.
 
 Plan Tracker is built personally and separately for each learner; it is not a ready-made, one-size-fits-all tool.
 
+With that plan you can follow your own progress.
+
 ### Business English
 
 Business English is the language used in different professions rather than
