@@ -14,3 +14,4 @@ Stack: Next.js on Vercel.
 - Do not change routes or delete content without asking first.
 - Persian text must be RTL with a proper Persian webfont.
 - Ask before installing new dependencies.
+- برای ساخت PDF با طراحی برند از npm run pdf استفاده کن؛ توضیحات در docs/PDF.md

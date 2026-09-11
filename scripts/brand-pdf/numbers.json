@@ -1,0 +1,17 @@
+{
+  "_about": "Section numbers for documents that must share their numbering with a translation. Keyed by file name, then by the ## heading exactly as written. A heading given the same number as the one before it continues that section as a subhead instead of starting a sheet. See docs/PDF.md.",
+
+  "2026-09-11-chatbot-content-english.md": {
+    "_about": "Numbered to match 2026-09-11-chatbot-content-persian.md, which writes its numbers into its headings. The English file keeps its own order. Answering hours is inside section 9 in the Persian.",
+    "How it starts": 3,
+    "Placement assessment": 4,
+    "Courses": 5,
+    "Inside a session": 6,
+    "Time and results": 8,
+    "The exam itself": 7,
+    "Payment, cancelling and refunds": 9,
+    "Answering hours": 9,
+    "About Shabnam": 1,
+    "Ways to reach her": 2
+  }
+}
