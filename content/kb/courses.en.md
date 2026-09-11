@@ -47,6 +47,8 @@ With Plan Tracker you are given a plan built around your English level and the
 time you have. That plan comes with a tracker, so you can follow your own
 progress.
 
+Plan Tracker is built personally and separately for each learner; it is not a ready-made, one-size-fits-all tool.
+
 ### Business English
 
 Business English is the language used in different professions rather than
