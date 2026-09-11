@@ -60,8 +60,11 @@ In order of precedence:
 
 Two sections in a row with the same number are one section: the second continues
 the first under a subhead. This is how the English knowledge-base file matches the
-Persian one — its sections come in a different order and it gives "Answering hours"
-a section of its own, where the Persian keeps it inside ۹.
+Persian one — its headings carry no numbers, and it gives "Answering hours" a
+section of its own, where the Persian keeps it inside ۹. The two files list their
+sections in the same order (the English was reordered to match on 11 September
+2026); keep it that way when either changes, or the English numbers run out of
+sequence.
 
 **When a file in `numbers.json` is renamed** — a new date on the front, say — rename
 its entry too. The tool warns about every heading it cannot find a number for.

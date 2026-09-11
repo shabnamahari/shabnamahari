@@ -266,7 +266,7 @@ def number(sections, src):
     """Give each section its number, in order of precedence:
 
     1. numbers.json, for a document whose numbers must match a translation
-       that orders its sections differently;
+       that numbers its sections differently, or not at all;
     2. the number written in the heading, as in "۵ · دوره‌ها";
     3. counting in order, when the document numbers none of its sections —
        the guide never shows a head without one.
