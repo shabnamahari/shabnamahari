@@ -213,7 +213,25 @@ a fair basis for judging the bot — or its Persian tone — until that changes.
 
 ---
 
-## 8 · Still open
+## 8 · The system prompt lives in the database
+
+The prompt is not a file in this repo. It is the active row in `prompt_versions`,
+one per language, and `getActivePrompt(lang)` reads it on every turn.
+
+**To change it, write a new version and activate it — never edit the active row
+in place.** The table is versioned (`version` is monotonic per language, and a
+unique index enforces exactly one active row per language) so that a bad prompt
+is a one-click rollback rather than a rewrite from memory. The panel at
+`/admin/prompt` does this correctly: it inserts a new version, activates it, and
+records who changed it and why. A direct `update` on the live row throws that
+history away and is the one edit to avoid.
+
+Then run `npm run prompts:export`, which copies the two live prompts into
+`docs/prompts/fa.md` and `docs/prompts/en.md` so the text the bot actually speaks
+with is readable in a diff. Those files are copies and say so in their own
+header — editing one changes nothing.
+
+## 9 · Still open
 
 - **OpenRouter credit.** Blocks the 20 paid brand evals and the request-limit / spend-cap
   work, which must ship *with* the top-up rather than after it.

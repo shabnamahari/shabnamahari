@@ -4,12 +4,12 @@ The live system prompt for "en", exported from the database.
 Active version : v9
 Note           : Plan Tracker: open with the sentence, then give the rest from the sources.
 Created        : 2026-09-11T08:47:24.158138+00:00
-Exported       : 2026-09-11T08:49:39.738Z
+Exported       : 2026-09-11T09:01:42.114Z
 
 This file is a copy for reading and review. The prompt the bot actually
 uses is the active row in prompt_versions; editing this file changes
 nothing. Edit it in the panel at /admin/prompt, which writes a new
-version and activates it, then re-export.
+version and activates it, then run `npm run prompts:export` again.
 -->
 
 
