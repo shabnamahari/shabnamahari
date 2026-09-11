@@ -4,7 +4,7 @@ The live system prompt for "fa", exported from the database.
 Active version : v11
 Note           : Plan Tracker: open the answer with the sentence itself, no lead-in.
 Created        : 2026-09-10T22:43:16.876687+00:00
-Exported       : 2026-09-10T22:43:34.994Z
+Exported       : 2026-09-11T07:56:20.659Z
 
 This file is a copy for reading and review. The prompt the bot actually
 uses is the active row in prompt_versions; editing this file changes
