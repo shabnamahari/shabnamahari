@@ -231,7 +231,48 @@ Then run `npm run prompts:export`, which copies the two live prompts into
 with is readable in a diff. Those files are copies and say so in their own
 header — editing one changes nothing.
 
-## 9 · Still open
+## 9 · What the chatbot actually uses
+
+Checked against the ingest scripts, the chat route and the `documents` table on
+11 September 2026 — 24 documents, from two sources.
+
+**Used — the bot answers from these**
+
+- `content/kb/*.md` — 18 documents, 9 Persian and 9 English. Ingested by
+  `scripts/ingest-content.ts` (`npm run kb:content`), keyed `content://kb/<file>`
+  so a re-run replaces rather than duplicates. A file removed from the directory
+  is deleted from the knowledge base on the next run.
+- **Six crawled site pages** — `/`, `/about`, `/learn`, and the three Program
+  pages. Ingested by `scripts/crawl-site.ts` (`npm run kb:crawl`), keyed by real
+  URL. **The site's own copy is a source too**: editing a page and redeploying
+  changes what the bot can say, but only after a re-crawl.
+- **The system prompt** — the active row in `prompt_versions`, one per language,
+  read by `getActivePrompt(lang)` on every turn. See section 8.
+- **The knowledge panel** at `/admin/knowledge` writes to the same table, and can
+  edit any document whose `source_type` is `text` — which is exactly the
+  `content/kb` set. Note the trap: a panel edit changes the database row, and the
+  next `npm run kb:content` overwrites it from the file. The file wins. Edit the
+  file, or accept that the edit lasts until the next ingest.
+
+**Not used — documents, copies and backups the bot never reads**
+
+- `docs/prompts/fa.md`, `docs/prompts/en.md` — exports for reading in a diff,
+  written by `npm run prompts:export`, read by no code.
+- `docs/CHATBOT.md` (this file), `docs/BRAND.md`, `docs/kling-prompts.md`.
+- The repo-root `chatbot /` folder — the build brief, the prompt document, the
+  content-gaps note.
+- Everything in `mywebsite. personal/` — `chatbot-content-persian.md` and
+  `chatbot-content-english.md` and their PDFs, `2026-08-14-persian-rewrite.*`,
+  `chatbot-faq-answers.md`, the tasks document and its `.build/appendix-kb.md`.
+  These are the documents the knowledge base was written *from*, not the
+  knowledge base. Nothing in the codebase reads that directory.
+- `evals/` — tests, not a runtime source.
+
+**To change the bot's answers, edit `content/kb/` and run `npm run kb:content`;
+to change the prompt, write a new version in the database rather than editing
+the active one.**
+
+## 10 · Still open
 
 - **OpenRouter credit.** Blocks the 20 paid brand evals and the request-limit / spend-cap
   work, which must ship *with* the top-up rather than after it.
