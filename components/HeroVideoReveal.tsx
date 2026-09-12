@@ -9,7 +9,13 @@ import VideoSlot from "./VideoSlot";
  * box whose height tracks scroll up to a 16:9 max, then drops into normal flow.
  * The spacer reserves that height in the document until the box takes over.
  */
-export default function HeroVideoReveal({ src }: { src?: string }) {
+export default function HeroVideoReveal({
+  src,
+  poster,
+}: {
+  src?: string;
+  poster?: string;
+}) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -56,7 +62,7 @@ export default function HeroVideoReveal({ src }: { src?: string }) {
         } bottom-0 left-0 h-0 w-full max-w-[100vw] overflow-hidden will-change-transform`}
       >
         <div className="absolute bottom-0 left-1/2 aspect-video h-full w-auto -translate-x-1/2">
-          <VideoSlot src={src} label="Showreel" />
+          <VideoSlot src={src} poster={poster} label="Showreel" />
         </div>
       </div>
       <div className={`aspect-video w-full ${isOpen ? "hidden" : ""}`} />

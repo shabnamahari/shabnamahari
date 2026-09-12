@@ -9,11 +9,21 @@ import VideoSlot from "./VideoSlot";
 import HeroKicker from "./HeroKicker";
 import HeroIeltsMark from "./HeroIeltsMark";
 
-// Drop your file in public/videos/ and set this, e.g. "/videos/hero.mp4".
-const HERO_VIDEO: string | undefined = undefined;
+const HERO_VIDEO = "/videos/showreel.mp4";
+
+// Speed of the small hero showreel. Try 2 or 1.5.
+const HERO_VIDEO_SPEED = 2;
 
 export default function Hero() {
-  const media = <VideoSlot src={HERO_VIDEO} label="Showreel" />;
+  const media = (
+    <VideoSlot
+      src={HERO_VIDEO}
+      poster="/videos/showreel-poster.jpg"
+      grayscale
+      playbackRate={HERO_VIDEO_SPEED}
+      label="Showreel"
+    />
+  );
 
   /*
    * Which of the two is saying IELTS.
