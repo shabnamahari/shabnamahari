@@ -9,7 +9,10 @@ export default function Home() {
     <>
       <ContactHashScroll />
       <Hero />
-      <HeroVideoReveal />
+      <HeroVideoReveal
+        src="/videos/showreel.mp4"
+        poster="/videos/showreel-poster.jpg"
+      />
       <Services />
       <Quote />
     </>
