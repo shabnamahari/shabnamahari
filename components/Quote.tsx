@@ -3,12 +3,55 @@
 import Image from "next/image";
 import RevealLine from "./RevealLine";
 
+/*
+ * `pos` is each photograph's `object-position`.
+ *
+ * The box is 4:3 and every photograph is portrait, so `cover` scales each one
+ * to the box's width and spends the surplus height — the percentage picks
+ * which horizontal band survives. It is per-image because the subject sits at
+ * a different height in each frame; the values were read off the frames rather
+ * than guessed, and being percentages they hold at 150px and 218px alike.
+ *
+ * Written as an inline style, not a Tailwind arbitrary class: editing a number
+ * inside a generated class name is what makes Turbopack serve a stale
+ * stylesheet, and the resulting "layout bug" has cost this project time twice.
+ */
 const THUMBNAILS = [
-  { num: "01", seed: "adcker-thumb-1" },
-  { num: "02", seed: "adcker-thumb-2" },
-  { num: "03", seed: "adcker-thumb-3" },
-  { num: "04", seed: "adcker-thumb-4" },
-  { num: "05", seed: "adcker-thumb-5" },
+  {
+    num: "01",
+    src: "/proof/01.jpeg",
+    alt: "A group class in progress on a laptop, the video grid full of students",
+    // The laptop screen occupies 11%-46% of this frame; the rest is phone
+    // screenshot furniture above and keyboard below. 17% opens the window on
+    // the screen and leaves both out.
+    pos: "center 17%",
+  },
+  {
+    num: "02",
+    src: "/proof/02.jpeg",
+    alt: "The Official Cambridge Guide to IELTS, a pencil resting across its cover",
+    // The wordmark sits at 10%-19%, and centring opened the window at 21.9% —
+    // just under it. 14% keeps the title and the whole colour wheel.
+    pos: "center 14%",
+  },
+  {
+    num: "03",
+    src: "/proof/03.jpeg",
+    alt: "A slide shared with a live online class, seen on a laptop screen",
+    pos: "center 50%",
+  },
+  {
+    num: "04",
+    src: "/proof/04.jpeg",
+    alt: "German verb conjugation tables open on a laptop screen",
+    pos: "center 50%",
+  },
+  {
+    num: "05",
+    src: "/proof/05.jpeg",
+    alt: "An open coursebook, its exercises answered in pencil, among a spread of pens",
+    pos: "center 50%",
+  },
 ];
 
 export default function Quote() {
@@ -31,12 +74,12 @@ export default function Quote() {
             <span className="text-note">( {thumb.num} )</span>
             <div className="relative aspect-[4/3] w-[218px] overflow-hidden bg-media-gray md:w-[150px] xl:w-[218px]">
               <Image
-                src={`https://picsum.photos/seed/${thumb.seed}/600/450`}
-                alt={`Work sample ${thumb.num}`}
+                src={thumb.src}
+                alt={thumb.alt}
                 fill
                 sizes="220px"
-                unoptimized
-                className="media-grayscale object-cover"
+                className="proof-media object-cover"
+                style={{ objectPosition: thumb.pos }}
               />
             </div>
           </div>

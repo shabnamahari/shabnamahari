@@ -679,6 +679,36 @@ body {
   }
 }
 
+/* ---- homepage proof row ---- */
+
+/*
+ * The five thumbnails under the quote, held apart from `.media-grayscale`.
+ *
+ * They want the same drained-to-colour reveal, but they answer touch the
+ * opposite way. `.media-grayscale` keeps the grey on a phone and spends it as
+ * the photograph scrolls in; here the grey never exists without a pointer to
+ * lift it, so the whole effect is scoped to `hover: hover` and a touch device
+ * gets all five in colour from the first paint. Sharing the class would have
+ * forced one of those two answers onto the other page.
+ */
+@media (hover: hover) {
+  .proof-media {
+    filter: grayscale(1);
+    transition: filter 400ms cubic-bezier(0.82, 0, 0.18, 1);
+  }
+
+  .proof-media:hover {
+    filter: grayscale(0);
+  }
+}
+
+/* The colour still arrives on hover, it just stops being a journey. */
+@media (hover: hover) and (prefers-reduced-motion: reduce) {
+  .proof-media {
+    transition: none;
+  }
+}
+
 /* ---- kinetic type tiles (homepage category media) ---- */
 
 .kinetic-tile {
