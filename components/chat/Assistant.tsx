@@ -157,8 +157,9 @@ const RADIUS_DEFAULT = 14;
  *
  * The bar is the exception now: it lives in the header, and its width is the
  * header's slot, which spells this same clamp out as `md:` classes because it
- * has to — below md the slot is whatever the row leaves beside Back and Menu.
- * Change one and change the other.
+ * has to — and below md aligns its left edge with this clamp's 20rem floor,
+ * taking at most 20rem of what the row leaves beside Back and Menu. Change one
+ * and change the other.
  */
 const WIDTH = "mx-auto w-[clamp(20rem,34vw,40rem)]";
 
