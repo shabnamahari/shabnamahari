@@ -71,10 +71,18 @@ export default function Header({
           grow when it arrives after hydration — BAR_DEFAULT in Assistant — and
           --site-header-h in globals.css, which pads <main>, is this plus the
           row's 12px above and below. From md it takes WIDTH from Assistant, as
-          the bar did when it sat in the assistant's own column. */}
+          the bar did when it sat in the assistant's own column.
+
+          Below md it starts where the chat panels start. They are 20rem centred
+          in a column with the same 16px sides as this row, so the same
+          `(100% - 20rem) / 2` puts the bar's left edge on theirs, and 20rem caps
+          it at their width. Where the phone is too narrow for that and Menu
+          both, the bar gives way and stops short on the right — Menu never
+          moves. `mr-auto` is what holds Menu to the right edge once the bar is
+          narrower than the row. */}
       <div
         id={HEADER_SEARCH_SLOT}
-        className="min-w-0 flex-1 max-md:min-h-[42px] md:relative md:z-50 md:mx-auto md:w-[clamp(20rem,34vw,40rem)]"
+        className="min-w-0 flex-1 max-md:mr-auto max-md:ml-[max(0px,calc((100%_-_20rem)/2))] max-md:min-h-[42px] max-md:max-w-[20rem] md:relative md:z-50 md:mx-auto md:w-[clamp(20rem,34vw,40rem)]"
       />
 
       {back ? (

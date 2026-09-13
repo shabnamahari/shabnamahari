@@ -16,8 +16,14 @@
 /** The assistant's corner. */
 export const RADIUS = "rounded-[14px]";
 
-/** The assistant's measure — a shade narrower than YOUR in the headline. */
-export const WIDTH = "mx-auto w-[clamp(20rem,34vw,40rem)]";
+/**
+ * The assistant's measure — a shade narrower than YOUR in the headline.
+ *
+ * `max-w-full` for the same reason as the assistant's: the 20rem floor is wider
+ * than a 320px phone's column, and the panel ran off the right edge and widened
+ * the whole page with it.
+ */
+export const WIDTH = "mx-auto w-[clamp(20rem,34vw,40rem)] max-w-full";
 
 /**
  * The panel itself, and the type standing on it.
