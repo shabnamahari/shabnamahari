@@ -296,6 +296,22 @@ body {
 /* The line count is a var() fallback rather than a declaration here, because a
    declaration would win: this rule is unlayered and Tailwind's utilities are
    layered, so `[--hero-lines:4]` on a page would lose to it. */
+/*
+ * The phone header's height, which the page starts under — see Header.tsx.
+ * 66px is what it measures at 390px on every kind of page: the 42px bar plus
+ * 12px above and below it, with or without Back. 0 from md, where the header is
+ * not in anything's way. <main> is padded by exactly this.
+ */
+:root {
+  --site-header-h: 0px;
+}
+
+@media (width < 48rem) {
+  :root {
+    --site-header-h: 66px;
+  }
+}
+
 .hero-stack {
   --hero-top: clamp(4.5rem, 12vh, 8rem);
 
@@ -313,6 +329,23 @@ body {
   overflow: hidden;
   padding-top: var(--hero-top);
   padding-bottom: 15px;
+}
+
+/*
+ * Below md the page already starts under the header, so the hero takes the
+ * header's height back out of itself rather than adding a screen on top of it.
+ * Without this <main>'s padding sat on top of a box that was still a full
+ * 100svh with its own top padding, and every line of the headline landed a
+ * whole header lower than it did before the header existed.
+ *
+ * Only the box: `--hero-top` itself is untouched, so the font-size cap below
+ * reads the same number it always did and no word changes size.
+ */
+@media (width < 48rem) {
+  .hero-stack {
+    min-height: calc(100svh - var(--site-header-h));
+    padding-top: max(0px, var(--hero-top) - var(--site-header-h));
+  }
 }
 
 /*
@@ -498,11 +531,6 @@ body {
   outline-offset: 0.06em;
 }
 
-[data-hero-kicker] a:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 0.35em;
-}
-
 /*
  * Hover and focus deepen Signal Red to Red Ink. Both are red, so this is not a
  * second colour arriving; it is the same mark, aimed at.
@@ -541,37 +569,17 @@ body {
   }
 }
 
-[data-hero-mark] a:focus-visible [data-lean] {
+/*
+ * :active as well, which the corner label used to carry for touch before this
+ * block replaced it on phones: a touch device has no hover, and the only moment
+ * a tap offers is while the finger is down. With a mouse, hover already holds
+ * the lean through the press, so nothing on desktop changes for it.
+ */
+[data-hero-mark] a:focus-visible [data-lean],
+[data-hero-mark] a:active [data-lean] {
   transform: translateX(calc(-1 * var(--lean-scale, 1) * var(--lean)));
   transition-duration: 160ms;
   transition-delay: var(--lean-delay, 0ms);
-}
-
-/*
- * The corner label, the same idea at its own size — 2px, because this type is
- * fixed at 14px and does not scale with the window.
- *
- * :active as well as :hover, because a touch device has no hover and the only
- * moment a tap offers is while the finger is down.
- *
- * Reached through :has() because the transform has to sit on this box rather
- * than on the anchor: the anchor is inside the reveal's mask, which is
- * overflow:hidden, and moving it left would shave its own left edge off.
- */
-[data-hero-kicker] {
-  --kick-lean: 2px;
-  transition: transform 160ms cubic-bezier(0.82, 0, 0.18, 1);
-}
-
-@media (hover: hover) {
-  [data-hero-kicker]:has(a:hover) {
-    transform: translateX(calc(-1 * var(--kick-lean)));
-  }
-}
-
-[data-hero-kicker]:has(a:focus-visible),
-[data-hero-kicker]:has(a:active) {
-  transform: translateX(calc(-1 * var(--kick-lean)));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -589,8 +597,7 @@ body {
     --lean-scale: 0.5;
   }
 
-  [data-hero-mark] [data-lean],
-  [data-hero-kicker] {
+  [data-hero-mark] [data-lean] {
     transition: none;
   }
 
@@ -607,12 +614,9 @@ body {
    * leave anything stuck after a tap.
    */
   [data-hero-mark] a:hover [data-lean],
-  [data-hero-mark] a:focus-visible [data-lean] {
+  [data-hero-mark] a:focus-visible [data-lean],
+  [data-hero-mark] a:active [data-lean] {
     transition: none;
-  }
-
-  [data-hero-kicker] {
-    --kick-lean: 1px;
   }
 
   [data-hero-mark] .reveal-inner {

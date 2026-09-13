@@ -1,8 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import type { CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
+
+import { HEADER_SEARCH_SLOT } from "@/components/Header";
 
 import HighlightReveal from "@/components/HighlightReveal";
 import TelegramMark from "@/components/TelegramMark";
@@ -145,6 +154,11 @@ const RADIUS_DEFAULT = 14;
  * on the window it was chosen for. Capped at 34vw it was 38% of a 1440px screen
  * and 47% of an 1160px one — the same CSS reading as two different designs. The
  * bounds stop it collapsing on a phone and sprawling on a wide display.
+ *
+ * The bar is the exception now: it lives in the header, and its width is the
+ * header's slot, which spells this same clamp out as `md:` classes because it
+ * has to — below md the slot is whatever the row leaves beside Back and Menu.
+ * Change one and change the other.
  */
 const WIDTH = "mx-auto w-[clamp(20rem,34vw,40rem)]";
 
@@ -194,6 +208,9 @@ const NOT_HERE = new Set(["/auth", "/myaccount"]);
 /** The conversation, the composer and the language switch. */
 const PANELS = 3;
 
+/** Nothing writes the header's slot while the page is up — see below. */
+const noSubscribe = () => () => {};
+
 export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
   const pathname = usePathname();
   /*
@@ -218,6 +235,22 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  /*
+   * Where the bar is drawn: the header's slot, so that on a phone it shares one
+   * row with Back and Menu and cannot land under either.
+   *
+   * Read as an external store for the same reason BackControl reads session
+   * storage that way: the server has no document, so the bar can only appear
+   * once the client takes over, and the slot reserves its height until then.
+   * The header is mounted for as long as this is, so there is nothing to
+   * subscribe to.
+   */
+  const slot = useSyncExternalStore(
+    noSubscribe,
+    () => document.getElementById(HEADER_SEARCH_SLOT),
+    () => null,
+  );
 
   const t = UI[lang];
 
@@ -477,35 +510,55 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
        * site has the screen to itself, and scrolling back to the top brings it
        * out again exactly where it was — which is the behaviour in the
        * reference Shabnam sent.
+       *
+       * Fixed below md, though, because the bar is: it sits in the phone's
+       * fixed header now, and a conversation that scrolled away from the bar
+       * it hangs from would be a panel adrift.
        */
-      className="pointer-events-none absolute inset-x-0 top-0 z-50 flex h-svh flex-col gap-3 p-4"
+      className="pointer-events-none fixed inset-x-0 top-0 z-50 flex h-svh flex-col gap-3 p-4 md:absolute"
       style={{ "--chat-r": `${radiusPx}px` } as CSSProperties}
     >
-      {/* 1 — the way in. Closed, this is the whole thing: a question and five
-          answers to it. Picking one opens the conversation and asks it. */}
-      <div className={`${WIDTH} ${PANEL} pointer-events-auto relative flex shrink-0 items-center justify-center px-5`}
-        style={{ height: barPx }}
-      >
-        <button
-          type="button"
-          onClick={toggle}
-          aria-expanded={open}
-          className={`${fontFor(lang)} block w-full text-center text-[0.9375rem] text-white`}
-        >
-          {t.title}
-        </button>
+      {/* 1 — the way in, drawn in the header — see `slot` above. Here, its
+          height and nothing else, so the panels below still hang from the same
+          place: the column's own padding and gap line up with the header's
+          row. */}
+      <div aria-hidden="true" className="shrink-0" style={{ height: barPx }} />
 
-        {open && (
-          <button
-            type="button"
-            onClick={close}
-            aria-label={t.close}
-            className="text-chat-dim absolute right-4 top-1/2 -translate-y-1/2 text-base leading-none transition-colors hover:text-white"
-          >
-            ✕
-          </button>
-        )}
-      </div>
+      {slot
+        ? createPortal(
+            /* Closed, this is the whole thing: a question and five answers to
+               it. Picking one opens the conversation and asks it.
+
+               It carries its own `data-surface` and corner, because the
+               portal takes it out of the wrapper that sets both. */
+            <div
+              data-surface="chat"
+              className={`${PANEL} pointer-events-auto relative flex w-full items-center justify-center px-5`}
+              style={{ height: barPx, "--chat-r": `${radiusPx}px` } as CSSProperties}
+            >
+              <button
+                type="button"
+                onClick={toggle}
+                aria-expanded={open}
+                className={`${fontFor(lang)} block w-full truncate text-center text-[0.9375rem] text-white`}
+              >
+                {t.title}
+              </button>
+
+              {open && (
+                <button
+                  type="button"
+                  onClick={close}
+                  aria-label={t.close}
+                  className="text-chat-dim absolute right-4 top-1/2 -translate-y-1/2 text-base leading-none transition-colors hover:text-white"
+                >
+                  ✕
+                </button>
+              )}
+            </div>,
+            slot,
+          )
+        : null}
 
       {phase && (
         <>

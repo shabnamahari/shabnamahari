@@ -1,12 +1,9 @@
 "use client";
 
-import { useCallback, useState } from "react";
-
 import RevealLine from "./RevealLine";
 import Asterisk from "./Asterisk";
 import ParenMedia from "./ParenMedia";
 import VideoSlot from "./VideoSlot";
-import HeroKicker from "./HeroKicker";
 import HeroIeltsMark from "./HeroIeltsMark";
 
 const HERO_VIDEO = "/videos/showreel.mp4";
@@ -25,35 +22,17 @@ export default function Hero() {
     />
   );
 
-  /*
-   * Which of the two is saying IELTS.
-   *
-   * The coral block reports whether it actually rendered — it hides itself
-   * rather than push the page into horizontal scroll — and the corner label
-   * stands down only when it did. A breakpoint cannot answer this: the block
-   * is sized from measured type against the room left beside GOAL, so where it
-   * starts fitting depends on the words, not on a number.
-   *
-   * It starts true — assume the block has the job — because that resting state
-   * is `md:hidden` on the label, which is right on a desktop before anything
-   * has been measured and harmless on a phone, where md:hidden does not apply.
-   * Starting false paints the label for a moment on every desktop load.
-   */
-  const [markShown, setMarkShown] = useState(true);
-  const handleFit = useCallback((fits: boolean) => setMarkShown(fits), []);
-
   return (
     /*
-     * The box the two labels hang off, and the reason it exists.
+     * The box the label hangs off, and the reason it exists.
      *
-     * They were inside the h1, which made them part of the heading's
-     * accessible name: a screen reader announced the tagline with a category
-     * label and a footnote spliced into it. They are labels about the
-     * headline, not the headline, so they are siblings of it now.
+     * It was inside the h1, which made it part of the heading's accessible
+     * name: a screen reader announced the tagline with a category label
+     * spliced into it. It is a label about the headline, not the headline, so
+     * it is a sibling of it now.
      *
      * The wrapper is only a positioning context. It takes its size from the
-     * h1, which is still the thing that is 100svh tall, so both labels land
-     * exactly where they did.
+     * h1, which is still the thing that is 100svh tall.
      */
     <div data-hero className="relative">
       {/* Five lines, so the whole sentence is visible on a short window — see
@@ -164,10 +143,9 @@ export default function Hero() {
         </div>
       </h1>
 
-      {/* Outside the heading, and outside the stack: none of these counts
+      {/* Outside the heading, and outside the stack: it does not count
           towards --hero-lines, so no word changes size. */}
-      <HeroKicker standDown={markShown} />
-      <HeroIeltsMark onFit={handleFit} />
+      <HeroIeltsMark />
     </div>
   );
 }
