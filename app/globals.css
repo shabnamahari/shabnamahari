@@ -298,24 +298,17 @@ body {
    layered, so `[--hero-lines:4]` on a page would lose to it. */
 /*
  * The phone header's height, which the page starts under — see Header.tsx.
- * 106px on every kind of page, with or without Back: 8px, the 36px row Back
- * and Menu share, 8px, the 42px bar, 12px. 0 from md, where the header is not
- * in anything's way. <main> is padded by exactly this.
- *
- * `--site-header-menu-row` is how much lower that puts the bar than when it
- * shared one row with Back and Menu (12px from the top then, 52px now). The
- * assistant's column adds it above its panels, so they still hang 16px under
- * the bar. Change the header's spacing and change both.
+ * 66px is what it measures at 390px on every kind of page: the 42px bar plus
+ * 12px above and below it, with or without Back. 0 from md, where the header is
+ * not in anything's way. <main> is padded by exactly this.
  */
 :root {
   --site-header-h: 0px;
-  --site-header-menu-row: 0px;
 }
 
 @media (width < 48rem) {
   :root {
-    --site-header-h: 106px;
-    --site-header-menu-row: 40px;
+    --site-header-h: 66px;
   }
 }
 
