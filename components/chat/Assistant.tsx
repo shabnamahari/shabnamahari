@@ -155,13 +155,18 @@ const RADIUS_DEFAULT = 14;
  * and 47% of an 1160px one — the same CSS reading as two different designs. The
  * bounds stop it collapsing on a phone and sprawling on a wide display.
  *
+ * `max-w-full` because the floor is wider than the smallest phones: at 320px
+ * the column inside its 16px padding is 288px, and a 20rem panel ran 16px off
+ * the right edge of the screen. It only ever bites there — 34vw is under 20rem
+ * on every phone and well under the column everywhere else.
+ *
  * The bar is the exception now: it lives in the header, and its width is the
  * header's slot, which spells this same clamp out as `md:` classes because it
  * has to — and below md aligns its left edge with this clamp's 20rem floor,
  * taking at most 20rem of what the row leaves beside Back and Menu. Change one
  * and change the other.
  */
-const WIDTH = "mx-auto w-[clamp(20rem,34vw,40rem)]";
+const WIDTH = "mx-auto w-[clamp(20rem,34vw,40rem)] max-w-full";
 
 /**
  * One height for the three small panels — header, composer, language.
