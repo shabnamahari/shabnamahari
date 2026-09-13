@@ -155,13 +155,18 @@ const RADIUS_DEFAULT = 14;
  * and 47% of an 1160px one — the same CSS reading as two different designs. The
  * bounds stop it collapsing on a phone and sprawling on a wide display.
  *
+ * `max-w-full` because the floor is wider than the smallest phones: at 320px
+ * the column inside its 16px padding is 288px, and a 20rem panel ran 16px off
+ * the right edge of the screen. It only ever bites there — 34vw is under 20rem
+ * on every phone and well under the column everywhere else.
+ *
  * The bar is the exception now: it lives in the header, and its width is the
  * header's slot, which spells this same clamp out as `md:` classes because it
- * has to — and below md aligns its left edge with this clamp's 20rem floor,
- * taking at most 20rem of what the row leaves beside Back and Menu. Change one
+ * has to — and below md, on a row of its own, is padded to exactly
+ * min(20rem, 100%) centred, which is what this comes to on a phone. Change one
  * and change the other.
  */
-const WIDTH = "mx-auto w-[clamp(20rem,34vw,40rem)]";
+const WIDTH = "mx-auto w-[clamp(20rem,34vw,40rem)] max-w-full";
 
 /**
  * One height for the three small panels — header, composer, language.
@@ -238,8 +243,8 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   /*
-   * Where the bar is drawn: the header's slot, so that on a phone it shares one
-   * row with Back and Menu and cannot land under either.
+   * Where the bar is drawn: the header's slot, so that on a phone it sits on
+   * the row under Back and Menu and cannot land under either.
    *
    * Read as an external store for the same reason BackControl reads session
    * storage that way: the server has no document, so the bar can only appear
@@ -522,8 +527,13 @@ export default function Assistant({ copy }: { copy: Record<Lang, Copy> }) {
       {/* 1 — the way in, drawn in the header — see `slot` above. Here, its
           height and nothing else, so the panels below still hang from the same
           place: the column's own padding and gap line up with the header's
-          row. */}
-      <div aria-hidden="true" className="shrink-0" style={{ height: barPx }} />
+          row. Below md the bar is on the header's second row, under Back and
+          Menu, and --site-header-menu-row is that row. */}
+      <div
+        aria-hidden="true"
+        className="shrink-0"
+        style={{ height: `calc(${barPx}px + var(--site-header-menu-row, 0px))` }}
+      />
 
       {slot
         ? createPortal(
