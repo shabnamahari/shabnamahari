@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
  * Placeholder for a video the user will supply later.
  *
  * To use a real video: drop the file in `public/videos/` and pass its path,
- * e.g. <VideoSlot src="/videos/showreel.mp4" />. Until then this renders a clearly
+ * e.g. <VideoSlot src="/videos/showreel/showreel.mp4" />. Until then this renders a clearly
  * marked empty slot so the spot is obvious in the layout.
  */
 export default function VideoSlot({

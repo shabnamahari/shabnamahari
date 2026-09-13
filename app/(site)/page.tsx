@@ -10,8 +10,8 @@ export default function Home() {
       <ContactHashScroll />
       <Hero />
       <HeroVideoReveal
-        src="/videos/showreel.mp4"
-        poster="/videos/showreel-poster.jpg"
+        src="/videos/showreel/showreel.mp4"
+        poster="/videos/showreel/showreel-poster.jpg"
       />
       <Services />
       <Quote />

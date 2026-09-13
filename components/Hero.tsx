@@ -6,7 +6,7 @@ import ParenMedia from "./ParenMedia";
 import VideoSlot from "./VideoSlot";
 import HeroIeltsMark from "./HeroIeltsMark";
 
-const HERO_VIDEO = "/videos/showreel.mp4";
+const HERO_VIDEO = "/videos/showreel/showreel.mp4";
 
 // Speed of the small hero showreel. Try 2 or 1.5.
 const HERO_VIDEO_SPEED = 2;
@@ -15,7 +15,7 @@ export default function Hero() {
   const media = (
     <VideoSlot
       src={HERO_VIDEO}
-      poster="/videos/showreel-poster.jpg"
+      poster="/videos/showreel/showreel-poster.jpg"
       grayscale
       playbackRate={HERO_VIDEO_SPEED}
       label="Showreel"
