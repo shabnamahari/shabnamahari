@@ -69,6 +69,7 @@ export const PROJECTS: Project[] = [
       {
         title: "Placement Assessment",
         image: "/images/categories/ielts-01-placement-assessment.jpg",
+        video: "/videos/categories/ielts-01-placement-assessment.mp4",
       },
       {
         title: "Skills for Band Score 6.5",
@@ -80,6 +81,7 @@ export const PROJECTS: Project[] = [
         title: "Skills for Band Score 7 and Above",
         slug: "band-7-plus",
         image: "/images/categories/ielts-03-band-7-plus.jpg",
+        video: "/videos/categories/ielts-03-band-7-plus.mp4",
       },
       {
         title: "Grammar and Vocabulary",
