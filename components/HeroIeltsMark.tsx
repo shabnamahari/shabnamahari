@@ -62,10 +62,31 @@ import RevealLine from "./RevealLine";
  * It is positioned from GOAL's measured rect instead, so it sits where it
  * would have sat and the heading still announces the tagline alone.
  *
- * Hidden below md: at 390px GOAL leaves about 90px to its right and
- * "PREPARATION" at the cap-height rule needs roughly twice that. The rule is
- * the idea, so the breakpoint gives way rather than the rule. The corner
- * kicker carries mobile.
+ * ( WHERE IT GOES WHEN THERE IS NO ROOM BESIDE GOAL )
+ *
+ * Under ENGLISH, centred, as the line after the sentence. At 390px GOAL leaves
+ * about 90px to its right and "PREPARATION" at the cap-height rule needs
+ * roughly twice that, and the same is true up to about 872px.
+ *
+ * It is the same element, the same red and the same face — one mark at every
+ * width, not a small corner label standing in for it. What changes is the
+ * rule it is sized by: beside GOAL it takes GOAL's cap height, under ENGLISH it
+ * takes GOAL's width, and ONLINE is set to that width with PREPARATION flush
+ * to it. That keeps it display type on a phone, which is the only size the
+ * brand guide lets Signal Red be (p.9). The air above it is the headline's own
+ * line gap, so it reads as the stack continuing.
+ *
+ * The switch is whether it fits, not a breakpoint, for the reason given below:
+ * the width at which the block fits beside GOAL is not a number this file can
+ * know.
+ *
+ * "with" comes along, to the left of ONLINE and centred on its caps, because
+ * from 768 to about 872 "You will reach your" is on screen beside GOAL while
+ * the block is already under ENGLISH, and without it the sentence broke off at
+ * "your GOAL". It is hidden below md by the same class that hides "You will
+ * reach your", so the two halves of the sentence are on screen together or
+ * not at all — a breakpoint is right for that pairing, because it is the
+ * breakpoint that hides the other half.
  */
 
 /** Share of GOAL's cap height the two lines' own caps take. The rest is leading. */
@@ -158,13 +179,7 @@ type Metrics = {
   lean: number;
 };
 
-export default function HeroIeltsMark({
-  onFit,
-}: {
-  /** Told whether the block is on screen, so the corner label knows to stand
-      down — or to come back where the block cannot fit. */
-  onFit: (fits: boolean) => void;
-}) {
+export default function HeroIeltsMark() {
   const ref = useRef<HTMLDivElement>(null);
   const [m, setMetrics] = useState<Metrics | null>(null);
 
@@ -173,7 +188,13 @@ export default function HeroIeltsMark({
     const hero = el?.closest<HTMLElement>("[data-hero]");
     const goalRow = hero?.querySelector<HTMLElement>("[data-hero-goal]");
     const goal = goalRow?.querySelector<HTMLElement>(".text-h1");
-    if (!el || !hero || !goal) return;
+    // The last two lines of the stack, for where the block goes when it cannot
+    // sit beside GOAL: ENGLISH to hang it under, SPEAKS for the gap between.
+    const stack = hero?.querySelectorAll<HTMLElement>("h1 .text-h1");
+    const english = stack?.[stack.length - 1];
+    const speaks = stack?.[stack.length - 2];
+    const heading = hero?.querySelector<HTMLElement>("h1");
+    if (!el || !hero || !goal || !english || !speaks || !heading) return;
 
     let live = true;
 
@@ -235,9 +256,9 @@ export default function HeroIeltsMark({
        * a third smaller than IELTS rather than its equal.
        */
       const span = SPAN * capHeight;
-      const display = (TIGHT * span) / (cap * (2 + wOnline / wPrep));
-      const base = display * (wOnline / wPrep);
-      const lead = ((1 - TIGHT) * span) / 2;
+      let display = (TIGHT * span) / (cap * (2 + wOnline / wPrep));
+      let base = display * (wOnline / wPrep);
+      let lead = ((1 - TIGHT) * span) / 2;
 
       /*
        * "with" belongs to the note voice — the same face, size and colour as
@@ -271,22 +292,90 @@ export default function HeroIeltsMark({
 
       // Air, then the word, then the same air again.
       const pad = PAD * capHeight;
-      const left = box.right - heroBox.left + joinWidth + 2 * pad;
-      const width = display * wOnline;
+      let left = box.right - heroBox.left + joinWidth + 2 * pad;
+      let width = display * wOnline;
 
       // Cap top of the first line, cap top of the next, and so on down: the
       // block is centred on GOAL's cap band rather than filling it.
-      const topOfBlock = capTop + capHeight / 2 - span / 2;
+      let topOfBlock = capTop + capHeight / 2 - span / 2;
+      const joinLineHeight =
+        ((ink.fontBoundingBoxAscent || noteSize) +
+          (ink.fontBoundingBoxDescent || 0)) /
+        noteSize;
+      let join: Metrics["join"] = {
+        left: box.right - heroBox.left + pad,
+        top: joinBaseline - (ink.fontBoundingBoxAscent || noteSize),
+        lineHeight: joinLineHeight,
+      };
+
+      /*
+       * No room beside GOAL, so under ENGLISH instead — see WHERE IT GOES at
+       * the top of this file. ONLINE takes GOAL's width, PREPARATION is flush
+       * to it, and the leading keeps the same share of the block as beside.
+       *
+       * The air above is the headline's own: SPEAKS to ENGLISH, baseline to
+       * baseline, less a cap height, is the gap between two lines of the
+       * stack, and the block's first cap top sits that far below ENGLISH.
+       *
+       * "with" moves to the block's left with the same air either side as
+       * beside GOAL, its ink centred on ONLINE's cap band the way it is
+       * centred on GOAL's there.
+       */
+      const below = left + width > heroBox.width - MARGIN;
+      if (below) {
+        width = box.width;
+        display = width / wOnline;
+        base = width / wPrep;
+        const stackSpan = (cap * (2 * display + base)) / TIGHT;
+        lead = ((1 - TIGHT) * stackSpan) / 2;
+        left = box.left - heroBox.left;
+
+        const englishBox = english.getBoundingClientRect();
+        const lineStep = englishBox.top - speaks.getBoundingClientRect().top;
+        const englishBaseline = baseline + (englishBox.top - box.top);
+        topOfBlock = englishBaseline + (lineStep - capHeight);
+
+        const onlineBaseline =
+          topOfBlock +
+          (cap * display) / 2 +
+          (ink.actualBoundingBoxAscent - ink.actualBoundingBoxDescent) / 2;
+        join = {
+          left: left - pad - joinWidth,
+          top: onlineBaseline - (ink.fontBoundingBoxAscent || noteSize),
+          lineHeight: joinLineHeight,
+        };
+      }
+
       const baselineOne = topOfBlock + cap * display;
       const baselineTwo = baselineOne + lead + cap * display;
       const baselineThree = baselineTwo + lead + cap * base;
 
-      // The rule is the idea, so if the block cannot have its full height in
+      /*
+       * Under ENGLISH, on a window that is wide but short — about 840 to 871
+       * across and under about 1050 tall — the headline's 100svh box ends
+       * before the block does. It gets the room rather than disappearing: the
+       * hero wrapper is padded by exactly the overflow, so the next section
+       * moves down and nothing runs into it. The padding goes on the wrapper
+       * and not the h1, whose lines are centred in their box, so the headline
+       * does not move and the next measure lands in the same place.
+       *
+       * Every phone and iPad portrait tested fits without it; it is 0 there.
+       */
+      const overflow = below
+        ? Math.max(
+            0,
+            Math.ceil(
+              baselineThree + descent * base + MARGIN - heading.offsetHeight,
+            ),
+          )
+        : 0;
+      hero.style.paddingBottom = overflow ? `${overflow}px` : "";
+
+      // The rule is the idea, so if the block cannot have its full width in
       // the room available it does not appear at all rather than shrink out of
       // agreement with GOAL. It does not fire at any window tested; it is here
       // so that the day it would, the page does not scroll sideways instead.
       if (left + width > heroBox.width - MARGIN) {
-        onFit(false);
         return setMetrics(null);
       }
 
@@ -320,14 +409,7 @@ export default function HeroIeltsMark({
         height: bottom - top,
         lineHeight: ascent + descent,
         lean: LEAN * capHeight,
-        join: {
-          left: box.right - heroBox.left + pad,
-          top: joinBaseline - (ink.fontBoundingBoxAscent || noteSize),
-          lineHeight:
-            ((ink.fontBoundingBoxAscent || noteSize) +
-              (ink.fontBoundingBoxDescent || 0)) /
-            noteSize,
-        },
+        join,
         lines: [
           {
             text: "Online",
@@ -349,7 +431,6 @@ export default function HeroIeltsMark({
           },
         ],
       });
-      onFit(true);
     };
 
     // The metrics are the font's, so they are wrong until the font is the one
@@ -362,8 +443,9 @@ export default function HeroIeltsMark({
     return () => {
       live = false;
       observer.disconnect();
+      hero.style.paddingBottom = "";
     };
-  }, [onFit]);
+  }, []);
 
 
 
@@ -372,7 +454,7 @@ export default function HeroIeltsMark({
      * Signal Red, and the same token the cursor uses rather than a second red
      * mixed for the occasion — the guide's point about the accent is that
      * there is one of it. p.9 permits it for very large display type and bans
-     * it at body size, which is exactly this and exactly not the kicker.
+     * it at body size, which is why it stays display-sized on a phone too.
      *
      * The box stays pointer-events-none and the anchor inside turns them back
      * on, so this full-bleed layer never swallows a click meant for the page.
@@ -386,7 +468,7 @@ export default function HeroIeltsMark({
     <div
       ref={ref}
       data-hero-mark
-      className="pointer-events-none absolute inset-0 max-md:hidden"
+      className="pointer-events-none absolute inset-0"
     >
       {m ? (
         /*
@@ -488,9 +570,11 @@ export default function HeroIeltsMark({
       {/* The note voice, not the headline's and not the block's: this is the
           same face, size and colour as "You will reach your" on GOAL's other
           side, and it is the word that makes the two halves one sentence. */}
+      {/* max-md:hidden, as on "You will reach your" in Hero — the other half
+          of this sentence. Beside GOAL only happens above md anyway. */}
       {m ? (
         <span
-          className="text-note text-ink absolute whitespace-nowrap"
+          className="text-note text-ink absolute whitespace-nowrap max-md:hidden"
           style={{
             left: `${m.join.left}px`,
             top: `${m.join.top}px`,

@@ -66,7 +66,9 @@ function ArrowLeft() {
 }
 
 /**
- * Sits directly under the header's Menu, and is now a button rather than a word.
+ * Sits directly under the header's Menu — beside it, on a phone, in the same
+ * row — and is now a button rather than a word. `Header` places it; this draws
+ * only the control.
  *
  * Shabnam sent a reference for it: a pill with the word in it and the arrow in
  * a tinted panel at its left edge; on hover the panel sweeps the full width and
@@ -168,98 +170,96 @@ export default function BackControl({
   };
 
   return (
-    // `pointer-events-none` on the bar, `auto` on the button: this is a
-    // full-width fixed strip, and without it everything it crosses — the
-    // assistant's bar sits at exactly this height — stops taking clicks.
-    <div className="pointer-events-none fixed top-[38px] right-0 z-[999999999] flex w-full items-center justify-end px-gutter text-white mix-blend-difference">
-      <div
-        className="pointer-events-auto relative flex items-center"
-        onPointerEnter={() => setIsOpen(true)}
-        onPointerLeave={() => setIsOpen(false)}
-        onFocus={() => setIsOpen(true)}
-        onBlur={() => setIsOpen(false)}
-      >
-        {origin ? (
-          <span
-            /*
-             * Outside the button rather than inside it, which the sweep forced:
-             * anything within the pill is under `overflow-hidden` and would be
-             * cut off, and anything under the arrow's panel would be covered by
-             * it at full width. Here it is beside the control and clear of both.
-             */
-            className="ease-custom-less pointer-events-none absolute top-1/2 right-full -translate-y-1/2 pr-4 text-sm font-normal whitespace-nowrap transition-all duration-700"
-            style={{
-              opacity: isOpen ? 1 : 0,
-              translate: isOpen ? "0 -50%" : "0.5rem -50%",
-            }}
-          >
-            {origin.label}
-          </span>
-        ) : null}
-
-        <button
-          type="button"
-          onClick={goBack}
+    // `auto` here because `Header` makes the strip this sits in
+    // `pointer-events-none` at desktop widths: it is full width there, and
+    // without that everything it crosses stops taking clicks.
+    <div
+      className="pointer-events-auto relative flex items-center"
+      onPointerEnter={() => setIsOpen(true)}
+      onPointerLeave={() => setIsOpen(false)}
+      onFocus={() => setIsOpen(true)}
+      onBlur={() => setIsOpen(false)}
+    >
+      {origin ? (
+        <span
+          /*
+           * Outside the button rather than inside it, which the sweep forced:
+           * anything within the pill is under `overflow-hidden` and would be
+           * cut off, and anything under the arrow's panel would be covered by
+           * it at full width. Here it is beside the control and clear of both.
+           */
+          className="ease-custom-less pointer-events-none absolute top-1/2 right-full -translate-y-1/2 pr-4 text-sm font-normal whitespace-nowrap transition-all duration-700"
           style={{
-            transform: isLeaving ? `translateX(${SLIDE_DISTANCE})` : undefined,
-            opacity: isLeaving ? 0 : undefined,
-            paddingLeft: WORD_INSET,
-            transition: `transform ${SLIDE_MS}ms ${SLIDE_CURVE}, opacity ${SLIDE_MS}ms ${SLIDE_CURVE}`,
+            opacity: isOpen ? 1 : 0,
+            translate: isOpen ? "0 -50%" : "0.5rem -50%",
           }}
-          className="text-ink relative flex h-9 items-center justify-center overflow-hidden rounded-md bg-white pr-4 text-xs font-semibold tracking-wide uppercase"
         >
-          {/* The word, fading as the panel arrives over it. */}
-          <span
-            className="transition-opacity"
-            style={{
-              opacity: isOpen ? 0 : 1,
-              transitionDuration: `${SWEEP_MS}ms`,
-            }}
-          >
-            {label}
-          </span>
+          {origin.label}
+        </span>
+      ) : null}
 
-          {/*
-            The panel, and the arrow riding at its centre.
+      <button
+        type="button"
+        onClick={goBack}
+        style={{
+          transform: isLeaving ? `translateX(${SLIDE_DISTANCE})` : undefined,
+          opacity: isLeaving ? 0 : undefined,
+          paddingLeft: WORD_INSET,
+          transition: `transform ${SLIDE_MS}ms ${SLIDE_CURVE}, opacity ${SLIDE_MS}ms ${SLIDE_CURVE}`,
+        }}
+        className="text-ink relative flex h-9 items-center justify-center overflow-hidden rounded-md bg-white pr-4 text-xs font-semibold tracking-wide uppercase"
+      >
+        {/* The word, fading as the panel arrives over it. */}
+        <span
+          className="transition-opacity"
+          style={{
+            opacity: isOpen ? 0 : 1,
+            transitionDuration: `${SWEEP_MS}ms`,
+          }}
+        >
+          {label}
+        </span>
 
-            A quarter of the button at rest and the whole of it on hover, so the
-            arrow travels from the left edge to the middle as the word leaves.
-            `bg-current` rather than a colour of its own: this whole strip is
-            blended, and a fixed tint would come out as one shade on the cream
-            page and another over the footer.
+        {/*
+          The panel, and the arrow riding at its centre.
 
-            0.35 rather than the reference's 0.15, and the difference is the
-            blend rather than taste. A 15% tint on a white pill composites to
-            about #dc; under `mix-blend-difference` over the cream page that
-            lands within three values of the pill itself, so the two zones came
-            out as one and Shabnam said so — the reference has a plainly greyer
-            block, two boxes in one box. 0.35 composites to about #af, which
-            separates from the pill by sixty values on the cream and by eighty
-            over the footer's black. The same step both ways round.
+          A quarter of the button at rest and the whole of it on hover, so the
+          arrow travels from the left edge to the middle as the word leaves.
+          `bg-current` rather than a colour of its own: this whole strip is
+          blended, and a fixed tint would come out as one shade on the cream
+          page and another over the footer.
 
-            Written as a style rather than as `bg-current/35`, which is the
-            second half of that story. Changing the tint changed the class name,
-            her stylesheet still held the old one, and an element whose only
-            background lives in a rule that is not there has no background at
-            all — the two zones came out as one again, for a completely
-            different reason than the first time. This is the same trap that
-            put the account stack in the middle of the page. A literal ink here
-            rather than `currentColor`, since the pill sets `text-ink` and
-            nothing else ever colours it.
-          */}
-          <i
-            aria-hidden="true"
-            className="absolute inset-y-0 left-0 z-10 grid place-items-center transition-all ease-[cubic-bezier(0.82,0,0.18,1)]"
-            style={{
-              width: isOpen ? "100%" : ARROW_BOX,
-              backgroundColor: TINT,
-              transitionDuration: `${SWEEP_MS}ms`,
-            }}
-          >
-            <ArrowLeft />
-          </i>
-        </button>
-      </div>
+          0.35 rather than the reference's 0.15, and the difference is the
+          blend rather than taste. A 15% tint on a white pill composites to
+          about #dc; under `mix-blend-difference` over the cream page that
+          lands within three values of the pill itself, so the two zones came
+          out as one and Shabnam said so — the reference has a plainly greyer
+          block, two boxes in one box. 0.35 composites to about #af, which
+          separates from the pill by sixty values on the cream and by eighty
+          over the footer's black. The same step both ways round.
+
+          Written as a style rather than as `bg-current/35`, which is the
+          second half of that story. Changing the tint changed the class name,
+          her stylesheet still held the old one, and an element whose only
+          background lives in a rule that is not there has no background at
+          all — the two zones came out as one again, for a completely
+          different reason than the first time. This is the same trap that
+          put the account stack in the middle of the page. A literal ink here
+          rather than `currentColor`, since the pill sets `text-ink` and
+          nothing else ever colours it.
+        */}
+        <i
+          aria-hidden="true"
+          className="absolute inset-y-0 left-0 z-10 grid place-items-center transition-all ease-[cubic-bezier(0.82,0,0.18,1)]"
+          style={{
+            width: isOpen ? "100%" : ARROW_BOX,
+            backgroundColor: TINT,
+            transitionDuration: `${SWEEP_MS}ms`,
+          }}
+        >
+          <ArrowLeft />
+        </i>
+      </button>
     </div>
   );
 }

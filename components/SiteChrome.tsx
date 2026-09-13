@@ -25,14 +25,20 @@ export default function SiteChrome({
         isMenuOpen={isMenuOpen}
         onToggleMenu={() => setIsMenuOpen((open) => !open)}
         hasBack={back !== null}
+        /* Hidden while the overlay is up: the overlay is the way back from
+           there, and two exits stacked in the same corner is one too many. */
+        back={
+          back && !isMenuOpen ? (
+            <BackControl fallback={back} preferStored={pathname === "/auth"} />
+          ) : null
+        }
       />
-      {/* Hidden while the overlay is up: the overlay is the way back from
-          there, and two exits stacked in the same corner is one too many. */}
-      {back && !isMenuOpen ? (
-        <BackControl fallback={back} preferStored={pathname === "/auth"} />
-      ) : null}
       <MenuOverlay isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
-      <main>{children}</main>
+      {/* Below md the header is a fixed row with a background, so the page
+          starts under it rather than behind it — by exactly its height,
+          --site-header-h in globals.css, which is 0 from md. Inline rather than
+          a class so the number lives in one place. */}
+      <main style={{ paddingTop: "var(--site-header-h)" }}>{children}</main>
       <Footer />
     </>
   );
